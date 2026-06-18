@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -276,7 +276,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
             showNotification('✅ Material actualizado', 'success');
             setShowEditModal(null);
             await fetchMaterials();
-        } catch (err) {
+        } catch {
             showNotification('❌ Error al actualizar', 'error');
         }
     };
@@ -326,7 +326,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
             showNotification('🗑️ Material eliminado', 'success');
             setShowDeleteConfirm(null);
             await Promise.all([fetchMaterials(), fetchStorage()]);
-        } catch (err) {
+        } catch {
             showNotification('❌ Error al eliminar', 'error');
         }
     };

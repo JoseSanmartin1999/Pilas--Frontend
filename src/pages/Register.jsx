@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png'; // Ruta corregida a tus assets
@@ -23,7 +23,7 @@ const Register = () => {
             try {
                 const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${formData.current_semester}`);
                 setSubjects(res.data);
-            } catch (err) { console.error("Error cargando materias"); }
+            } catch { console.error("Error cargando materias"); }
         };
         fetchSubjects();
     }, [formData.current_semester]);

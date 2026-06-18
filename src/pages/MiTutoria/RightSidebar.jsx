@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 
 /**
  * RightSidebar — Panel de estatus colapsable

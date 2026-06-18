@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
@@ -39,9 +39,9 @@ const Recompensas = () => {
         return () => {
             window.removeEventListener('gamificationStatsUpdated', handleUpdate);
         };
-    }, [currentUser.id]);
+    }, [currentUser.id, loadUserData, loadUserDataSilently]);
 
-    const loadUserData = async () => {
+    const loadUserData = useCallback(async () => {
         try {
             setLoading(true);
             const [profileRes, badgesRes] = await Promise.all([
@@ -64,9 +64,9 @@ const Recompensas = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser.id, showNotification]);
 
-    const loadUserDataSilently = async () => {
+    const loadUserDataSilently = useCallback(async () => {
         try {
             const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
             if (profileRes.data) {
@@ -78,7 +78,7 @@ const Recompensas = () => {
         } catch (err) {
             console.error("Error loading user data silently:", err);
         }
-    };
+    }, [currentUser.id]);
 
     // Helper para interpretar el JSON de criteria
     const getCriteriaDescription = (criteriaStr) => {
@@ -103,7 +103,7 @@ const Recompensas = () => {
                 default:
                     return "Criterio personalizado";
             }
-        } catch (e) {
+        } catch {
             return "Logro especial";
         }
     };

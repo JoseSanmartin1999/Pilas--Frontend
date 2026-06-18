@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * PlaceholderView — Sección en progreso

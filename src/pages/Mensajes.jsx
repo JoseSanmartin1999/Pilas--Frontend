@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 
@@ -18,15 +18,7 @@ const Mensajes = () => {
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    useEffect(() => {
-        if (currentUser.id) {
-            fetchResponses();
-        } else {
-            setLoading(false);
-        }
-    }, [currentUser.id]);
-
-    const fetchResponses = async () => {
+    const fetchResponses = useCallback(async () => {
         try {
             const res = await axios.get(`https://pilas-backend.onrender.com/api/mentorships/user/${currentUser.id}`);
             // Show all mentorships where user is involved. 
@@ -42,7 +34,15 @@ const Mensajes = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser.id]);
+
+    useEffect(() => {
+        if (currentUser.id) {
+            fetchResponses();
+        } else {
+            setLoading(false);
+        }
+    }, [currentUser.id, fetchResponses]);
 
     const handleAction = async (id, status, extraData = {}) => {
         try {
@@ -52,7 +52,7 @@ const Mensajes = () => {
             setSelectedMessage(null);
             setIsReprogramming(false);
             fetchResponses();
-        } catch (err) {
+        } catch {
             showNotification("Error al procesar la acción", "error");
         }
     };
@@ -65,7 +65,7 @@ const Mensajes = () => {
             fetchResponses();
             // Notificar al Navbar por si acaso
             window.dispatchEvent(new CustomEvent('updateNotificationCounts'));
-        } catch (err) {
+        } catch {
             showNotification("Error al actualizar el enlace", "error");
         }
     };

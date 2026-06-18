@@ -819,7 +819,8 @@ const AdminDashboard = () => {
                                                         criteriaText = "Configuraste tu perfil de usuario";
                                                         break;
                                                 }
-                                            } catch(e) {}
+                                            } catch { // Intencionalmente vacío
+                                            }
                                         }
 
                                         return (
