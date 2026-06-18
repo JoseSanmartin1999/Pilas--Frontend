@@ -3,6 +3,34 @@ import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
 
+// Helper para interpretar el JSON de criteria (definido fuera del componente para evitar TDZ y recreación en render)
+const getCriteriaDescription = (criteriaStr) => {
+    if (!criteriaStr) return "Logro especial";
+    try {
+        const crit = typeof criteriaStr === 'string' ? JSON.parse(criteriaStr) : criteriaStr;
+        switch(crit.type) {
+            case 'xp_earned':
+                return `Alcanza un total de ${crit.value} Puntos de Experiencia (XP).`;
+            case 'mentorships_given':
+                return `Imparte ${crit.value} tutorías como tutor académico.`;
+            case 'mentorships_received':
+                return `Recibe ${crit.value} tutorías de tus compañeros.`;
+            case 'mentorships_any':
+                return `Completa un total de ${crit.value} tutorías.`;
+            case 'perfect_ratings':
+                return `Consigue ${crit.value} calificaciones perfectas (5 estrellas ★).`;
+            case 'first_login':
+                return "Creaste tu Cuenta en pilas!";
+            case 'profile_configured':
+                return "Configuraste tu perfil de usuario";
+            default:
+                return "Criterio personalizado";
+        }
+    } catch (e) {
+        return "Logro especial";
+    }
+};
+
 const Recompensas = () => {
     const { showNotification } = useNotification();
     
@@ -22,26 +50,8 @@ const Recompensas = () => {
     // Listado de cupones desde archivo de configuración centralizado
     const CUPONES = config.COUPONS;
 
-    useEffect(() => {
-        if (currentUser.id) {
-            loadUserData();
-        } else {
-            setLoading(false);
-        }
-
-        // Escuchar si hay alguna actualización global de estadísticas de gamificación
-        const handleUpdate = () => {
-            if (currentUser.id) {
-                loadUserDataSilently();
-            }
-        };
-        window.addEventListener('gamificationStatsUpdated', handleUpdate);
-        return () => {
-            window.removeEventListener('gamificationStatsUpdated', handleUpdate);
-        };
-    }, [currentUser.id]);
-
-    const loadUserData = async () => {
+    // Funciones declaradas de forma tradicional para que el hoisting las inicialice antes de que corra el useEffect
+    async function loadUserData() {
         try {
             setLoading(true);
             const [profileRes, badgesRes] = await Promise.all([
@@ -64,9 +74,9 @@ const Recompensas = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }
 
-    const loadUserDataSilently = async () => {
+    async function loadUserDataSilently() {
         try {
             const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
             if (profileRes.data) {
@@ -78,38 +88,29 @@ const Recompensas = () => {
         } catch (err) {
             console.error("Error loading user data silently:", err);
         }
-    };
+    }
 
-    // Helper para interpretar el JSON de criteria
-    const getCriteriaDescription = (criteriaStr) => {
-        if (!criteriaStr) return "Logro especial";
-        try {
-            const crit = typeof criteriaStr === 'string' ? JSON.parse(criteriaStr) : criteriaStr;
-            switch(crit.type) {
-                case 'xp_earned':
-                    return `Alcanza un total de ${crit.value} Puntos de Experiencia (XP).`;
-                case 'mentorships_given':
-                    return `Imparte ${crit.value} tutorías como tutor académico.`;
-                case 'mentorships_received':
-                    return `Recibe ${crit.value} tutorías de tus compañeros.`;
-                case 'mentorships_any':
-                    return `Completa un total de ${crit.value} tutorías.`;
-                case 'perfect_ratings':
-                    return `Consigue ${crit.value} calificaciones perfectas (5 estrellas ★).`;
-                case 'first_login':
-                    return "Creaste tu Cuenta en pilas!";
-                case 'profile_configured':
-                    return "Configuraste tu perfil de usuario";
-                default:
-                    return "Criterio personalizado";
-            }
-        } catch (e) {
-            return "Logro especial";
+    useEffect(() => {
+        if (currentUser.id) {
+            loadUserData();
+        } else {
+            setLoading(false);
         }
-    };
+
+        // Escuchar si hay alguna actualización global de estadísticas de gamificación
+        const handleUpdate = () => {
+            if (currentUser.id) {
+                loadUserDataSilently();
+            }
+        };
+        window.addEventListener('gamificationStatsUpdated', handleUpdate);
+        return () => {
+            window.removeEventListener('gamificationStatsUpdated', handleUpdate);
+        };
+    }, [currentUser.id]);
 
     // Lógica para canjear cupón en el backend
-    const handleRedeem = async (cupon) => {
+    async function handleRedeem(cupon) {
         if (espeCoins < cupon.cost) {
             showNotification(`Saldo insuficiente. Necesitas ${cupon.cost} ESPE-Coins`, "error");
             return;
@@ -146,12 +147,12 @@ const Recompensas = () => {
             const errMsg = err.response?.data?.error || "Error al procesar el canje del cupón";
             showNotification(errMsg, "error");
         }
-    };
+    }
 
-    const copyCouponCode = () => {
+    function copyCouponCode() {
         navigator.clipboard.writeText(activeCouponCode);
         showNotification("¡Código copiado al portapapeles!", "success");
-    };
+    }
 
     // Cálculo del progreso de nivel
     const xpInCurrentLevel = xp % 500;
