@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
@@ -56,6 +56,7 @@ const AdminDashboard = () => {
             return;
         }
         loadAllData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentUser.id]);
 
     const loadAllData = async () => {
@@ -242,7 +243,7 @@ const AdminDashboard = () => {
             // Agregar log
             logAction(`[INFO] Usuario ID ${userId} cambiado a estado ${nextStatus}`);
             fetchUsers();
-        } catch (err) {
+        } catch {
             showNotification("No se pudo cambiar el estado del usuario.", "error");
         }
     };
@@ -256,7 +257,7 @@ const AdminDashboard = () => {
             logAction(`[ALERTA] Usuario ${name} (ID ${userId}) eliminado físicamente.`);
             fetchUsers();
             fetchStats();
-        } catch (err) {
+        } catch {
             showNotification("No se pudo eliminar el usuario.", "error");
         }
     };
@@ -270,7 +271,7 @@ const AdminDashboard = () => {
             fetchApplications();
             fetchUsers();
             fetchStats();
-        } catch (err) {
+        } catch {
             showNotification("No se pudo aprobar la solicitud.", "error");
         }
     };
@@ -282,7 +283,7 @@ const AdminDashboard = () => {
             logAction(`[RECHAZO] Solicitud ID ${appId} de ${applicantName} rechazada.`);
             fetchApplications();
             fetchStats();
-        } catch (err) {
+        } catch {
             showNotification("No se pudo rechazar la solicitud.", "error");
         }
     };
@@ -304,7 +305,7 @@ const AdminDashboard = () => {
             setSelectedTicket(null);
             setReplyText('');
             fetchTickets();
-        } catch (err) {
+        } catch {
             showNotification("No se pudo resolver el ticket.", "error");
         } finally {
             setResolving(false);
