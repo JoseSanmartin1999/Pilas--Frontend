@@ -1,0 +1,60 @@
+name: Test Job
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Run Unit Tests & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Tests and Generate Summary
+        shell: bash
+        run: |
+          set -o pipefail
+          set +e
+          npx vitest run --reporter=junit --outputFile=junit.xml
+          EXIT_CODE=$?
+          set -e
+
+          # Extraer estadísticas del resumen del reporte JUnit generado por Vitest
+          TOTAL=$(grep -o -E 'tests="[0-9]+"' junit.xml | head -n 1 | cut -d'"' -f2 || echo "0")
+          FAILED=$(grep -o -E 'failures="[0-9]+"' junit.xml | head -n 1 | cut -d'"' -f2 || echo "0")
+          ERRORS=$(grep -o -E 'errors="[0-9]+"' junit.xml | head -n 1 | cut -d'"' -f2 || echo "0")
+          DURATION=$(grep -o -E 'time="[0-9.]+"' junit.xml | head -n 1 | cut -d'"' -f2 || echo "0")
+
+          TOTAL=${TOTAL:-0}
+          FAILED=${FAILED:-0}
+          ERRORS=${ERRORS:-0}
+          DURATION=${DURATION:-0}
+          
+          # Calcular aprobadas
+          PASSED=$((TOTAL - FAILED - ERRORS))
+
+          echo "### 🧪 Reporte de Pruebas Unitarias (Frontend)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Métrica | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Total de Pruebas** | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Aprobadas** | ✅ $PASSED |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Fallidas** | ❌ $FAILED |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Errores** | 🚫 $ERRORS |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Duración** | ${DURATION} s |" >> $GITHUB_STEP_SUMMARY
+
+          exit $EXIT_CODE
+
+      - name: Run ESLint
+        run: npm run lint

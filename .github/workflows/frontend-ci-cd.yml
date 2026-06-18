@@ -2,207 +2,160 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 permissions:
   contents: read
 
 jobs:
-  frontend:
-    name: Build, Test and Deploy Frontend
+  notify-start:
+    name: Notify Start
     runs-on: ubuntu-latest
-
     steps:
-      # ==========================
-      # Checkout del repositorio
-      # ==========================
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # ==========================
-      # Notificación de inicio
-      # ==========================
       - name: Notify Telegram - Pipeline Started
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
         run: |
-          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" \
-          -d chat_id="$TELEGRAM_TO" \
-          -d text="🚀 CI/CD PIPELINE INICIADO
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_TO }}" \
+            -d parse_mode="HTML" \
+            --data-urlencode "text=🚀 <b>CI/CD PIPELINE INICIADO</b>
 
-          📦 Proyecto: Frontend Pilas
-          🌿 Rama: ${{ github.ref_name }}
-          👤 Usuario: ${{ github.actor }}
+📦 <b>Proyecto:</b> Frontend Pilas
+🌿 <b>Rama:</b> ${{ github.ref_name }}
+👤 <b>Usuario:</b> ${{ github.actor }}
 
-          Se ejecutarán:
-          ✅ Instalación
-          ✅ Pruebas
-          ✅ SonarCloud
-          ✅ Build
-          ✅ Deploy"
+Se ejecutarán las siguientes fases:
+🌿 • <b>Validación de Flujo de Ramas (PRs)</b>
+🧪 • <b>Pruebas Unitarias y Calidad de Código (Linter)</b>
+🔍 • <b>Análisis de Calidad (SonarCloud)</b>
+🚀 • <b>Despliegue a Producción (Vercel)</b>"
 
-      # ==========================
-      # Configuración de Node
-      # ==========================
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      # ==========================
-      # Instalación
-      # ==========================
-      - name: Install dependencies
-        run: npm ci
-
-      # ==========================
-      # Pruebas
-      # ==========================
-      - name: Run Tests
-        run: npm test
-
-      # ==========================
-      # Lint
-      # ==========================
-      - name: Run ESLint
-        run: npm run lint
-
-      # ==========================
-      # SonarCloud
-      # ==========================
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703
-        continue-on-error: true
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=JoseSanmartin1999_Pilas--Frontend
-            -Dsonar.organization=josesanmartin1999
-            -Dsonar.sources=src
-            -Dsonar.host.url=https://sonarcloud.io
-
-      # ==========================
-      # Quality Gate
-      # ==========================
-      - name: SonarCloud Quality Gate
-        uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b
-        continue-on-error: true
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # ==========================
-      # Build
-      # ==========================
-      - name: Build application
-        run: npm run build
-
-      # ==========================
-      # Guardar artefacto
-      # ==========================
-      - name: Upload build
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build
-          path: dist
-
-      # ==========================
-      # Instalar Vercel CLI
-      # ==========================
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      # ==========================
-      # Vincular proyecto
-      # ==========================
-      - name: Pull Vercel Environment
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  validate-branch:
+    name: Validate Branch Flow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR Merge Rules
+        if: github.event_name == 'pull_request'
+        shell: bash
         run: |
-          vercel pull \
-          --yes \
-          --environment=production \
-          --token="$VERCEL_TOKEN"
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          TARGET_BRANCH="${{ github.base_ref }}"
+          
+          echo "Validando flujo de trabajo: de '$SOURCE_BRANCH' hacia '$TARGET_BRANCH'"
+          
+          if [ "$TARGET_BRANCH" = "main" ]; then
+            if [ "$SOURCE_BRANCH" != "develop" ] && [[ ! "$SOURCE_BRANCH" =~ ^hotfix/ ]]; then
+              echo "::error::Las ramas que se fusionan en 'main' deben ser únicamente 'develop' o comenzar con 'hotfix/'."
+              exit 1
+            fi
+          elif [ "$TARGET_BRANCH" = "develop" ]; then
+            if [[ ! "$SOURCE_BRANCH" =~ ^(feature|bugfix|hotfix)/ ]]; then
+              echo "::error::Las ramas que se fusionan en 'develop' deben comenzar con 'feature/', 'bugfix/' o 'hotfix/'."
+              exit 1
+            fi
+          fi
+          echo "✅ Flujo de rama válido."
 
-      # ==========================
-      # Build Vercel
-      # ==========================
-      - name: Build Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  test:
+    name: Test Phase
+    needs: validate-branch
+    uses: ./.github/workflows/test-job.yml
+
+  sonar:
+    name: SonarCloud Phase
+    needs: [validate-branch, test]
+    uses: ./.github/workflows/sonar-job.yml
+    secrets: inherit
+
+  deploy:
+    name: Deploy Phase
+    needs: [validate-branch, test, sonar]
+    # Solo se despliega a producción en push directo o merge aprobado en 'main'
+    if: github.event_name == 'push' && github.ref_name == 'main'
+    uses: ./.github/workflows/deploy-job.yml
+    secrets: inherit
+
+  notify-end:
+    name: Notify End
+    needs: [validate-branch, test, sonar, deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send Telegram Notification
+        shell: bash
         run: |
-          vercel build \
-          --prod \
-          --token="$VERCEL_TOKEN"
+          # Función para formatear el estado de cada fase en español
+          get_status_info() {
+            case "$1" in
+              success)
+                echo "✅ Exitoso"
+                ;;
+              failure)
+                echo "❌ Fallido"
+                ;;
+              cancelled)
+                echo "🚫 Cancelado"
+                ;;
+              skipped)
+                echo "➖ Omitido"
+                ;;
+              *)
+                echo "❓ Desconocido"
+                ;;
+            esac
+          }
 
-      # ==========================
-      # Deploy
-      # ==========================
-      - name: Deploy to Vercel
-        id: deploy
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          url=$(vercel deploy \
-          --prebuilt \
-          --prod \
-          --token="$VERCEL_TOKEN")
+          # Obtener estado de cada job
+          VALIDATE_STATUS=$(get_status_info "${{ needs.validate-branch.result }}")
+          TEST_STATUS=$(get_status_info "${{ needs.test.result }}")
+          SONAR_STATUS=$(get_status_info "${{ needs.sonar.result }}")
+          DEPLOY_STATUS=$(get_status_info "${{ needs.deploy.result }}")
 
-          echo "deployment_url=$url" >> $GITHUB_OUTPUT
+          # Determinar el estado general y el emoji correspondiente
+          if [ "${{ needs.validate-branch.result }}" = "failure" ] || \
+             [ "${{ needs.test.result }}" = "failure" ] || \
+             [ "${{ needs.sonar.result }}" = "failure" ] || \
+             [ "${{ needs.deploy.result }}" = "failure" ]; then
+            OVERALL_EMOJI="❌"
+            OVERALL_TEXT="PIPELINE FALLIDO O INCOMPLETO"
+            OVERALL_STATUS="🔴 FALLIDO"
+          else
+            OVERALL_EMOJI="✅"
+            OVERALL_TEXT="PIPELINE COMPLETADO CON ÉXITO"
+            OVERALL_STATUS="🟢 EXITOSO"
+          fi
 
-      # ==========================
-      # Notificación éxito
-      # ==========================
-      - name: Notify Telegram Success
-        if: success()
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" \
-          -d chat_id="$TELEGRAM_TO" \
-          -d text="✅ PIPELINE COMPLETADO
+          # Recuperar URL del deploy si está disponible
+          DEPLOY_URL="${{ needs.deploy.outputs.deployment_url }}"
+          URL_LINE=""
+          if [ -n "$DEPLOY_URL" ]; then
+            URL_LINE="🌐 <b>Producción Vercel:</b> $DEPLOY_URL"
+          fi
 
-          📦 Proyecto: Frontend Pilas
+          # Construir el mensaje con formato HTML para Telegram
+          MESSAGE="<b>$OVERALL_EMOJI $OVERALL_TEXT</b>
 
-          ✔ Dependencias instaladas
-          ✔ Pruebas superadas
-          ✔ SonarCloud aprobado
-          ✔ Build generado
-          ✔ Despliegue realizado
+📦 <b>Proyecto:</b> Frontend Pilas
+🌿 <b>Rama:</b> ${{ github.ref_name }}
+👤 <b>Usuario:</b> ${{ github.actor }}
+🟢 <b>Estado General:</b> $OVERALL_STATUS
 
-          🌿 Rama: ${{ github.ref_name }}
-          👤 Usuario: ${{ github.actor }}
+📊 <b>Resumen por Fases:</b>
+🌿 • <b>Validación de Ramas:</b> $VALIDATE_STATUS
+🧪 • <b>Pruebas Unitarias y Estilo:</b> $TEST_STATUS
+🔍 • <b>SonarCloud / Quality Gate:</b> $SONAR_STATUS
+🚀 • <b>Despliegue Vercel:</b> $DEPLOY_STATUS
 
-          🌐 Producción:
-          ${{ steps.deploy.outputs.deployment_url }}
+$URL_LINE
 
-          🟢 Estado: EXITOSO"
+🔗 <a href=\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\">Ver detalles en GitHub Actions</a>"
 
-      # ==========================
-      # Notificación fallo
-      # ==========================
-      - name: Notify Telegram Failure
-        if: failure() || cancelled()
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_TO: ${{ secrets.TELEGRAM_TO }}
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage" \
-          -d chat_id="$TELEGRAM_TO" \
-          -d text="❌ PIPELINE DETENIDO o FALLIDO
-
-          📦 Proyecto: Frontend Pilas
-
-          El flujo no se completó debido a un error o fue cancelado.
-
-          🔴 Estado del Job: ${{ job.status }}
-          🌿 Rama: ${{ github.ref_name }}
-          👤 Usuario: ${{ github.actor }}
-
-          Revisa GitHub Actions para identificar la etapa exacta del fallo."
+          # Enviar mensaje a Telegram
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_TO }}" \
+            -d parse_mode="HTML" \
+            --data-urlencode "text=$MESSAGE"
