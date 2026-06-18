@@ -22,7 +22,7 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            await axios.post('http://localhost:3000/api/auth/forgot-password', { email });
+            await axios.post('https://pilas-backend.onrender.com/api/auth/forgot-password', { email });
             setMessage('Código enviado al correo. Revisa tu bandeja de entrada o spam.');
             setStep(2);
         } catch (err) {
@@ -39,7 +39,7 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            await axios.post('http://localhost:3000/api/auth/verify-reset-code', { email, code });
+            await axios.post('https://pilas-backend.onrender.com/api/auth/verify-reset-code', { email, code });
             setMessage('Código verificado. Puedes ingresar tu nueva contraseña.');
             setStep(3);
         } catch (err) {
@@ -62,7 +62,7 @@ const ForgotPassword = () => {
         setIsLoading(true);
 
         try {
-            await axios.post('http://localhost:3000/api/auth/reset-password', { email, code, newPassword });
+            await axios.post('https://pilas-backend.onrender.com/api/auth/reset-password', { email, code, newPassword });
             setMessage('Contraseña actualizada con éxito.');
             setTimeout(() => {
                 navigate('/login');

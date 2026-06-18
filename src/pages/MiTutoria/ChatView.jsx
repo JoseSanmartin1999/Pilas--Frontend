@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://pilas-backend.onrender.com';
 
 /**
  * ChatView — Chat en tiempo real con Socket.IO

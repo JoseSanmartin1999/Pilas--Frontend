@@ -23,11 +23,11 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
 
     const fetchCounts = async () => {
         try {
-            const res = await axios.get(`http://localhost:3000/api/mentorships/counts/${currentUser.id}`);
+            const res = await axios.get(`https://pilas-backend.onrender.com/api/mentorships/counts/${currentUser.id}`);
             setCounts(res.data);
 
             if (currentUser.role !== 'ADMIN') {
-                const profileRes = await axios.get(`http://localhost:3000/api/users/profile/${currentUser.id}`);
+                const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
                 if (profileRes.data) {
                     setUserCoins(profileRes.data.espe_coins || 0);
                     setUserLevel(profileRes.data.level || 1);
@@ -177,4 +177,4 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
     );
 };
 
-export default Navbar;
+export default Navbar;

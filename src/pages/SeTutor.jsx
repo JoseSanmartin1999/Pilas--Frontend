@@ -35,7 +35,7 @@ const SeTutor = ({ setAuth }) => {
         const loadData = async () => {
             try {
                 // 1. Verificar si hay solicitudes pendientes
-                const appsRes = await axios.get('http://localhost:3000/api/admin/tutors/applications').catch(() => ({ data: [] }));
+                const appsRes = await axios.get('https://pilas-backend.onrender.com/api/admin/tutors/applications').catch(() => ({ data: [] }));
                 const pending = appsRes.data.find(app => String(app.user_id) === String(currentUser.id) && app.status === 'PENDING');
                 if (pending) {
                     setHasPendingApp(true);
@@ -44,11 +44,11 @@ const SeTutor = ({ setAuth }) => {
                 }
 
                 // 2. Obtener el perfil para saber su semestre actual
-                const profileRes = await axios.get(`http://localhost:3000/api/users/profile/${currentUser.id}`);
+                const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
                 const userSemester = profileRes.data.current_semester || 1;
 
                 // 3. Cargar materias filtradas hasta ese semestre
-                const res = await axios.get(`http://localhost:3000/api/subjects?semester=${userSemester}`);
+                const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${userSemester}`);
                 setAllSubjects(res.data);
             } catch (err) {
                 console.error('Error al inicializar datos de tutor:', err);
@@ -83,7 +83,7 @@ const SeTutor = ({ setAuth }) => {
 
         setSubmitting(true);
         try {
-            const res = await axios.post(`http://localhost:3000/api/admin/tutors/applications`, {
+            const res = await axios.post(`https://pilas-backend.onrender.com/api/admin/tutors/applications`, {
                 user_id: currentUser.id,
                 motivation: motivation,
                 selected_subjects: selectedSubjects

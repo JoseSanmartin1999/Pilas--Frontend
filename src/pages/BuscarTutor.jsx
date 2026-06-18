@@ -17,7 +17,7 @@ const BuscarTutor = () => {
             try {
                 const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
                 const excludeParam = currentUser?.id ? `?exclude=${currentUser.id}` : '';
-                const res = await axios.get(`http://localhost:3000/api/users/mentors${excludeParam}`);
+                const res = await axios.get(`https://pilas-backend.onrender.com/api/users/mentors${excludeParam}`);
                 setMentors(res.data);
             } catch (err) {
                 console.error("Error cargando mentores:", err);

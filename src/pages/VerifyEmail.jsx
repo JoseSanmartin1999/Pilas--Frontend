@@ -41,7 +41,7 @@ const VerifyEmail = () => {
 
         setIsLoading(true);
         try {
-            const res = await axios.post('http://localhost:3000/api/auth/verify-email', { email, code });
+            const res = await axios.post('https://pilas-backend.onrender.com/api/auth/verify-email', { email, code });
             showNotification(res.data.message || "Cuenta verificada con éxito", "success");
             navigate('/login');
         } catch (err) {
@@ -60,7 +60,7 @@ const VerifyEmail = () => {
 
         setIsLoading(true);
         try {
-            const res = await axios.post('http://localhost:3000/api/auth/resend-verification', { email });
+            const res = await axios.post('https://pilas-backend.onrender.com/api/auth/resend-verification', { email });
             showNotification(res.data.message || "Código reenviado con éxito", "success");
             setResendCooldown(60); // 1 minuto de cooldown
         } catch (err) {

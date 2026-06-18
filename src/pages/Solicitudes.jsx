@@ -26,7 +26,7 @@ const Solicitudes = () => {
     const fetchMentorships = async () => {
         try {
             // Fetching requests where current user is mentor
-            const res = await axios.get(`http://localhost:3000/api/mentorships/user/${currentUser.id}`);
+            const res = await axios.get(`https://pilas-backend.onrender.com/api/mentorships/user/${currentUser.id}`);
             // For this page, we only show ones where they are mentors AND status is PENDING
             const pendingRecieved = res.data.filter(m => m.mentor_id === currentUser.id && m.status === 'PENDIENTE');
             setMentorships(pendingRecieved);
@@ -41,7 +41,7 @@ const Solicitudes = () => {
         try {
             const payload = { status, ...extraData };
             
-            await axios.put(`http://localhost:3000/api/mentorships/${id}`, payload);
+            await axios.put(`https://pilas-backend.onrender.com/api/mentorships/${id}`, payload);
             showNotification(`Tutoría ${status === 'ACEPTADA' ? 'aceptada' : status === 'RECHAZADA' ? 'declinada' : 'reprogramada'} con éxito`, "success");
             setReprogrammingId(null);
             setAcceptingId(null);

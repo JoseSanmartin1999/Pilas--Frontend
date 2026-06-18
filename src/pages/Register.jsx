@@ -21,7 +21,7 @@ const Register = () => {
     useEffect(() => {
         const fetchSubjects = async () => {
             try {
-                const res = await axios.get(`http://localhost:3000/api/subjects?semester=${formData.current_semester}`);
+                const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${formData.current_semester}`);
                 setSubjects(res.data);
             } catch (err) { console.error("Error cargando materias"); }
         };
@@ -130,7 +130,7 @@ const Register = () => {
             }
 
             // Enviar todo directo al backend (multipart/form-data)
-            await axios.post('http://localhost:3000/api/auth/register', formDataPayload, {
+            await axios.post('https://pilas-backend.onrender.com/api/auth/register', formDataPayload, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             showNotification("Registro exitoso. Se ha enviado un código a tu correo.", "success");

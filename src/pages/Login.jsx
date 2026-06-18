@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
 
-const API_LOGIN_URL = 'http://localhost:3000/api/auth/login';
+const API_LOGIN_URL = 'https://pilas-backend.onrender.com/api/auth/login';
 
 const Login = ({ setAuth }) => {
     const [credentials, setCredentials] = useState({ email: '', password: '' });

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import WorkspaceLayout from './MiTutoria/WorkspaceLayout';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://pilas-backend.onrender.com';
 
 /**
  * MiTutoria — Página raíz del workspace

@@ -77,27 +77,27 @@ const AdminDashboard = () => {
     };
 
     const fetchStats = async () => {
-        const res = await axios.get('http://localhost:3000/api/admin/stats');
+        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/stats');
         setStats(res.data);
     };
 
     const fetchUsers = async () => {
-        const res = await axios.get('http://localhost:3000/api/admin/users');
+        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/users');
         setUsers(res.data);
     };
 
     const fetchApplications = async () => {
-        const res = await axios.get('http://localhost:3000/api/admin/tutors/applications');
+        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/tutors/applications');
         setApplications(res.data);
     };
 
     const fetchTickets = async () => {
-        const res = await axios.get('http://localhost:3000/api/admin/tickets');
+        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/tickets');
         setTickets(res.data);
     };
 
     const fetchBadges = async () => {
-        const res = await axios.get('http://localhost:3000/api/admin/badges');
+        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/badges');
         setBadges(res.data);
     };
 
@@ -171,13 +171,13 @@ const AdminDashboard = () => {
 
             if (badgeData.id) {
                 // Editar
-                await axios.put('http://localhost:3000/api/admin/badges/' + badgeData.id, formData, {
+                await axios.put('https://pilas-backend.onrender.com/api/admin/badges/' + badgeData.id, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 showNotification("Insignia actualizada con éxito.", "success");
             } else {
                 // Crear
-                await axios.post('http://localhost:3000/api/admin/badges', formData, {
+                await axios.post('https://pilas-backend.onrender.com/api/admin/badges', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 showNotification("Insignia creada con éxito.", "success");
@@ -199,7 +199,7 @@ const AdminDashboard = () => {
     const handleDeleteBadge = async (badgeId, badgeName) => {
         if (!window.confirm(`¿Estás seguro de que deseas eliminar la insignia "${badgeName}"?`)) return;
         try {
-            await axios.delete(`http://localhost:3000/api/admin/badges/${badgeId}`);
+            await axios.delete(`https://pilas-backend.onrender.com/api/admin/badges/${badgeId}`);
             showNotification("Insignia eliminada correctamente.", "success");
             fetchBadges();
         } catch (err) {
@@ -236,7 +236,7 @@ const AdminDashboard = () => {
     const handleToggleUserStatus = async (userId, currentStatus) => {
         const nextStatus = currentStatus === 'ACTIVO' ? 'BLOQUEADO' : 'ACTIVO';
         try {
-            await axios.put(`http://localhost:3000/api/admin/users/${userId}/status`, { status: nextStatus });
+            await axios.put(`https://pilas-backend.onrender.com/api/admin/users/${userId}/status`, { status: nextStatus });
             showNotification(`Usuario ${nextStatus === 'BLOQUEADO' ? 'bloqueado' : 'activado'} correctamente.`, "success");
             
             // Agregar log
@@ -251,7 +251,7 @@ const AdminDashboard = () => {
         if (!window.confirm(`¿Estás seguro de que deseas eliminar permanentemente al usuario ${name}? Esta acción es irreversible.`)) return;
 
         try {
-            await axios.delete(`http://localhost:3000/api/admin/users/${userId}`);
+            await axios.delete(`https://pilas-backend.onrender.com/api/admin/users/${userId}`);
             showNotification("Usuario eliminado correctamente.", "success");
             logAction(`[ALERTA] Usuario ${name} (ID ${userId}) eliminado físicamente.`);
             fetchUsers();
@@ -264,7 +264,7 @@ const AdminDashboard = () => {
     // Acciones de solicitudes de tutores
     const handleApproveApplication = async (appId, applicantName) => {
         try {
-            await axios.put(`http://localhost:3000/api/admin/tutors/applications/${appId}/approve`);
+            await axios.put(`https://pilas-backend.onrender.com/api/admin/tutors/applications/${appId}/approve`);
             showNotification(`¡Solicitud aprobada! ${applicantName} ha sido ascendido a Mentor.`, "success");
             logAction(`[APROBACIÓN] Solicitud ID ${appId} aprobada. Ascendido ${applicantName} a MENTOR.`);
             fetchApplications();
@@ -277,7 +277,7 @@ const AdminDashboard = () => {
 
     const handleRejectApplication = async (appId, applicantName) => {
         try {
-            await axios.put(`http://localhost:3000/api/admin/tutors/applications/${appId}/reject`);
+            await axios.put(`https://pilas-backend.onrender.com/api/admin/tutors/applications/${appId}/reject`);
             showNotification(`Solicitud de ${applicantName} rechazada correctamente.`, "info");
             logAction(`[RECHAZO] Solicitud ID ${appId} de ${applicantName} rechazada.`);
             fetchApplications();
@@ -294,7 +294,7 @@ const AdminDashboard = () => {
 
         setResolving(true);
         try {
-            await axios.put(`http://localhost:3000/api/admin/tickets/${selectedTicket.id}/resolve`, {
+            await axios.put(`https://pilas-backend.onrender.com/api/admin/tickets/${selectedTicket.id}/resolve`, {
                 reply: replyText,
                 status: 'RESOLVED'
             });

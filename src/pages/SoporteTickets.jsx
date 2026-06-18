@@ -26,7 +26,7 @@ const SoporteTickets = () => {
 
     const fetchTickets = async () => {
         try {
-            const res = await axios.get(`http://localhost:3000/api/tickets/user/${currentUser.id}`);
+            const res = await axios.get(`https://pilas-backend.onrender.com/api/tickets/user/${currentUser.id}`);
             setTickets(res.data);
         } catch (err) {
             console.error("Error al cargar tickets:", err);
@@ -45,7 +45,7 @@ const SoporteTickets = () => {
 
         setSubmitting(true);
         try {
-            const res = await axios.post('http://localhost:3000/api/tickets', {
+            const res = await axios.post('https://pilas-backend.onrender.com/api/tickets', {
                 user_id: currentUser.id,
                 title: newTicket.title,
                 description: newTicket.description

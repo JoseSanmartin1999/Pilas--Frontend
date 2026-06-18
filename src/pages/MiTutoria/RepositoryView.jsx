@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://pilas-backend.onrender.com';
 
 // Helpers de formato
 const formatFileSize = (bytes) => {

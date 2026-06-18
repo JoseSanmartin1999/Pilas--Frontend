@@ -28,7 +28,7 @@ const Mensajes = () => {
 
     const fetchResponses = async () => {
         try {
-            const res = await axios.get(`http://localhost:3000/api/mentorships/user/${currentUser.id}`);
+            const res = await axios.get(`https://pilas-backend.onrender.com/api/mentorships/user/${currentUser.id}`);
             // Show all mentorships where user is involved. 
             // - Apprentice shows everything (notifications)
             // - Mentor shows processed ones (history)
@@ -47,7 +47,7 @@ const Mensajes = () => {
     const handleAction = async (id, status, extraData = {}) => {
         try {
             const payload = { status, ...extraData };
-            await axios.put(`http://localhost:3000/api/mentorships/${id}`, payload);
+            await axios.put(`https://pilas-backend.onrender.com/api/mentorships/${id}`, payload);
             showNotification(`Tutoría ${status === 'ACEPTADA' ? 'aceptada' : status === 'RECHAZADA' ? 'declinada' : 'reprogramada'} con éxito`, "success");
             setSelectedMessage(null);
             setIsReprogramming(false);
@@ -59,7 +59,7 @@ const Mensajes = () => {
 
     const handleUpdateLink = async () => {
         try {
-            await axios.put(`http://localhost:3000/api/mentorships/${selectedMessage.id}`, linkData);
+            await axios.put(`https://pilas-backend.onrender.com/api/mentorships/${selectedMessage.id}`, linkData);
             showNotification("Link de reunión actualizado con éxito", "success");
             setIsUpdatingLink(false);
             fetchResponses();
@@ -81,7 +81,7 @@ const Mensajes = () => {
         });
         if (msg.apprentice_notified === 0) {
             try {
-                await axios.patch(`http://localhost:3000/api/mentorships/${msg.id}/read`);
+                await axios.patch(`https://pilas-backend.onrender.com/api/mentorships/${msg.id}/read`);
                 setResponses(responses.map(r => r.id === msg.id ? { ...r, apprentice_notified: 1 } : r));
                 // Disparar evento para actualizar el contador en el Navbar al instante
                 window.dispatchEvent(new CustomEvent('updateNotificationCounts'));
@@ -101,7 +101,7 @@ const Mensajes = () => {
             if (confirmDeleteModal.isBulk) {
                 // Eliminación en masa
                 await Promise.all(
-                    selectedIds.map(id => axios.delete(`http://localhost:3000/api/mentorships/${id}`))
+                    selectedIds.map(id => axios.delete(`https://pilas-backend.onrender.com/api/mentorships/${id}`))
                 );
                 showNotification(`Se eliminaron ${selectedIds.length} mensajes con éxito`, "success");
                 setResponses(responses.filter(r => !selectedIds.includes(r.id)));
@@ -112,7 +112,7 @@ const Mensajes = () => {
             } else {
                 // Eliminación individual
                 const id = confirmDeleteModal.targetId;
-                await axios.delete(`http://localhost:3000/api/mentorships/${id}`);
+                await axios.delete(`https://pilas-backend.onrender.com/api/mentorships/${id}`);
                 showNotification("Mensaje eliminado con éxito", "success");
                 setResponses(responses.filter(r => r.id !== id));
                 if (selectedMessage?.id === id) {

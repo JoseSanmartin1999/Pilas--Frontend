@@ -45,8 +45,8 @@ const Recompensas = () => {
         try {
             setLoading(true);
             const [profileRes, badgesRes] = await Promise.all([
-                axios.get(`http://localhost:3000/api/users/profile/${currentUser.id}`),
-                axios.get('http://localhost:3000/api/admin/badges')
+                axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`),
+                axios.get('https://pilas-backend.onrender.com/api/admin/badges')
             ]);
             
             if (profileRes.data) {
@@ -68,7 +68,7 @@ const Recompensas = () => {
 
     const loadUserDataSilently = async () => {
         try {
-            const profileRes = await axios.get(`http://localhost:3000/api/users/profile/${currentUser.id}`);
+            const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
             if (profileRes.data) {
                 setEspeCoins(profileRes.data.espe_coins || 0);
                 setXp(profileRes.data.xp || 0);
@@ -116,7 +116,7 @@ const Recompensas = () => {
         }
 
         try {
-            const res = await axios.post('http://localhost:3000/api/rewards/redeem', {
+            const res = await axios.post('https://pilas-backend.onrender.com/api/rewards/redeem', {
                 userId: currentUser.id,
                 couponId: cupon.id,
                 cost: cupon.cost

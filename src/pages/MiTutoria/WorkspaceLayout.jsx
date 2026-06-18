@@ -90,7 +90,7 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
 
         setIsSubmitting(true);
         try {
-            const res = await axios.put(`http://localhost:3000/api/mentorships/${mentorship.id}/rate`, {
+            const res = await axios.put(`https://pilas-backend.onrender.com/api/mentorships/${mentorship.id}/rate`, {
                 rating,
                 comment: ratingComment,
                 userId: currentUser.id

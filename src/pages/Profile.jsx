@@ -42,7 +42,7 @@ const Profile = () => {
     }
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/users/profile/${profileId}`);
+        const res = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${profileId}`);
         setUser(res.data);
         // Inicializamos los datos de edición con el formato correcto
         setEditData({
@@ -66,7 +66,7 @@ const Profile = () => {
 
     const fetchSubjects = async () => {
       try {
-        const subjRes = await axios.get(`http://localhost:3000/api/subjects?semester=${sem}`);
+        const subjRes = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${sem}`);
         setAllSubjects(subjRes.data);
       } catch (err) {
         console.error("Error al cargar materias para el semestre:", err);
@@ -105,7 +105,7 @@ const Profile = () => {
         estimated_duration: mentorshipData.estimated_duration
       };
 
-      await axios.post('http://localhost:3000/api/mentorships', payload);
+      await axios.post('https://pilas-backend.onrender.com/api/mentorships', payload);
       showNotification("¡Tutoría solicitada exitosamente!", "success");
       setShowMentorshipModal(false);
       setMentorshipData({ 
@@ -199,7 +199,7 @@ const Profile = () => {
     if (nuevaFoto) data.append('foto_perfil', nuevaFoto);
 
     try {
-      const res = await axios.put(`http://localhost:3000/api/users/profile/${profileId}`, data);
+      const res = await axios.put(`https://pilas-backend.onrender.com/api/users/profile/${profileId}`, data);
 
       const updatedMaterias = res.data.materias || [];
 

@@ -1,5 +1,5 @@
 {
-  "API_URL": "http://localhost:3000",
+  "API_URL": "https://pilas-backend.onrender.com",
   "PLATFORMS": ["Meet", "Zoom", "Teams"],
   "TUTORING_DURATIONS": ["45 min", "1 hora", "1.5 horas", "2 horas"],
   "MONTHS": [

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNotification } from '../../context/NotificationContext';
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'https://pilas-backend.onrender.com';
 
 /**
  * TopBar — Cabecera dinámica del workspace
