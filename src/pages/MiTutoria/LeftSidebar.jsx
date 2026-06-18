@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * LeftSidebar — Barra lateral izquierda de navegación del workspace

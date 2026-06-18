@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 
@@ -15,15 +15,7 @@ const Solicitudes = () => {
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    useEffect(() => {
-        if (currentUser.id) {
-            fetchMentorships();
-        } else {
-            setLoading(false);
-        }
-    }, [currentUser.id]);
-
-    const fetchMentorships = async () => {
+    const fetchMentorships = useCallback(async () => {
         try {
             // Fetching requests where current user is mentor
             const res = await axios.get(`https://pilas-backend.onrender.com/api/mentorships/user/${currentUser.id}`);
@@ -35,7 +27,15 @@ const Solicitudes = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser.id]);
+
+    useEffect(() => {
+        if (currentUser.id) {
+            fetchMentorships();
+        } else {
+            setLoading(false);
+        }
+    }, [currentUser.id, fetchMentorships]);
 
     const handleAction = async (id, status, extraData = {}) => {
         try {
@@ -47,7 +47,7 @@ const Solicitudes = () => {
             setAcceptingId(null);
             setMeetingData({ meeting_link: '', zoom_code: '', zoom_password: '' });
             fetchMentorships();
-        } catch (err) {
+        } catch {
             showNotification("Error al procesar la acción", "error");
         }
     };

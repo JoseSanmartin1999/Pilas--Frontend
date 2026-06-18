@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
@@ -16,15 +16,7 @@ const Calendario = () => {
     const MESES = config.MONTHS;
     const DIAS_SEMANA = config.WEEKDAYS;
 
-    useEffect(() => {
-        if (currentUser.id) {
-            fetchMentorships();
-        } else {
-            setLoading(false);
-        }
-    }, [currentUser.id]);
-
-    const fetchMentorships = async () => {
+    const fetchMentorships = useCallback(async () => {
         try {
             const res = await axios.get(`${config.API_URL}/api/mentorships/user/${currentUser.id}`);
             // Filtrar solo las aceptadas
@@ -36,7 +28,15 @@ const Calendario = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser.id, showNotification]);
+
+    useEffect(() => {
+        if (currentUser.id) {
+            fetchMentorships();
+        } else {
+            setLoading(false);
+        }
+    }, [currentUser.id, fetchMentorships]);
 
     // Funciones de navegación de meses
     const handlePrevMonth = () => {

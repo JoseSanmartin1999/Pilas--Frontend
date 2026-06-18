@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, Fragment } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
@@ -24,7 +24,6 @@ const ChatView = ({ mentorship, currentUser }) => {
 
     const socketRef = useRef(null);
     const bottomRef = useRef(null);
-    const typingTimeoutRef = useRef(null);
     const inputRef = useRef(null);
 
     // Resolver el nombre del remitente a partir del sender_id
@@ -209,7 +208,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                         const showDate = needsDateSeparator(msg, index);
 
                         return (
-                            <React.Fragment key={msg._id || `msg-${index}`}>
+                            <Fragment key={msg._id || `msg-${index}`}>
                                 {/* Separador de fecha */}
                                 {showDate && (
                                     <div className="flex items-center gap-3 py-3">
@@ -268,7 +267,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                                         </span>
                                     </div>
                                 </div>
-                            </React.Fragment>
+                            </Fragment>
                         );
                     })
                 )}

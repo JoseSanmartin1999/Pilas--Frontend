@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
@@ -50,8 +50,8 @@ const Recompensas = () => {
     // Listado de cupones desde archivo de configuración centralizado
     const CUPONES = config.COUPONS;
 
-    // Funciones declaradas de forma tradicional para que el hoisting las inicialice antes de que corra el useEffect
-    async function loadUserData() {
+    // loadUserData y loadUserDataSilently definidos arriba de useEffect con useCallback para evitar TDZ
+    const loadUserData = useCallback(async () => {
         try {
             setLoading(true);
             const [profileRes, badgesRes] = await Promise.all([
@@ -74,9 +74,9 @@ const Recompensas = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [currentUser.id, showNotification]);
 
-    async function loadUserDataSilently() {
+    const loadUserDataSilently = useCallback(async () => {
         try {
             const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
             if (profileRes.data) {
@@ -88,7 +88,7 @@ const Recompensas = () => {
         } catch (err) {
             console.error("Error loading user data silently:", err);
         }
-    }
+    }, [currentUser.id]);
 
     useEffect(() => {
         if (currentUser.id) {
@@ -107,10 +107,10 @@ const Recompensas = () => {
         return () => {
             window.removeEventListener('gamificationStatsUpdated', handleUpdate);
         };
-    }, [currentUser.id]);
+    }, [currentUser.id, loadUserData, loadUserDataSilently]);
 
     // Lógica para canjear cupón en el backend
-    async function handleRedeem(cupon) {
+    const handleRedeem = useCallback(async (cupon) => {
         if (espeCoins < cupon.cost) {
             showNotification(`Saldo insuficiente. Necesitas ${cupon.cost} ESPE-Coins`, "error");
             return;
@@ -147,12 +147,12 @@ const Recompensas = () => {
             const errMsg = err.response?.data?.error || "Error al procesar el canje del cupón";
             showNotification(errMsg, "error");
         }
-    }
+    }, [currentUser.id, espeCoins, showNotification]);
 
-    function copyCouponCode() {
+    const copyCouponCode = useCallback(() => {
         navigator.clipboard.writeText(activeCouponCode);
         showNotification("¡Código copiado al portapapeles!", "success");
-    }
+    }, [activeCouponCode, showNotification]);
 
     // Cálculo del progreso de nivel
     const xpInCurrentLevel = xp % 500;

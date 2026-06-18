@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
@@ -21,7 +21,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
     const [userCoins, setUserCoins] = useState(currentUser.espe_coins || 0);
     const [userLevel, setUserLevel] = useState(currentUser.level || 1);
 
-    const fetchCounts = async () => {
+    const fetchCounts = useCallback(async () => {
         try {
             const res = await axios.get(`https://pilas-backend.onrender.com/api/mentorships/counts/${currentUser.id}`);
             setCounts(res.data);
@@ -43,7 +43,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
         } catch (err) {
             console.error("Error fetching notification/gamification counts:", err);
         }
-    };
+    }, [currentUser.id, currentUser.role]);
 
     useEffect(() => {
         if (isAuthenticated && currentUser.id) {
@@ -61,7 +61,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                 window.removeEventListener('gamificationStatsUpdated', handleUpdateEvent);
             };
         }
-    }, [isAuthenticated, currentUser.id]);
+    }, [isAuthenticated, currentUser.id, fetchCounts]);
 
     return (
         <nav className="bg-white shadow-md sticky top-0 z-50 border-b-2 border-pilas-gold">

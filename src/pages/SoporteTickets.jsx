@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
@@ -16,15 +16,7 @@ const SoporteTickets = () => {
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
-    useEffect(() => {
-        if (!currentUser?.id) {
-            navigate('/login');
-            return;
-        }
-        fetchTickets();
-    }, [currentUser.id]);
-
-    const fetchTickets = async () => {
+    const fetchTickets = useCallback(async () => {
         try {
             const res = await axios.get(`https://pilas-backend.onrender.com/api/tickets/user/${currentUser.id}`);
             setTickets(res.data);
@@ -34,7 +26,15 @@ const SoporteTickets = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUser.id, showNotification]);
+
+    useEffect(() => {
+        if (!currentUser?.id) {
+            navigate('/login');
+            return;
+        }
+        fetchTickets();
+    }, [currentUser.id, fetchTickets, navigate]);
 
     const handleCreateTicket = async (e) => {
         e.preventDefault();
