@@ -341,7 +341,7 @@ const Mensajes = () => {
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <input 
                                                             type="date" 
-                                                            min={new Date().toISOString().split('T')[0]}
+                                                            min={new Date().toLocaleDateString('sv-SE')}
                                                             className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#1a3a5a] border border-pilas-gold/20"
                                                             onChange={(e) => setNewDate(e.target.value)}
                                                         />

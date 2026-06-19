@@ -596,7 +596,7 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Fecha</label>
-                  <input type="date" required min={new Date().toISOString().split('T')[0]} value={mentorshipData.date} onChange={(e) => setMentorshipData({ ...mentorshipData, date: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]" />
+                  <input type="date" required min={new Date().toLocaleDateString('sv-SE')} value={mentorshipData.date} onChange={(e) => setMentorshipData({ ...mentorshipData, date: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]" />
                 </div>
                 <div>
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Hora</label>

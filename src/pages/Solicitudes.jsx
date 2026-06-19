@@ -153,7 +153,7 @@ const Solicitudes = () => {
                                                 <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nueva Fecha</label>
                                                 <input 
                                                     type="date" 
-                                                    min={new Date().toISOString().split('T')[0]}
+                                                    min={new Date().toLocaleDateString('sv-SE')}
                                                     className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
                                                     onChange={(e) => setNewDate(e.target.value)}
                                                 />
