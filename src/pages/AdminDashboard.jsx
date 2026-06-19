@@ -317,6 +317,140 @@ const AdminDashboard = () => {
         setSysLogs(prev => [`[${time}] ${msg}`, ...prev.slice(0, 19)]);
     };
 
+    // Generador de reporte PDF del dashboard
+    const handleDownloadReport = async () => {
+        try {
+            showNotification('Generando reporte...', 'info');
+            const baseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://pilas-backend.onrender.com';
+            const res = await axios.get(`${baseUrl}/api/admin/report`);
+            const data = res.data;
+            const date = new Date(data.generatedAt).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short', timeZone: 'America/Guayaquil' });
+
+            const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte Dashboard - Pilas! Tutorías</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a3a5a; padding: 40px; background: #fff; }
+        .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #ffcc00; padding-bottom: 20px; }
+        .header h1 { font-size: 28px; color: #1a3a5a; margin-bottom: 5px; }
+        .header p { font-size: 12px; color: #666; }
+        .section { margin-bottom: 30px; }
+        .section h2 { font-size: 18px; color: #1a3a5a; border-left: 4px solid #ffcc00; padding-left: 12px; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 12px; padding: 20px; text-align: center; }
+        .card .value { font-size: 32px; font-weight: 900; color: #1a3a5a; }
+        .card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #1a3a5a; color: #ffcc00; padding: 10px 15px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 10px 15px; border-bottom: 1px solid #eee; font-size: 13px; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; font-size: 11px; color: #999; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media print { body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Reporte del Dashboard — Pilas! Tutorías</h1>
+        <p>Generado el: ${date}</p>
+    </div>
+
+    <div class="section">
+        <h2>Resumen General</h2>
+        <div class="grid">
+            <div class="card"><div class="value">${data.users.total}</div><div class="label">Total Usuarios</div></div>
+            <div class="card"><div class="value">${data.mentorships.total}</div><div class="label">Total Tutorías</div></div>
+            <div class="card"><div class="value">${data.mentorships.averageRating}/5.0</div><div class="label">Calificación Promedio</div></div>
+        </div>
+        <div class="grid">
+            <div class="card"><div class="value">${data.users.roles.MENTOR}</div><div class="label">Mentores</div></div>
+            <div class="card"><div class="value">${data.users.roles.APRENDIZ}</div><div class="label">Aprendices</div></div>
+            <div class="card"><div class="value">${data.storage.usedMB} MB</div><div class="label">Almacenamiento Usado</div></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Tutorías por Estado</h2>
+        <table>
+            <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+            <tbody>
+                ${Object.entries(data.mentorships.statuses).map(([k, v]) => `<tr><td>${k}</td><td><strong>${v}</strong></td></tr>`).join('')}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="two-col">
+        <div class="section">
+            <h2>Top 5 Mentores</h2>
+            <table>
+                <thead><tr><th>Mentor</th><th>Tutorías</th></tr></thead>
+                <tbody>
+                    ${data.topMentors.length > 0 ? data.topMentors.map(m => `<tr><td>${m.full_name}</td><td><strong>${m.total_completed}</strong></td></tr>`).join('') : '<tr><td colspan="2">Sin datos</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Top 5 Materias</h2>
+            <table>
+                <thead><tr><th>Materia</th><th>Solicitudes</th></tr></thead>
+                <tbody>
+                    ${data.topSubjects.length > 0 ? data.topSubjects.map(s => `<tr><td>${s.name}</td><td><strong>${s.total_requests}</strong></td></tr>`).join('') : '<tr><td colspan="2">Sin datos</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="two-col">
+        <div class="section">
+            <h2>Solicitudes de Mentores</h2>
+            <table>
+                <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+                <tbody>
+                    <tr><td>Pendientes</td><td><strong>${data.applications.PENDING}</strong></td></tr>
+                    <tr><td>Aprobadas</td><td><strong>${data.applications.APPROVED}</strong></td></tr>
+                    <tr><td>Rechazadas</td><td><strong>${data.applications.REJECTED}</strong></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="section">
+            <h2>Tickets de Soporte</h2>
+            <table>
+                <thead><tr><th>Estado</th><th>Cantidad</th></tr></thead>
+                <tbody>
+                    <tr><td>Abiertos</td><td><strong>${data.tickets.OPEN}</strong></td></tr>
+                    <tr><td>En Progreso</td><td><strong>${data.tickets.IN_PROGRESS}</strong></td></tr>
+                    <tr><td>Resueltos</td><td><strong>${data.tickets.RESOLVED}</strong></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Pilas! Tutorías &copy; ${new Date().getFullYear()} — Reporte generado automáticamente desde el Panel de Administración</p>
+    </div>
+</body>
+</html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const printWindow = window.open(url, '_blank');
+            if (printWindow) {
+                printWindow.addEventListener('load', () => {
+                    printWindow.print();
+                });
+            }
+            showNotification('Reporte generado. Usa Ctrl+P o el diálogo de impresión para guardar como PDF.', 'success');
+            logAction('[REPORTE] Reporte del dashboard generado y descargado.');
+        } catch (err) {
+            console.error('Error generando reporte:', err);
+            showNotification('No se pudo generar el reporte.', 'error');
+        }
+    };
+
     const filteredUsers = users.filter(user => {
         const matchesSearch = user.full_name?.toLowerCase().includes(userSearch.toLowerCase()) || 
                               user.email?.toLowerCase().includes(userSearch.toLowerCase());
@@ -378,9 +512,17 @@ const AdminDashboard = () => {
                     {/* SECCIÓN 1: ESTADÍSTICAS */}
                     {activeTab === 'stats' && stats && (
                         <div className="space-y-8 animate-in fade-in duration-300">
-                            <header className="text-left space-y-1">
-                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Estadísticas Generales</h2>
-                                <p className="text-gray-500 font-medium text-xs">Monitorea el crecimiento académico y actividad del sistema.</p>
+                            <header className="text-left space-y-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Estadísticas Generales</h2>
+                                    <p className="text-gray-500 font-medium text-xs">Monitorea el crecimiento académico y actividad del sistema.</p>
+                                </div>
+                                <button
+                                    onClick={handleDownloadReport}
+                                    className="px-6 py-3.5 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#0a4624] transition-all shadow-md hover:shadow-lg hover:scale-[1.02] flex items-center gap-2 whitespace-nowrap"
+                                >
+                                    📥 Descargar Reporte
+                                </button>
                             </header>
 
                             {/* GRID DE ESTADÍSTICAS */}
@@ -478,6 +620,21 @@ const AdminDashboard = () => {
                                                         ))}
                                                     </div>
                                                 </div>
+
+                                                {/* RÉCORD ACADÉMICO */}
+                                                {app.academic_record_url && (
+                                                    <div>
+                                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Récord Académico</h4>
+                                                        <a
+                                                            href={app.academic_record_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 px-5 py-3 bg-emerald-50 text-emerald-700 border border-emerald-200/50 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-emerald-100 transition-colors"
+                                                        >
+                                                            📄 Descargar Récord Académico (PDF)
+                                                        </a>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="flex gap-4 pt-2 border-t border-gray-50">

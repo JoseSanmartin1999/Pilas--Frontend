@@ -10,9 +10,12 @@ const SeTutor = () => {
     const [allSubjects, setAllSubjects] = useState([]);
     const [selectedSubjects, setSelectedSubjects] = useState([]);
     const [motivation, setMotivation] = useState('');
+    const [academicRecord, setAcademicRecord] = useState(null);
     const [loadingSubjects, setLoadingSubjects] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [hasPendingApp, setHasPendingApp] = useState(false);
+    const [semesterBlocked, setSemesterBlocked] = useState(false);
+    const [userSemester, setUserSemester] = useState(1);
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
@@ -45,10 +48,18 @@ const SeTutor = () => {
 
                 // 2. Obtener el perfil para saber su semestre actual
                 const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
-                const userSemester = profileRes.data.current_semester || 1;
+                const semester = profileRes.data.current_semester || 1;
+                setUserSemester(semester);
 
-                // 3. Cargar materias filtradas hasta ese semestre
-                const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${userSemester}`);
+                // 3. Validar semestre >= 4
+                if (semester < 4) {
+                    setSemesterBlocked(true);
+                    setLoadingSubjects(false);
+                    return;
+                }
+
+                // 4. Cargar materias filtradas hasta ese semestre
+                const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${semester}`);
                 setAllSubjects(res.data);
             } catch (err) {
                 console.error('Error al inicializar datos de tutor:', err);
@@ -68,6 +79,27 @@ const SeTutor = () => {
         );
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            setAcademicRecord(null);
+            return;
+        }
+        if (file.type !== 'application/pdf') {
+            showNotification('Solo se permiten archivos PDF.', 'warning');
+            e.target.value = '';
+            setAcademicRecord(null);
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showNotification('El archivo PDF no debe superar los 10 MB.', 'warning');
+            e.target.value = '';
+            setAcademicRecord(null);
+            return;
+        }
+        setAcademicRecord(file);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -81,12 +113,21 @@ const SeTutor = () => {
             return;
         }
 
+        if (!academicRecord) {
+            showNotification('Debes subir tu reporte académico (PDF) para postularte como mentor.', 'warning');
+            return;
+        }
+
         setSubmitting(true);
         try {
-            const res = await axios.post(`https://pilas-backend.onrender.com/api/admin/tutors/applications`, {
-                user_id: currentUser.id,
-                motivation: motivation,
-                selected_subjects: selectedSubjects
+            const formData = new FormData();
+            formData.append('user_id', currentUser.id);
+            formData.append('motivation', motivation);
+            formData.append('selected_subjects', JSON.stringify(selectedSubjects));
+            formData.append('academic_record', academicRecord);
+
+            const res = await axios.post('https://pilas-backend.onrender.com/api/admin/tutors/applications', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             showNotification(res.data.message || 'Tu solicitud ha sido enviada al administrador.', 'success');
@@ -108,6 +149,30 @@ const SeTutor = () => {
         );
     }
 
+    // Bloqueado por semestre < 4
+    if (semesterBlocked) {
+        return (
+            <div className="max-w-md mx-auto my-20 p-8 bg-white rounded-[2.5rem] shadow-xl border border-gray-100 text-center space-y-6">
+                <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto border border-red-200">
+                    <span className="text-4xl">🚫</span>
+                </div>
+                <h2 className="text-2xl font-black text-[#0f592f] tracking-tight">Requisito de Semestre</h2>
+                <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                    Para postularte como Tutor/Mentor en Pilas! necesitas estar cursando al menos el <strong className="text-[#0f592f]">4to semestre</strong>.
+                </p>
+                <p className="text-[#0f592f]/75 text-xs font-semibold bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    Tu semestre actual: <strong className="text-red-500">{userSemester}° semestre</strong>. Continúa esforzándote y podrás aplicar más adelante cuando alcances el semestre requerido.
+                </p>
+                <button
+                    onClick={() => navigate(`/profile/${currentUser.id}`)}
+                    className="w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-md"
+                >
+                    Ir a Mi Perfil
+                </button>
+            </div>
+        );
+    }
+
     if (hasPendingApp) {
         return (
             <div className="max-w-md mx-auto my-20 p-8 bg-white rounded-[2.5rem] shadow-xl border border-gray-100 text-center space-y-6">
@@ -119,7 +184,7 @@ const SeTutor = () => {
                     Tu postulación para convertirte en Tutor de Pilas! ha sido enviada con éxito.
                 </p>
                 <p className="text-[#0f592f]/75 text-xs font-semibold bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                    El administrador está revisando tu biografía y materias seleccionadas. Pronto recibirás el veredicto en tu cuenta.
+                    El administrador está revisando tu biografía, materias seleccionadas y récord académico. Pronto recibirás el veredicto en tu cuenta.
                 </p>
                 <button
                     onClick={() => navigate(`/profile/${currentUser.id}`)}
@@ -174,6 +239,25 @@ const SeTutor = () => {
                                     <h5 className="font-bold text-xs uppercase tracking-wide text-yellow-300">Apoyo Comunitario</h5>
                                     <p className="text-[11px] text-gray-300 font-medium leading-relaxed">Forma parte de la red de apoyo estudiantil y ayuda a reducir la tasa de deserción.</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* REQUISITOS */}
+                    <div className="bg-white p-6 rounded-[2rem] border border-gray-150 shadow-sm space-y-3">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Requisitos</h4>
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <span className="w-5 h-5 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-[10px] font-bold border border-emerald-100">✓</span>
+                                <span className="text-[11px] font-semibold text-gray-600">Estar en 4to semestre o superior</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-5 h-5 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-[10px] font-bold border border-emerald-100">✓</span>
+                                <span className="text-[11px] font-semibold text-gray-600">Subir reporte académico (PDF)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-5 h-5 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-[10px] font-bold border border-emerald-100">✓</span>
+                                <span className="text-[11px] font-semibold text-gray-600">Seleccionar materias que dominas</span>
                             </div>
                         </div>
                     </div>
@@ -240,6 +324,44 @@ const SeTutor = () => {
                                     {motivation.trim().length} letras
                                 </span>
                             </div>
+                        </div>
+
+                        {/* REPORTE ACADÉMICO (PDF) - OBLIGATORIO */}
+                        <div>
+                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                                Reporte Académico (PDF) — Obligatorio
+                            </label>
+                            <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
+                                academicRecord 
+                                    ? 'border-emerald-300 bg-emerald-50/30' 
+                                    : 'border-gray-200 bg-gray-50 hover:border-[#ffcc00]/50'
+                            }`}>
+                                <input
+                                    type="file"
+                                    accept=".pdf"
+                                    onChange={handleFileChange}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    id="academic-record-input"
+                                />
+                                {academicRecord ? (
+                                    <div className="space-y-2">
+                                        <span className="text-3xl">✅</span>
+                                        <p className="text-xs font-bold text-emerald-600">{academicRecord.name}</p>
+                                        <p className="text-[9px] text-gray-400 font-medium">
+                                            {(academicRecord.size / (1024 * 1024)).toFixed(2)} MB — Clic para cambiar
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <span className="text-3xl">📄</span>
+                                        <p className="text-xs font-bold text-gray-500">Haz clic o arrastra tu reporte académico aquí</p>
+                                        <p className="text-[9px] text-gray-400 font-medium">Solo archivos PDF · Máximo 10 MB</p>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-[9px] text-gray-400 mt-2 font-medium">
+                                El administrador revisará tu récord académico antes de aprobar tu solicitud.
+                            </p>
                         </div>
 
                         {/* BOTÓN ENVIAR */}
