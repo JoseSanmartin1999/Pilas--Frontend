@@ -164,28 +164,28 @@ const ChatView = ({ mentorship, currentUser }) => {
         <div className="flex flex-col h-full bg-gray-50/50">
 
             {/* === CABECERA DEL CHAT === */}
-            <div className="flex-shrink-0 flex items-center justify-between px-6 py-3 bg-white border-b border-gray-100 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <span className="text-2xl">💬</span>
-                    <div>
-                        <p className="font-black text-[#0f592f] text-sm">Canal Directo</p>
-                        <p className="text-[9px] text-gray-400 font-semibold">
+            <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-100 shadow-sm">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <span className="text-xl sm:text-2xl flex-shrink-0">💬</span>
+                    <div className="min-w-0">
+                        <p className="font-black text-[#0f592f] text-sm truncate">Canal Directo</p>
+                        <p className="text-[9px] text-gray-400 font-semibold truncate">
                             Chat en tiempo real · {mentorship?.subject_name}
                         </p>
                     </div>
                 </div>
 
                 {/* Indicador de conexión */}
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+                <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-50 rounded-full border border-gray-100 flex-shrink-0">
                     <div className={`w-2 h-2 rounded-full transition-colors ${isConnected ? 'bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.6)]' : 'bg-red-400'}`} />
-                    <span className={`text-[9px] font-black uppercase tracking-widest ${isConnected ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`text-[9px] font-black uppercase tracking-widest ${isConnected ? 'text-emerald-600' : 'text-red-500'} hidden sm:inline`}>
                         {isConnected ? 'Conectado' : 'Sin conexión'}
                     </span>
                 </div>
             </div>
 
             {/* === ÁREA DE MENSAJES === */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-1">
                 {isLoadingHistory ? (
                     <div className="flex flex-col items-center justify-center h-full gap-3 opacity-40">
                         <div className="w-8 h-8 border-2 border-[#0f592f] border-t-transparent rounded-full animate-spin" />
@@ -238,7 +238,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                                     )}
 
                                     {/* Contenido */}
-                                    <div className={`flex flex-col gap-1 max-w-[65%] ${isOwn ? 'items-end' : 'items-start'}`}>
+                                    <div className={`flex flex-col gap-1 max-w-[85%] sm:max-w-[70%] md:max-w-[65%] ${isOwn ? 'items-end' : 'items-start'}`}>
                                         {/* Nombre — solo si no está agrupado */}
                                         {!msg.isGrouped && !isOwn && (
                                             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
@@ -293,8 +293,8 @@ const ChatView = ({ mentorship, currentUser }) => {
             </div>
 
             {/* === INPUT DE MENSAJE === */}
-            <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100">
-                <div className="flex items-end gap-3 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[#0f592f] focus-within:shadow-[0_0_0_3px_rgba(30,58,138,0.08)] transition-all p-1 pl-4">
+            <div className="flex-shrink-0 p-3 sm:p-4 bg-white border-t border-gray-100">
+                <div className="flex items-end gap-2 sm:gap-3 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[#0f592f] focus-within:shadow-[0_0_0_3px_rgba(30,58,138,0.08)] transition-all p-1 pl-3 sm:pl-4">
                     <textarea
                         ref={inputRef}
                         id="chat-input"

@@ -8,7 +8,7 @@ const BACKEND_URL = 'https://pilas-backend.onrender.com';
  * TopBar — Cabecera dinámica del workspace
  * Muestra: materia + compañero | progress bar | botón de hito
  */
-const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
+const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSidebar }) => {
     const { showNotification } = useNotification();
     const [showConfirmClose, setShowConfirmClose] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
@@ -64,37 +64,48 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
     );
 
     return (
-        <div className="flex-shrink-0 h-16 bg-white border-b border-gray-100 flex items-center px-6 gap-6 shadow-sm z-10 relative">
+        <div className="flex-shrink-0 h-16 bg-white border-b border-gray-100 flex items-center px-4 sm:px-6 gap-4 sm:gap-6 shadow-sm z-10 relative">
+            {/* Botón menú móvil (hamburguesa) */}
+            <button
+                onClick={onToggleLeftSidebar}
+                className="md:hidden flex items-center justify-center p-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-[#0f592f] transition-all flex-shrink-0"
+                title="Abrir menú de navegación"
+            >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
             {/* IZQUIERDA — Materia y compañero */}
-            <div className="flex items-center gap-4 flex-shrink-0">
-                <div className="flex flex-col">
-                    <span className="text-[#0f592f] font-black text-sm leading-tight tracking-tight flex items-center gap-1.5">
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 min-w-0">
+                <div className="flex flex-col min-w-0">
+                    <span className="text-[#0f592f] font-black text-xs sm:text-sm leading-tight tracking-tight flex items-center gap-1.5 truncate">
                         {mentorship?.subject_name || 'Tutoría'}
                         {mentorship?.status === 'COMPLETADA' && (
-                            <span className="text-[8px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest border border-red-200 animate-pulse">
+                            <span className="text-[7px] sm:text-[8px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest border border-red-200 animate-pulse flex-shrink-0">
                                 Cerrada
                             </span>
                         )}
                     </span>
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] text-gray-400 font-semibold uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[8px] sm:text-[9px] text-gray-400 font-semibold uppercase tracking-widest flex-shrink-0">
                             con
                         </span>
-                        <span className="text-[10px] text-gray-600 font-bold">
+                        <span className="text-[9px] sm:text-[10px] text-gray-600 font-bold truncate">
                             {partnerName}
                         </span>
-                        <span className="text-[8px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter">
+                        <span className="text-[7px] sm:text-[8px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter flex-shrink-0">
                             {partnerRole}
                         </span>
                     </div>
                 </div>
 
                 {/* Separador */}
-                <div className="w-px h-8 bg-gray-100" />
+                <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
             </div>
 
             {/* CENTRO — Progress Bar */}
-            <div className="flex-1 flex items-center gap-3 min-w-0">
+            <div className="flex-1 flex items-center gap-3 min-w-0 hidden sm:flex">
                 <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest flex-shrink-0 hidden md:block">
                     Progreso
                 </span>

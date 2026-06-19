@@ -39,7 +39,8 @@ const PLACEHOLDER_CONFIGS = {
 const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMentorship }) => {
     const { showNotification } = useNotification();
     const [activeModule, setActiveModule] = useState('chat');
-    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true);
+    const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
+    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(window.innerWidth > 1024);
     const [timeLeft, setTimeLeft] = useState('');
 
     // Estados para la encuesta de satisfacción
@@ -127,18 +128,36 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
     };
 
     return (
-        <div className="flex h-full overflow-hidden">
+        <div className="flex h-full overflow-hidden relative">
+            {/* ===== BACKDROP MÓVIL (para cerrar el sidebar izquierdo) ===== */}
+            {isLeftSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden animate-fade-in"
+                    onClick={() => setIsLeftSidebarOpen(false)}
+                />
+            )}
+
             {/* ===== SIDEBAR IZQUIERDO ===== */}
             <LeftSidebar
                 activeModule={activeModule}
-                onModuleChange={setActiveModule}
+                onModuleChange={(modId) => {
+                    setActiveModule(modId);
+                    setIsLeftSidebarOpen(false);
+                }}
                 mentorship={mentorship}
+                isOpen={isLeftSidebarOpen}
+                onClose={() => setIsLeftSidebarOpen(false)}
             />
 
             {/* ===== CONTENIDO PRINCIPAL ===== */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                 {/* Cabecera dinámica */}
-                <TopBar mentorship={mentorship} currentUser={currentUser} onCloseMentorship={onCloseMentorship} />
+                <TopBar 
+                    mentorship={mentorship} 
+                    currentUser={currentUser} 
+                    onCloseMentorship={onCloseMentorship} 
+                    onToggleLeftSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+                />
 
                 {/* Banner de Expiración (Solo si la tutoría está COMPLETADA) */}
                 {mentorship?.status === 'COMPLETADA' && (
@@ -274,6 +293,13 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                 @keyframes fadeSlideIn {
                     from { opacity: 0; transform: translateY(6px); }
                     to   { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to   { opacity: 1; }
+                }
+                .animate-fade-in {
+                    animation: fadeIn 0.2s ease-out forwards;
                 }
             `}</style>
         </div>

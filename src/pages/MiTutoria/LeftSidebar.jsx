@@ -42,9 +42,16 @@ const MODULES = [
     },
 ];
 
-const LeftSidebar = ({ activeModule, onModuleChange, mentorship }) => {
+const LeftSidebar = ({ activeModule, onModuleChange, mentorship, isOpen, onClose }) => {
     return (
-        <aside className="w-64 flex-shrink-0 bg-[#0f1f3d] flex flex-col h-full select-none">
+        <aside 
+            className={`
+                w-64 flex-shrink-0 bg-[#0f1f3d] flex flex-col h-full select-none
+                fixed md:relative inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out
+                ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+                md:translate-x-0
+            `}
+        >
             {/* Cabecera del sidebar */}
             <div className="px-5 py-5 border-b border-white/5">
                 <div className="flex items-center gap-3 mb-1">
