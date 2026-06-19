@@ -4,7 +4,7 @@ const Footer = () => {
     <footer className="bg-pilas-black text-white py-12">
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-800 pb-8">
         <div>
-          <img className="h-40 w-auto" src={logo} alt="Pilas! Logo" />
+          <img className="h-20 w-auto" src={logo} alt="Pilas! Logo" />
           <p className="text-gray-400 text-sm">
             Potenciando el conocimiento a través del aprendizaje colaborativo.
           </p>

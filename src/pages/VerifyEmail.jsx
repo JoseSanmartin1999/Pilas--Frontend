@@ -75,7 +75,7 @@ const VerifyEmail = () => {
         <div className="flex-1 flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg border-t-4 border-pilas-gold">
                 <div>
-                    <img className="mx-auto h-40 w-auto" src={logo} alt="Pilas! Logo" />
+                    <img className="mx-auto h-24 w-auto" src={logo} alt="Pilas! Logo" />
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-pilas-blue">
                         Verifica tu Cuenta
                     </h2>

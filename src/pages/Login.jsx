@@ -96,7 +96,7 @@ const Login = ({ setAuth }) => {
 
 const LoginHeader = () => (
     <div>
-        <img className="mx-auto h-40 w-auto" src={logo} alt="Pilas! Logo" />
+        <img className="mx-auto h-24 w-auto" src={logo} alt="Pilas! Logo" />
         <h2 className="mt-6 text-center text-3xl font-extrabold text-pilas-blue">
             Ponte las pilas....
         </h2>
