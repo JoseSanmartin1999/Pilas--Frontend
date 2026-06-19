@@ -14,6 +14,7 @@ const Badge = ({ count }) => {
 
 const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
     const [showDropdown, setShowDropdown] = useState(false);
+    const [isOpenMobileMenu, setIsOpenMobileMenu] = useState(false);
     const [counts, setCounts] = useState({ pendingSolicitudes: 0, newInboxMessages: 0 });
     const navigate = useNavigate();
 
@@ -171,8 +172,194 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                             <Link to="/login" className="nav-link font-semibold">Iniciar sesión</Link>
                         )}
                     </div>
+
+                    {/* Botón de Menú Móvil (Hamburger) */}
+                    <div className="flex md:hidden items-center gap-3">
+                        {isAuthenticated && currentUser.role !== 'ADMIN' && (
+                            <button 
+                                onClick={() => navigate('/recompensas')}
+                                className="flex items-center gap-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-2.5 py-1.5 rounded-full text-[10px] font-black shadow-sm"
+                                title="Mis recompensas"
+                            >
+                                <span className="text-sm">🪙</span>
+                                <span>{userCoins}</span>
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setIsOpenMobileMenu(!isOpenMobileMenu)}
+                            className="p-2 rounded-xl text-gray-500 hover:bg-gray-50 hover:text-[#0f592f] transition-all outline-none animate-in fade-in"
+                        >
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                {isOpenMobileMenu ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                )}
+                            </svg>
+                        </button>
+                    </div>
+
                 </div>
             </div>
+
+            {/* Mobile Menu Panel */}
+            {isOpenMobileMenu && (
+                <div className="md:hidden bg-white border-t border-gray-100 shadow-inner px-4 py-6 space-y-4 animate-in slide-in-from-top duration-300">
+                    <div className="flex flex-col gap-3">
+                        {isAuthenticated ? (
+                            <>
+                                {/* User Info Card inside mobile menu */}
+                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center justify-between mb-2">
+                                    <div className="text-left">
+                                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Conectado como</p>
+                                        <p className="text-xs font-black text-slate-700 truncate max-w-[150px]">{currentUser?.full_name}</p>
+                                    </div>
+                                    {currentUser.role !== 'ADMIN' && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="bg-[#0f592f] text-[#ffcc00] px-2.5 py-1 rounded-full text-[9px] font-black">
+                                                LVL {userLevel}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {currentUser.role === 'ADMIN' ? (
+                                    <Link 
+                                        to="/admin" 
+                                        onClick={() => setIsOpenMobileMenu(false)}
+                                        className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                    >
+                                        Panel Admin
+                                    </Link>
+                                ) : (
+                                    <>
+                                        <Link 
+                                            to="/buscar" 
+                                            onClick={() => setIsOpenMobileMenu(false)}
+                                            className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all flex justify-between"
+                                        >
+                                            <span>Busca Tutor</span>
+                                        </Link>
+                                        <Link 
+                                            to="/mi-tutoria" 
+                                            onClick={() => setIsOpenMobileMenu(false)}
+                                            className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                        >
+                                            MiTutoría
+                                        </Link>
+                                        <Link 
+                                            to="/calendario" 
+                                            onClick={() => setIsOpenMobileMenu(false)}
+                                            className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                        >
+                                            Calendario
+                                        </Link>
+                                        <Link 
+                                            to="/mensajes" 
+                                            onClick={() => setIsOpenMobileMenu(false)}
+                                            className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all flex justify-between items-center"
+                                        >
+                                            <span>Bandeja de Entrada</span>
+                                            {counts.newInboxMessages > 0 && (
+                                                <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
+                                                    {counts.newInboxMessages}
+                                                </span>
+                                            )}
+                                        </Link>
+                                        {userRole === 'MENTOR' ? (
+                                            <Link 
+                                                to="/solicitudes" 
+                                                onClick={() => setIsOpenMobileMenu(false)}
+                                                className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all flex justify-between items-center"
+                                            >
+                                                <span>Solicitudes Pendientes</span>
+                                                {counts.pendingSolicitudes > 0 && (
+                                                    <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
+                                                        {counts.pendingSolicitudes}
+                                                    </span>
+                                                )}
+                                            </Link>
+                                        ) : (
+                                            <Link 
+                                                to="/se-tutor" 
+                                                onClick={() => setIsOpenMobileMenu(false)}
+                                                className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                            >
+                                                Sé Tutor
+                                            </Link>
+                                        )}
+                                        <Link 
+                                            to="/recompensas" 
+                                            onClick={() => setIsOpenMobileMenu(false)}
+                                            className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                        >
+                                            Recompensas
+                                        </Link>
+                                    </>
+                                )}
+                                
+                                <Link 
+                                    to="/tickets" 
+                                    onClick={() => setIsOpenMobileMenu(false)}
+                                    className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                >
+                                    Soporte
+                                </Link>
+
+                                <hr className="border-gray-100 my-2" />
+
+                                <Link 
+                                    to={`/profile/${currentUser?.id || ''}`} 
+                                    onClick={() => setIsOpenMobileMenu(false)}
+                                    className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                >
+                                    Mi Perfil
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        setIsOpenMobileMenu(false);
+                                        onLogout();
+                                    }}
+                                    className="px-4 py-3 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold rounded-xl text-left transition-all"
+                                >
+                                    Cerrar Sesión
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link 
+                                    to="/" 
+                                    onClick={() => setIsOpenMobileMenu(false)}
+                                    className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                >
+                                    Inicio
+                                </Link>
+                                <Link 
+                                    to="/beneficios" 
+                                    onClick={() => setIsOpenMobileMenu(false)}
+                                    className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                >
+                                    Beneficios
+                                </Link>
+                                <Link 
+                                    to="/registro" 
+                                    onClick={() => setIsOpenMobileMenu(false)}
+                                    className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
+                                >
+                                    Regístrate
+                                </Link>
+                                <Link 
+                                    to="/login" 
+                                    onClick={() => setIsOpenMobileMenu(false)}
+                                    className="px-4 py-3 bg-[#0f592f] text-[#ffcc00] hover:bg-[#0a4624] text-xs font-black rounded-xl text-center shadow-md uppercase tracking-wider transition-all"
+                                >
+                                    Iniciar sesión
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </nav>
     );
 };

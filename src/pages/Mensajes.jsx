@@ -154,7 +154,7 @@ const Mensajes = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white rounded-[2.5rem] shadow-xl overflow-hidden min-h-[600px] border border-gray-100 text-left">
                 
                 {/* LISTA DE EMAILS (4/12) */}
-                <div className="lg:col-span-4 border-r border-gray-50 overflow-y-auto max-h-[600px]">
+                <div className={`lg:col-span-4 border-r border-gray-50 overflow-y-auto max-h-[600px] ${selectedMessage ? 'hidden lg:block' : 'block'}`}>
                     <div className="p-4 bg-gray-50/50 border-b border-gray-50 flex items-center justify-between">
                         <span className="uppercase text-[9px] font-black tracking-widest text-gray-400">
                             {selectedIds.length > 0 ? `${selectedIds.length} Seleccionados` : 'Recientes'}
@@ -237,9 +237,16 @@ const Mensajes = () => {
                 </div>
 
                 {/* DETALLE DEL EMAIL (8/12) */}
-                <div className="lg:col-span-8 p-8 md:p-12 flex flex-col">
+                <div className={`lg:col-span-8 p-6 md:p-12 flex flex-col ${selectedMessage ? 'block' : 'hidden lg:flex'}`}>
                     {selectedMessage ? (
                         <div className="animate-in fade-in slide-in-from-right duration-300">
+                            {/* Botón de Volver a la Lista en Móviles */}
+                            <button 
+                                onClick={() => setSelectedMessage(null)}
+                                className="lg:hidden mb-6 flex items-center gap-2 text-xs font-black text-[#0f592f] hover:text-[#ffcc00] uppercase tracking-widest cursor-pointer"
+                            >
+                                ← Volver a la lista
+                            </button>
                             <div className="flex justify-between items-center mb-10 border-b border-gray-100 pb-8">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 bg-[#0f592f] rounded-2xl flex items-center justify-center text-white text-xl font-black">
