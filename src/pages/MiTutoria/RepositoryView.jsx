@@ -383,7 +383,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                 {/* === HEADER === */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
-                        <h2 className="text-xl font-black text-[#1e3a8a] tracking-tight flex items-center gap-2">
+                        <h2 className="text-xl font-black text-[#0f592f] tracking-tight flex items-center gap-2">
                             📚 Repositorio de Materiales
                         </h2>
                         <p className="text-xs text-gray-400 font-medium mt-0.5">
@@ -398,7 +398,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                         <button
                             id="btn-upload-material"
                             onClick={() => setShowUploadModal(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[#1e3a8a] text-[#d4af37] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#1a3270] hover:shadow-lg hover:shadow-[#1e3a8a]/20 hover:scale-[1.02] transition-all duration-200 self-start sm:self-auto"
+                            className="flex items-center gap-2 px-5 py-2.5 bg-[#0f592f] text-[#d4af37] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#0a4624] hover:shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all duration-200 self-start sm:self-auto"
                         >
                             <span className="text-base">+</span> Subir Material
                         </button>
@@ -470,7 +470,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                     onClick={() => setFilterType(f.key)}
                                     className={`px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-1 ${
                                         filterType === f.key
-                                            ? 'bg-[#1e3a8a] text-[#d4af37] shadow-md'
+                                            ? 'bg-[#0f592f] text-[#d4af37] shadow-md'
                                             : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
                                     }`}
                                 >
@@ -502,7 +502,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                 📚
                             </div>
                         </div>
-                        <h3 className="text-lg font-black text-[#1e3a8a] mb-2">
+                        <h3 className="text-lg font-black text-[#0f592f] mb-2">
                             {isMentor ? 'Tu repositorio está vacío' : 'Sin materiales aún'}
                         </h3>
                         <p className="text-sm text-gray-400 font-medium max-w-xs mb-4">
@@ -513,7 +513,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                         {isMentor && mentorship?.status !== 'COMPLETADA' && (
                             <button
                                 onClick={() => setShowUploadModal(true)}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#1e3a8a] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#1a3270] hover:scale-[1.02] transition-all shadow-lg shadow-[#1e3a8a]/20"
+                                className="flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20"
                             >
                                 <span>+</span> Subir primer material
                             </button>
@@ -598,7 +598,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
 
                                     {/* Info */}
                                     <div className="p-4">
-                                        <h4 className="font-bold text-sm text-gray-800 truncate mb-1 group-hover:text-[#1e3a8a] transition-colors">
+                                        <h4 className="font-bold text-sm text-gray-800 truncate mb-1 group-hover:text-[#0f592f] transition-colors">
                                             {mat.title}
                                         </h4>
                                         {mat.description && (
@@ -634,7 +634,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
             {showUploadModal && (
                 <ModalOverlay onClose={() => { if (!uploading) resetUploadForm(); }}>
                     <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full mx-4 overflow-hidden">
-                        <div className="bg-gradient-to-r from-[#1e3a8a] to-[#1a3270] px-6 py-4">
+                        <div className="bg-gradient-to-r from-[#0f592f] to-[#0a4624] px-6 py-4">
                             <h3 className="text-white font-black text-sm tracking-tight">Subir nuevo material</h3>
                             <p className="text-white/40 text-[10px] font-medium mt-0.5">
                                 Archivos generales hasta 50MB · Imágenes hasta 10MB (Mín: 100x100px, Máx: 4000x4000px)
@@ -643,7 +643,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                         <div className="p-6 space-y-4">
                             {/* Requisitos visuales */}
                             <div className="text-[10px] text-gray-400 text-left bg-gray-50 p-3 rounded-2xl border border-gray-100 space-y-0.5">
-                                <p className="font-bold text-[#1e3a8a] mb-1">📋 Requisitos de carga:</p>
+                                <p className="font-bold text-[#0f592f] mb-1">📋 Requisitos de carga:</p>
                                 <p>• <strong>Archivos generales:</strong> Máximo 50 MB.</p>
                                 <p>• <strong>Imágenes:</strong> Máximo 10 MB (Mín: 100x100px, Máx: 4000x4000px).</p>
                             </div>
@@ -770,7 +770,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                     id="btn-confirm-upload"
                                     onClick={handleUpload}
                                     disabled={uploading || !uploadFile || !uploadTitle.trim()}
-                                    className="flex-1 px-4 py-2.5 bg-[#1e3a8a] text-[#d4af37] rounded-xl font-black text-xs uppercase tracking-wider hover:bg-[#1a3270] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                    className="flex-1 px-4 py-2.5 bg-[#0f592f] text-[#d4af37] rounded-xl font-black text-xs uppercase tracking-wider hover:bg-[#0a4624] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
                                     {uploading ? 'Subiendo...' : 'Subir Material'}
                                 </button>
@@ -784,7 +784,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
             {showEditModal && (
                 <ModalOverlay onClose={() => setShowEditModal(null)}>
                     <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
-                        <div className="bg-gradient-to-r from-[#1e3a8a] to-[#1a3270] px-6 py-4">
+                        <div className="bg-gradient-to-r from-[#0f592f] to-[#0a4624] px-6 py-4">
                             <h3 className="text-white font-black text-sm tracking-tight">Editar material</h3>
                         </div>
                         <div className="p-6 space-y-4">
@@ -822,7 +822,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                 <button
                                     onClick={handleEdit}
                                     disabled={!editTitle.trim()}
-                                    className="flex-1 px-4 py-2.5 bg-[#1e3a8a] text-[#d4af37] rounded-xl font-black text-xs uppercase tracking-wider hover:bg-[#1a3270] transition-all disabled:opacity-40"
+                                    className="flex-1 px-4 py-2.5 bg-[#0f592f] text-[#d4af37] rounded-xl font-black text-xs uppercase tracking-wider hover:bg-[#0a4624] transition-all disabled:opacity-40"
                                 >
                                     Guardar Cambios
                                 </button>
@@ -836,7 +836,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
             {showReplaceModal && (
                 <ModalOverlay onClose={() => { if (!uploading) { setShowReplaceModal(null); setReplaceFile(null); } }}>
                     <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
-                        <div className="bg-gradient-to-r from-[#1e3a8a] to-[#1a3270] px-6 py-4">
+                        <div className="bg-gradient-to-r from-[#0f592f] to-[#0a4624] px-6 py-4">
                             <h3 className="text-white font-black text-sm tracking-tight">Cambiar archivo</h3>
                             <p className="text-white/40 text-[10px] font-medium mt-0.5">
                                 Se mantendrá el título y la descripción actuales
@@ -854,7 +854,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
 
                             {/* Requisitos visuales */}
                             <div className="text-[10px] text-gray-400 text-left bg-gray-50 p-3 rounded-2xl border border-gray-100 space-y-0.5">
-                                <p className="font-bold text-[#1e3a8a] mb-1">📋 Requisitos de carga:</p>
+                                <p className="font-bold text-[#0f592f] mb-1">📋 Requisitos de carga:</p>
                                 <p>• <strong>Archivos generales:</strong> Máximo 50 MB.</p>
                                 <p>• <strong>Imágenes:</strong> Máximo 10 MB (Mín: 100x100px, Máx: 4000x4000px).</p>
                             </div>
@@ -915,7 +915,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                 <button
                                     onClick={handleReplaceFile}
                                     disabled={uploading || !replaceFile}
-                                    className="flex-1 px-4 py-2.5 bg-[#1e3a8a] text-[#d4af37] rounded-xl font-black text-xs uppercase tracking-wider hover:bg-[#1a3270] transition-all disabled:opacity-40"
+                                    className="flex-1 px-4 py-2.5 bg-[#0f592f] text-[#d4af37] rounded-xl font-black text-xs uppercase tracking-wider hover:bg-[#0a4624] transition-all disabled:opacity-40"
                                 >
                                     {uploading ? 'Subiendo...' : 'Reemplazar'}
                                 </button>
@@ -973,7 +973,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                     {FILE_TYPE_ICONS[showPreview.file_type]}
                                 </span>
                                 <div className="min-w-0">
-                                    <h3 className="font-black text-[#1e3a8a] text-sm truncate">{showPreview.title}</h3>
+                                    <h3 className="font-black text-[#0f592f] text-sm truncate">{showPreview.title}</h3>
                                     <p className="text-[9px] text-gray-400 font-medium">
                                         {showPreview.file_name} · {formatFileSize(showPreview.file_size)} · {formatDate(showPreview.created_at)}
                                     </p>
@@ -1028,7 +1028,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                         href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-6 py-3 bg-[#1e3a8a] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#1a3270] hover:scale-[1.02] transition-all shadow-lg shadow-[#1e3a8a]/20"
+                                        className="flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20"
                                     >
                                         <span className="text-base">⬇️</span> Descargar Archivo
                                     </a>

@@ -192,7 +192,7 @@ const Calendario = () => {
 
                     <button
                         onClick={handleToday}
-                        className="bg-pilas-blue hover:bg-blue-900 text-white font-bold px-5 py-3 rounded-2xl transition-all shadow-md shadow-blue-900/10 active:scale-95 text-sm self-stretch md:self-auto"
+                        className="bg-pilas-blue hover:bg-[#0a4624] text-white font-bold px-5 py-3 rounded-2xl transition-all shadow-md shadow-[#0f592f]/10 active:scale-95 text-sm self-stretch md:self-auto"
                     >
                         Hoy
                     </button>
@@ -228,9 +228,9 @@ const Calendario = () => {
                                             !cell.isCurrentMonth
                                                 ? 'text-gray-300 border-transparent hover:bg-slate-50/50'
                                                 : isSelected
-                                                ? 'bg-pilas-blue text-white border-pilas-blue shadow-lg shadow-blue-900/10 font-bold scale-[1.03]'
+                                                ? 'bg-pilas-blue text-white border-pilas-blue shadow-lg shadow-[#0f592f]/10 font-bold scale-[1.03]'
                                                 : isToday
-                                                ? 'border-pilas-blue text-pilas-blue bg-blue-50/40 font-bold'
+                                                ? 'border-pilas-blue text-pilas-blue bg-[#0f592f]/5 font-bold'
                                                 : 'bg-white text-slate-700 border-gray-100 hover:border-gray-300 hover:bg-slate-50'
                                         }`}
                                     >

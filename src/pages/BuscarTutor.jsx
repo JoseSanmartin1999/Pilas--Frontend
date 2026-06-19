@@ -68,7 +68,7 @@ const BuscarTutor = () => {
 
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
         </div>
     );
 
@@ -78,7 +78,7 @@ const BuscarTutor = () => {
             {/* CABECERA GORGEOUS */}
             <header className="mb-12 text-center max-w-2xl mx-auto space-y-3">
                 <span className="text-[10px] font-black text-pilas-gold uppercase tracking-[0.3em] bg-yellow-50 px-4 py-1.5 rounded-full border border-yellow-250/20">Encuentra a tu guía</span>
-                <h1 className="text-4xl md:text-5xl font-black text-[#1a3a5a] tracking-tight">Mentores Disponibles</h1>
+                <h1 className="text-4xl md:text-5xl font-black text-[#0f592f] tracking-tight">Mentores Disponibles</h1>
                 <p className="text-gray-500 font-medium text-sm md:text-base leading-relaxed">
                     Aprende de estudiantes destacados que ya dominan y superaron las materias que estás cursando.
                 </p>
@@ -90,7 +90,7 @@ const BuscarTutor = () => {
                 <aside className="lg:col-span-4 space-y-6">
                     <div className="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-6 sticky top-6">
                         <div>
-                            <h4 className="text-[#1a3a5a] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                 🔍 Buscar Tutor
                             </h4>
                             <div className="relative">
@@ -108,11 +108,11 @@ const BuscarTutor = () => {
                         </div>
 
                         <div>
-                            <h4 className="text-[#1a3a5a] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                 📶 Ordenar por Semestre / Nombre
                             </h4>
                             <select
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200/70 rounded-2xl text-xs focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] cursor-pointer"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200/70 rounded-2xl text-xs focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] cursor-pointer"
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                             >
@@ -124,13 +124,13 @@ const BuscarTutor = () => {
                         </div>
 
                         <div>
-                            <h4 className="text-[#1a3a5a] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
+                            <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                 🎓 Filtrar por Semestre
                             </h4>
                             <div className="flex flex-wrap gap-2">
                                 <button
                                     onClick={() => setSelectedSemester('all')}
-                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${selectedSemester === 'all' ? 'bg-[#1a3a5a] text-[#ffcc00] border-transparent shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200/50 hover:bg-gray-100'}`}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${selectedSemester === 'all' ? 'bg-[#0f592f] text-[#ffcc00] border-transparent shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200/50 hover:bg-gray-100'}`}
                                 >
                                     Todos
                                 </button>
@@ -138,7 +138,7 @@ const BuscarTutor = () => {
                                     <button
                                         key={sem}
                                         onClick={() => setSelectedSemester(String(sem))}
-                                        className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all border ${selectedSemester === String(sem) ? 'bg-[#1a3a5a] text-[#ffcc00] border-transparent shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200/50 hover:bg-gray-100'}`}
+                                        className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all border ${selectedSemester === String(sem) ? 'bg-[#0f592f] text-[#ffcc00] border-transparent shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200/50 hover:bg-gray-100'}`}
                                     >
                                         {sem}°
                                     </button>
@@ -170,7 +170,7 @@ const BuscarTutor = () => {
                             {filteredAndSortedMentors.map(mentor => (
                                 <div 
                                     key={mentor.id} 
-                                    className="bg-white p-6 rounded-[2.5rem] shadow-md border border-gray-100 flex flex-col items-center hover:shadow-2xl hover:shadow-[#1a3a5a]/5 hover:border-[#ffcc00]/40 transition-all duration-300 transform hover:-translate-y-1 relative group"
+                                    className="bg-white p-6 rounded-[2.5rem] shadow-md border border-gray-100 flex flex-col items-center hover:shadow-2xl hover:shadow-[#0f592f]/5 hover:border-[#ffcc00]/40 transition-all duration-300 transform hover:-translate-y-1 relative group"
                                 >
                                     {/* Semestre Badge Flotante */}
                                     <span className="absolute top-4 right-4 bg-amber-50 text-amber-700 border border-amber-200/40 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">
@@ -188,7 +188,7 @@ const BuscarTutor = () => {
                                     </div>
 
                                     {/* Nombre y Puntuación */}
-                                    <h3 className="font-extrabold text-[#1a3a5a] text-center text-base group-hover:text-yellow-600 transition-colors">
+                                    <h3 className="font-extrabold text-[#0f592f] text-center text-base group-hover:text-yellow-600 transition-colors">
                                         {mentor.nombre}
                                     </h3>
                                     <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5 mb-2">
@@ -222,7 +222,7 @@ const BuscarTutor = () => {
                                     {/* Botón Ver Más */}
                                     <button
                                         onClick={() => navigate(`/profile/${mentor.id}`)}
-                                        className="w-full py-3 bg-white text-[#1a3a5a] border-2 border-[#1a3a5a] rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-[#1a3a5a] hover:text-[#ffcc00] hover:border-transparent transition-all shadow-sm"
+                                        className="w-full py-3 bg-white text-[#0f592f] border-2 border-[#0f592f] rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-[#0f592f] hover:text-[#ffcc00] hover:border-transparent transition-all shadow-sm"
                                     >
                                         Ver Perfil
                                     </button>

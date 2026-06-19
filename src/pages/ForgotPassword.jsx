@@ -107,7 +107,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${isLoading ? 'bg-gray-400' : 'bg-pilas-blue hover:bg-blue-900'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pilas-gold transition-colors`}
+                            className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${isLoading ? 'bg-gray-400' : 'bg-pilas-blue hover:bg-[#0a4624]'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pilas-gold transition-colors`}
                         >
                             {isLoading ? 'Enviando...' : 'Enviar Código'}
                         </button>

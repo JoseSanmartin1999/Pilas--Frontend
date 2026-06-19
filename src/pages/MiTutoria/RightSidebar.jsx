@@ -46,13 +46,13 @@ const RightSidebar = ({ mentorship, currentUser, isOpen, onToggle }) => {
                         <div className="flex flex-col items-center gap-3 pt-2">
                             <div className="relative">
                                 {/* Avatar del usuario actual */}
-                                <div className="w-16 h-16 bg-gradient-to-br from-[#1e3a8a] to-[#1a3270] rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-[#1e3a8a]/20">
+                                <div className="w-16 h-16 bg-gradient-to-br from-[#0f592f] to-[#0a4624] rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-[#0f592f]/20">
                                     {currentUser?.full_name?.[0] || '?'}
                                 </div>
                                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full border-2 border-white shadow-sm" />
                             </div>
                             <div className="text-center">
-                                <p className="font-black text-[#1e3a8a] text-sm">{currentUser?.full_name}</p>
+                                <p className="font-black text-[#0f592f] text-sm">{currentUser?.full_name}</p>
                                 <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
                                     {isMentor ? 'Mentor' : 'Aprendiz'} · Nivel 1
                                 </p>
@@ -63,7 +63,7 @@ const RightSidebar = ({ mentorship, currentUser, isOpen, onToggle }) => {
 
                         {/* === COMPAÑERO === */}
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-[#1e3a8a] font-black text-sm flex-shrink-0">
+                            <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-[#0f592f] font-black text-sm flex-shrink-0">
                                 {partnerName?.[0] || '?'}
                             </div>
                             <div>

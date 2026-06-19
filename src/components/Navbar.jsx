@@ -119,7 +119,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                             <div className="flex items-center gap-3 relative">
                                 {/* Nivel (XP Pill) */}
                                 {currentUser.role !== 'ADMIN' && (
-                                    <div className="flex items-center gap-1 bg-[#1a3a5a] text-[#ffcc00] border border-[#ffcc00]/20 px-3.5 py-1.5 rounded-full text-xs font-black shadow-sm tracking-wide">
+                                    <div className="flex items-center gap-1 bg-[#0f592f] text-[#ffcc00] border border-[#ffcc00]/20 px-3.5 py-1.5 rounded-full text-xs font-black shadow-sm tracking-wide">
                                         <span className="text-sm">⭐</span>
                                         <span>NIVEL {userLevel}</span>
                                     </div>

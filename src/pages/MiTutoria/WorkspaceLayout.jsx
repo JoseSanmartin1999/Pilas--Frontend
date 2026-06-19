@@ -157,7 +157,7 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                             {currentUser.id === mentorship.apprentice_id && !mentorship.is_rated && !showSurveyModal && (
                                 <button
                                     onClick={() => setShowSurveyModal(true)}
-                                    className="bg-[#ffcc00] hover:bg-[#e6b800] text-[#1a3a5a] px-3.5 py-1.5 rounded-full font-black text-[9px] uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5"
+                                    className="bg-[#ffcc00] hover:bg-[#e6b800] text-[#0f592f] px-3.5 py-1.5 rounded-full font-black text-[9px] uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5"
                                 >
                                     <span>⭐</span> Calificar Tutoría
                                 </button>
@@ -194,12 +194,12 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
 
             {/* ===== MODAL DE ENCUESTA (SÓLO SI EL ROL ES APRENDIZ, ESTÁ COMPLETADA Y NO CALIFICADA Y EL MODAL ESTÁ ACTIVO) ===== */}
             {mentorship?.status === 'COMPLETADA' && !mentorship.is_rated && currentUser.id === mentorship.apprentice_id && showSurveyModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden border border-gray-150 animate-in zoom-in duration-200 p-8 flex flex-col items-center">
                         <div className="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner mb-4 border border-yellow-100">
                             🎓
                         </div>
-                        <h2 className="text-xl font-black text-[#1a3a5a] text-center tracking-tight mb-2">¡Tutoría Finalizada!</h2>
+                        <h2 className="text-xl font-black text-[#0f592f] text-center tracking-tight mb-2">¡Tutoría Finalizada!</h2>
                         <p className="text-xs text-gray-500 text-center font-medium leading-relaxed mb-6">
                             Tu tutor ha cerrado esta sesión de aprendizaje. Por favor, califica la ayuda recibida para seguir mejorando la comunidad.
                         </p>
@@ -250,7 +250,7 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                                 onClick={handleSubmitSurvey}
                                 className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${
                                     rating > 0 
-                                        ? 'bg-[#1a3a5a] text-[#ffcc00] hover:bg-[#112740] hover:scale-[1.02] shadow-md shadow-[#1a3a5a]/10' 
+                                        ? 'bg-[#0f592f] text-[#ffcc00] hover:bg-[#0a4624] hover:scale-[1.02] shadow-md shadow-[#0f592f]/10' 
                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 }`}
                             >

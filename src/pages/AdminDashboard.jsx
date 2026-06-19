@@ -327,7 +327,7 @@ const AdminDashboard = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
             </div>
         );
     }
@@ -355,8 +355,8 @@ const AdminDashboard = () => {
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex items-center justify-between px-5 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                                 activeTab === tab.id
-                                    ? 'bg-[#1a3a5a] text-[#ffcc00] shadow-md scale-105'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#1a3a5a]'
+                                    ? 'bg-[#0f592f] text-[#ffcc00] shadow-md scale-105'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-[#0f592f]'
                             }`}
                         >
                             <span className="flex items-center gap-3">
@@ -379,13 +379,13 @@ const AdminDashboard = () => {
                     {activeTab === 'stats' && stats && (
                         <div className="space-y-8 animate-in fade-in duration-300">
                             <header className="text-left space-y-1">
-                                <h2 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Estadísticas Generales</h2>
+                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Estadísticas Generales</h2>
                                 <p className="text-gray-500 font-medium text-xs">Monitorea el crecimiento académico y actividad del sistema.</p>
                             </header>
 
                             {/* GRID DE ESTADÍSTICAS */}
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                <div className="bg-[#1a3a5a] text-white p-8 rounded-[2rem] shadow-lg relative overflow-hidden flex flex-col justify-between h-40">
+                                <div className="bg-[#0f592f] text-white p-8 rounded-[2rem] shadow-lg relative overflow-hidden flex flex-col justify-between h-40">
                                     <div className="absolute -right-6 -top-6 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
                                     <span className="text-[10px] font-black text-yellow-300 uppercase tracking-widest">Total Usuarios</span>
                                     <h3 className="text-5xl font-black">{stats.users.total}</h3>
@@ -394,7 +394,7 @@ const AdminDashboard = () => {
 
                                 <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-150/40 flex flex-col justify-between h-40">
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tutorías Coordinadas</span>
-                                    <h3 className="text-5xl font-black text-[#1a3a5a]">{stats.mentorships.total}</h3>
+                                    <h3 className="text-5xl font-black text-[#0f592f]">{stats.mentorships.total}</h3>
                                     <p className="text-[10px] text-gray-500 font-medium">Completadas: {stats.mentorships.status.COMPLETADA} | Pendientes: {stats.mentorships.status.PENDIENTE}</p>
                                 </div>
 
@@ -412,7 +412,7 @@ const AdminDashboard = () => {
                                 <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-150/40 text-left space-y-4">
                                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Uso del Repositorio</span>
                                     <div className="flex justify-between items-baseline">
-                                        <h3 className="text-3xl font-black text-[#1a3a5a]">{stats.storageUsedMB} MB</h3>
+                                        <h3 className="text-3xl font-black text-[#0f592f]">{stats.storageUsedMB} MB</h3>
                                         <span className="text-gray-400 text-xs font-semibold">Consumo Global Cloudinary</span>
                                     </div>
                                     <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
@@ -429,7 +429,7 @@ const AdminDashboard = () => {
                                     <div className="flex items-center gap-4 py-2">
                                         <div className="w-12 h-12 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xl">✓</div>
                                         <div>
-                                            <h4 className="font-extrabold text-[#1a3a5a] text-sm uppercase tracking-tight">Esquema Protegido</h4>
+                                            <h4 className="font-extrabold text-[#0f592f] text-sm uppercase tracking-tight">Esquema Protegido</h4>
                                             <p className="text-[10px] text-gray-400 font-medium">Bases de datos TiDB encriptadas y con respaldo automático.</p>
                                         </div>
                                     </div>
@@ -442,7 +442,7 @@ const AdminDashboard = () => {
                     {activeTab === 'applications' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <header className="text-left space-y-1">
-                                <h2 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Solicitudes de Ascenso</h2>
+                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Solicitudes de Ascenso</h2>
                                 <p className="text-gray-500 font-medium text-xs">Revisa y aprueba solicitudes de aprendices a mentores.</p>
                             </header>
 
@@ -452,8 +452,8 @@ const AdminDashboard = () => {
                                         <div key={app.id} className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-gray-100 text-left space-y-6">
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-50 pb-4">
                                                 <div>
-                                                    <h3 className="font-extrabold text-lg text-[#1a3a5a]">{app.applicant_name}</h3>
-                                                    <p className="text-xs text-gray-400 font-medium">{app.applicant_email} &bull; {app.career} &bull; <strong className="text-[#1a3a5a]">{app.current_semester}° Semestre</strong></p>
+                                                    <h3 className="font-extrabold text-lg text-[#0f592f]">{app.applicant_name}</h3>
+                                                    <p className="text-xs text-gray-400 font-medium">{app.applicant_email} &bull; {app.career} &bull; <strong className="text-[#0f592f]">{app.current_semester}° Semestre</strong></p>
                                                 </div>
                                                 <span className="text-[9px] font-black text-gray-400 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 uppercase tracking-widest">
                                                     Postulado el: {new Date(app.created_at).toLocaleDateString()}
@@ -489,7 +489,7 @@ const AdminDashboard = () => {
                                                 </button>
                                                 <button
                                                     onClick={() => handleApproveApplication(app.id, app.applicant_name)}
-                                                    className="px-6 py-3.5 bg-[#1a3a5a] text-[#ffcc00] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#112740] transition-colors flex-2 shadow-md hover:shadow-lg"
+                                                    className="px-6 py-3.5 bg-[#0f592f] text-[#ffcc00] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#0a4624] transition-colors flex-2 shadow-md hover:shadow-lg"
                                                 >
                                                     Aprobar Ascenso
                                                 </button>
@@ -499,7 +499,7 @@ const AdminDashboard = () => {
                                 ) : (
                                     <div className="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-250 flex flex-col items-center justify-center">
                                         <span className="text-5xl mb-3">🎓</span>
-                                        <h4 className="text-[#1a3a5a] font-black text-sm uppercase tracking-wider">Sin solicitudes pendientes</h4>
+                                        <h4 className="text-[#0f592f] font-black text-sm uppercase tracking-wider">Sin solicitudes pendientes</h4>
                                         <p className="text-gray-400 text-xs font-semibold max-w-sm mt-1">
                                             No hay aprendices postulándose a mentores en este momento.
                                         </p>
@@ -513,7 +513,7 @@ const AdminDashboard = () => {
                     {activeTab === 'users' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <header className="text-left space-y-1">
-                                <h2 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Usuarios Registrados</h2>
+                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Usuarios Registrados</h2>
                                 <p className="text-gray-500 font-medium text-xs">Administra las cuentas, bloquea o remueve accesos.</p>
                             </header>
 
@@ -529,7 +529,7 @@ const AdminDashboard = () => {
                                 <select
                                     value={selectedRoleFilter}
                                     onChange={(e) => setSelectedRoleFilter(e.target.value)}
-                                    className="px-5 py-3.5 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold text-[#1a3a5a] text-xs cursor-pointer"
+                                    className="px-5 py-3.5 bg-gray-50 border border-transparent rounded-2xl outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
                                 >
                                     <option value="ALL">Todos los roles</option>
                                     <option value="MENTOR">Tutores (Mentores)</option>
@@ -567,11 +567,11 @@ const AdminDashboard = () => {
                                                 return (
                                                     <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
                                                         <td className="px-6 py-5 flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-xs text-[#1a3a5a] shadow-inner border border-gray-200">
+                                                            <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center font-bold text-xs text-[#0f592f] shadow-inner border border-gray-200">
                                                                 {initials}
                                                             </div>
                                                             <div>
-                                                                <h5 className="font-extrabold text-sm text-[#1a3a5a] leading-tight">{user.full_name}</h5>
+                                                                <h5 className="font-extrabold text-sm text-[#0f592f] leading-tight">{user.full_name}</h5>
                                                                 <span className="text-[10px] text-gray-400 font-semibold">{user.email}</span>
                                                             </div>
                                                         </td>
@@ -622,14 +622,14 @@ const AdminDashboard = () => {
                     {activeTab === 'system' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <header className="text-left space-y-1">
-                                <h2 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Ajustes del Sistema</h2>
+                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Ajustes del Sistema</h2>
                                 <p className="text-gray-500 font-medium text-xs">Configura parámetros y monitoriza los logs del servidor.</p>
                             </header>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* FORMULARIO DE AJUSTES */}
                                 <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-150/40 text-left space-y-6">
-                                    <h4 className="text-sm font-black text-[#1a3a5a] uppercase tracking-wider">Parámetros Globales</h4>
+                                    <h4 className="text-sm font-black text-[#0f592f] uppercase tracking-wider">Parámetros Globales</h4>
                                     
                                     <div className="space-y-4">
                                         <div>
@@ -638,7 +638,7 @@ const AdminDashboard = () => {
                                                 type="number"
                                                 value={sysSettings.storageLimit}
                                                 onChange={(e) => setSysSettings({...sysSettings, storageLimit: e.target.value})}
-                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]"
+                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]"
                                             />
                                         </div>
 
@@ -649,7 +649,7 @@ const AdminDashboard = () => {
                                                 step="0.1"
                                                 value={sysSettings.coinMultiplier}
                                                 onChange={(e) => setSysSettings({...sysSettings, coinMultiplier: e.target.value})}
-                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]"
+                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]"
                                             />
                                         </div>
 
@@ -659,7 +659,7 @@ const AdminDashboard = () => {
                                                     type="checkbox" 
                                                     checked={sysSettings.allowRegister}
                                                     onChange={(e) => setSysSettings({...sysSettings, allowRegister: e.target.checked})}
-                                                    className="w-4 h-4 rounded text-[#1a3a5a] focus:ring-[#ffcc00] cursor-pointer"
+                                                    className="w-4 h-4 rounded text-[#0f592f] focus:ring-[#ffcc00] cursor-pointer"
                                                 />
                                                 <span className="text-xs font-bold text-gray-700">Permitir Registro de Nuevos Alumnos</span>
                                             </label>
@@ -669,7 +669,7 @@ const AdminDashboard = () => {
                                                     type="checkbox" 
                                                     checked={sysSettings.emailNotifications}
                                                     onChange={(e) => setSysSettings({...sysSettings, emailNotifications: e.target.checked})}
-                                                    className="w-4 h-4 rounded text-[#1a3a5a] focus:ring-[#ffcc00] cursor-pointer"
+                                                    className="w-4 h-4 rounded text-[#0f592f] focus:ring-[#ffcc00] cursor-pointer"
                                                 />
                                                 <span className="text-xs font-bold text-gray-700">Habilitar Alertas de Correo (Nodemailer)</span>
                                             </label>
@@ -681,7 +681,7 @@ const AdminDashboard = () => {
                                             showNotification("Configuraciones del sistema actualizadas (simulado).", "success");
                                             logAction("[AJUSTES] Variables globales actualizadas.");
                                         }}
-                                        className="w-full py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-md"
+                                        className="w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-md"
                                     >
                                         Guardar Configuraciones
                                     </button>
@@ -711,7 +711,7 @@ const AdminDashboard = () => {
                     {activeTab === 'tickets' && (
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <header className="text-left space-y-1">
-                                <h2 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Tickets de Soporte</h2>
+                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Tickets de Soporte</h2>
                                 <p className="text-gray-500 font-medium text-xs">Gestiona y responde reclamaciones o inquietudes de usuarios.</p>
                             </header>
 
@@ -722,7 +722,7 @@ const AdminDashboard = () => {
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-50 pb-4">
                                                 <div>
                                                     <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Ticket #{ticket.id}</span>
-                                                    <h4 className="font-extrabold text-base text-[#1a3a5a] mt-1">{ticket.title}</h4>
+                                                    <h4 className="font-extrabold text-base text-[#0f592f] mt-1">{ticket.title}</h4>
                                                     <p className="text-[10px] text-gray-400 font-semibold">{ticket.user_name} ({ticket.user_email}) &bull; Rol: {ticket.user_role}</p>
                                                 </div>
                                                 <div className="flex items-center gap-3">
@@ -742,13 +742,13 @@ const AdminDashboard = () => {
 
                                                 {ticket.reply ? (
                                                     <div className="bg-emerald-50/20 border border-emerald-100/50 rounded-2xl p-4 space-y-1">
-                                                        <h5 className="font-black text-[9px] text-[#1a3a5a] uppercase tracking-wider">Respuesta Enviada</h5>
+                                                        <h5 className="font-black text-[9px] text-[#0f592f] uppercase tracking-wider">Respuesta Enviada</h5>
                                                         <p className="text-gray-700 text-xs font-medium">{ticket.reply}</p>
                                                     </div>
                                                 ) : (
                                                     <button
                                                         onClick={() => setSelectedTicket(ticket)}
-                                                        className="px-5 py-3 bg-[#1a3a5a] text-[#ffcc00] rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-[#112740] transition-colors"
+                                                        className="px-5 py-3 bg-[#0f592f] text-[#ffcc00] rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-[#0a4624] transition-colors"
                                                     >
                                                         Responder y Cerrar
                                                     </button>
@@ -759,7 +759,7 @@ const AdminDashboard = () => {
                                 ) : (
                                     <div className="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-250 flex flex-col items-center justify-center">
                                         <span className="text-5xl mb-3">📨</span>
-                                        <h4 className="text-[#1a3a5a] font-black text-sm uppercase tracking-wider">Sin tickets registrados</h4>
+                                        <h4 className="text-[#0f592f] font-black text-sm uppercase tracking-wider">Sin tickets registrados</h4>
                                         <p className="text-gray-400 text-xs font-semibold max-w-sm mt-1">
                                             No hay reportes de soporte creados por los estudiantes.
                                         </p>
@@ -774,7 +774,7 @@ const AdminDashboard = () => {
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <header className="text-left space-y-1">
-                                    <h2 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Gestión de Insignias</h2>
+                                    <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Gestión de Insignias</h2>
                                     <p className="text-gray-500 font-medium text-xs">Crea, edita o elimina los logros del sistema de gamificación.</p>
                                 </header>
                                 <button
@@ -835,7 +835,7 @@ const AdminDashboard = () => {
                                                             badge.image_url || "🏅"
                                                         )}
                                                     </div>
-                                                    <h3 className="font-extrabold text-base text-[#1a3a5a] truncate" title={badge.name}>
+                                                    <h3 className="font-extrabold text-base text-[#0f592f] truncate" title={badge.name}>
                                                         {badge.name}
                                                     </h3>
                                                     <p className="text-[10px] text-amber-600 font-extrabold uppercase tracking-wider mt-1">
@@ -874,7 +874,7 @@ const AdminDashboard = () => {
                                 ) : (
                                     <div className="col-span-full text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-250 flex flex-col items-center justify-center">
                                         <span className="text-5xl mb-3">🏆</span>
-                                        <h4 className="text-[#1a3a5a] font-black text-sm uppercase tracking-wider">No hay insignias creadas</h4>
+                                        <h4 className="text-[#0f592f] font-black text-sm uppercase tracking-wider">No hay insignias creadas</h4>
                                         <p className="text-gray-400 text-xs font-semibold max-w-sm mt-1">
                                             Crea insignias iniciales para incentivar el progreso de tus alumnos.
                                         </p>
@@ -889,12 +889,12 @@ const AdminDashboard = () => {
 
             {/* MODAL RESPONDER TICKET */}
             {selectedTicket && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
                         <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                             <div>
                                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Resolver Ticket #{selectedTicket.id}</span>
-                                <h3 className="text-lg font-black text-[#1a3a5a] tracking-tight">{selectedTicket.title}</h3>
+                                <h3 className="text-lg font-black text-[#0f592f] tracking-tight">{selectedTicket.title}</h3>
                             </div>
                             <button onClick={() => setSelectedTicket(null)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
                         </div>
@@ -920,7 +920,7 @@ const AdminDashboard = () => {
                             <button 
                                 type="submit" 
                                 disabled={resolving}
-                                className="w-full py-5 bg-[#1a3a5a] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#1a3a5a]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                                className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
                             >
                                 {resolving ? 'Enviando...' : 'Resolver y Cerrar Ticket'}
                             </button>
@@ -931,14 +931,14 @@ const AdminDashboard = () => {
 
             {/* MODAL CREAR / EDITAR INSIGNIA */}
             {showBadgeModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200 border border-gray-100 text-left">
                         <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                             <div>
                                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                     {badgeData.id ? 'Editar Insignia' : 'Crear Nueva Insignia'}
                                 </span>
-                                <h3 className="text-lg font-black text-[#1a3a5a] tracking-tight">Formulario de Logro</h3>
+                                <h3 className="text-lg font-black text-[#0f592f] tracking-tight">Formulario de Logro</h3>
                             </div>
                             <button onClick={() => { setShowBadgeModal(false); setBadgeFile(null); }} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
                         </div>
@@ -951,7 +951,7 @@ const AdminDashboard = () => {
                                     required 
                                     value={badgeData.name} 
                                     onChange={(e) => setBadgeData({ ...badgeData, name: e.target.value })} 
-                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] text-xs" 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
                                     placeholder="Ej: Tutor Comprometido"
                                 />
                             </div>
@@ -962,7 +962,7 @@ const AdminDashboard = () => {
                                     type="text" 
                                     value={badgeData.image_url} 
                                     onChange={(e) => setBadgeData({ ...badgeData, image_url: e.target.value })} 
-                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] text-xs" 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
                                     placeholder="Ej: https://cdn-icons-png.flaticon.com/..."
                                 />
                             </div>
@@ -973,7 +973,7 @@ const AdminDashboard = () => {
                                     type="file" 
                                     accept="image/*"
                                     onChange={handleBadgeFileChange}
-                                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#1a3a5a] hover:file:bg-blue-100 cursor-pointer"
+                                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#0f592f] hover:file:bg-blue-100 cursor-pointer"
                                 />
                                 <p className="text-[9px] text-gray-400 mt-1">
                                     Tamaño máx: <strong>2 MB</strong> · Mín: <strong>100x100 px</strong>, Máx: <strong>2000x2000 px</strong>.
@@ -987,7 +987,7 @@ const AdminDashboard = () => {
                                         type="number" 
                                         value={badgeData.xp_reward} 
                                         onChange={(e) => setBadgeData({ ...badgeData, xp_reward: e.target.value })} 
-                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] text-xs" 
+                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
                                         placeholder="0"
                                     />
                                 </div>
@@ -997,7 +997,7 @@ const AdminDashboard = () => {
                                         type="number" 
                                         value={badgeData.coins_reward} 
                                         onChange={(e) => setBadgeData({ ...badgeData, coins_reward: e.target.value })} 
-                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] text-xs" 
+                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
                                         placeholder="0"
                                     />
                                 </div>
@@ -1011,7 +1011,7 @@ const AdminDashboard = () => {
                                     <select
                                         value={badgeData.type}
                                         onChange={(e) => setBadgeData({ ...badgeData, type: e.target.value })}
-                                        className="w-full px-4 py-2.5 bg-white border border-gray-150/60 rounded-xl outline-none font-bold text-[#1a3a5a] text-xs cursor-pointer"
+                                        className="w-full px-4 py-2.5 bg-white border border-gray-150/60 rounded-xl outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
                                     >
                                         <option value="xp_earned">Acumular total de Puntos de Experiencia (XP)</option>
                                         <option value="mentorships_given">Completar tutorías como Mentor/Tutor</option>
@@ -1030,7 +1030,7 @@ const AdminDashboard = () => {
                                         required
                                         value={badgeData.value} 
                                         onChange={(e) => setBadgeData({ ...badgeData, value: e.target.value })} 
-                                        className="w-full px-4 py-2.5 bg-white border border-gray-150/60 rounded-xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] text-xs" 
+                                        className="w-full px-4 py-2.5 bg-white border border-gray-150/60 rounded-xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
                                         placeholder="Cantidad a cumplir"
                                     />
                                 </div>

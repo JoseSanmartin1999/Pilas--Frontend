@@ -31,10 +31,39 @@ const getCriteriaDescription = (criteriaStr) => {
     }
 };
 
+const getBadgeEmoji = (badgeName) => {
+    switch (badgeName) {
+        case 'Primeros Pasos':
+            return '🎯';
+        case 'Cerebro de Oro':
+            return '💡';
+        case 'Siempre Puntual':
+            return '⚡';
+        case 'Mentor Estrella':
+            return '⭐';
+        case 'Súper Aprendiz':
+            return '🎓';
+        case 'Héroe de la ESPE':
+        case 'Maestro ESPE':
+            return '🏆';
+        case 'Hola Mundo':
+            return '🌍';
+        case 'Perfil Estelar':
+            return '✨';
+        default:
+            return '🏅';
+    }
+};
+
 const Recompensas = () => {
     const { showNotification } = useNotification();
     
     const [loading, setLoading] = useState(true);
+    const [brokenInsignias, setBrokenInsignias] = useState({});
+    
+    const handleInsigniaImageError = (id) => {
+        setBrokenInsignias(prev => ({ ...prev, [id]: true }));
+    };
     const [espeCoins, setEspeCoins] = useState(0);
     const [xp, setXp] = useState(0);
     const [level, setLevel] = useState(1);
@@ -303,10 +332,15 @@ const Recompensas = () => {
                                             : 'bg-slate-800 text-gray-500 border border-slate-700/50'
                                     }`}>
                                         {insignia.unlocked ? (
-                                            typeof insignia.icon === 'string' && insignia.icon.startsWith('http') ? (
-                                                <img src={insignia.icon} alt={insignia.name} className="w-full h-full object-cover" />
+                                            typeof insignia.icon === 'string' && insignia.icon.startsWith('http') && !brokenInsignias[insignia.id] ? (
+                                                <img 
+                                                    src={insignia.icon} 
+                                                    alt={insignia.name} 
+                                                    className="w-full h-full object-cover" 
+                                                    onError={() => handleInsigniaImageError(insignia.id)}
+                                                />
                                             ) : (
-                                                insignia.icon
+                                                getBadgeEmoji(insignia.name)
                                             )
                                         ) : '🔒'}
                                     </div>

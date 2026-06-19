@@ -140,14 +140,14 @@ const Mensajes = () => {
 
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
         </div>
     );
 
     return (
         <div className="max-w-6xl mx-auto p-4 md:p-8 min-h-screen bg-gray-50 font-sans">
             <header className="mb-10">
-                <h1 className="text-3xl font-black text-[#1a3a5a] tracking-tight">Bandeja de Entrada</h1>
+                <h1 className="text-3xl font-black text-[#0f592f] tracking-tight">Bandeja de Entrada</h1>
                 <p className="text-gray-500 font-medium">Respuestas y actualizaciones de tus tutores</p>
             </header>
 
@@ -169,7 +169,7 @@ const Mensajes = () => {
                                             setSelectedIds(responses.map(r => r.id));
                                         }
                                     }}
-                                    className="text-[9px] font-black text-[#1a3a5a] hover:text-[#ffcc00] uppercase tracking-tighter cursor-pointer"
+                                    className="text-[9px] font-black text-[#0f592f] hover:text-[#ffcc00] uppercase tracking-tighter cursor-pointer"
                                 >
                                     {selectedIds.length === responses.length ? 'Desmarcar' : 'Todos'}
                                 </button>
@@ -207,9 +207,9 @@ const Mensajes = () => {
                                                     setSelectedIds(prev => prev.filter(id => id !== r.id));
                                                 }
                                             }}
-                                            className="w-4 h-4 rounded text-[#1a3a5a] focus:ring-[#ffcc00] border-gray-300 cursor-pointer mr-1"
+                                            className="w-4 h-4 rounded text-[#0f592f] focus:ring-[#ffcc00] border-gray-300 cursor-pointer mr-1"
                                         />
-                                        <span className="font-bold text-[#1a3a5a] truncate max-w-[120px]">{r.mentor_name}</span>
+                                        <span className="font-bold text-[#0f592f] truncate max-w-[120px]">{r.mentor_name}</span>
                                         {r.apprentice_notified === 0 && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
                                     </div>
                                     <span className="text-[9px] font-bold text-gray-400">{new Date(r.scheduled_date).toLocaleDateString()}</span>
@@ -242,11 +242,11 @@ const Mensajes = () => {
                         <div className="animate-in fade-in slide-in-from-right duration-300">
                             <div className="flex justify-between items-center mb-10 border-b border-gray-100 pb-8">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 bg-[#1a3a5a] rounded-2xl flex items-center justify-center text-white text-xl font-black">
+                                    <div className="w-14 h-14 bg-[#0f592f] rounded-2xl flex items-center justify-center text-white text-xl font-black">
                                         {selectedMessage.mentor_name[0]}
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#1a3a5a]">{selectedMessage.mentor_name}</h2>
+                                        <h2 className="text-xl font-black text-[#0f592f]">{selectedMessage.mentor_name}</h2>
                                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Tutor de {selectedMessage.subject_name}</p>
                                     </div>
                                 </div>
@@ -256,12 +256,12 @@ const Mensajes = () => {
                             </div>
 
                             <div className="space-y-8">
-                                <h3 className="text-2xl font-black text-[#1a3a5a] leading-tight">
+                                <h3 className="text-2xl font-black text-[#0f592f] leading-tight">
                                     Actualización sobre tu solicitud de tutoría para <span className="text-pilas-gold">{selectedMessage.subject_name}</span>
                                 </h3>
 
                                 <div className="bg-gray-50/80 rounded-3xl p-8 border border-gray-100/50 shadow-inner leading-relaxed text-gray-600 font-medium">
-                                    <p className="mb-4">Hola <span className="font-bold text-[#1a3a5a]">{currentUser.full_name}</span>,</p>
+                                    <p className="mb-4">Hola <span className="font-bold text-[#0f592f]">{currentUser.full_name}</span>,</p>
                                     {selectedMessage.status === 'PENDIENTE' && (
                                         <div className="mt-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-100">
                                             <p className="text-yellow-800 text-sm font-bold flex items-center gap-2">
@@ -303,7 +303,7 @@ const Mensajes = () => {
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-pilas-gold rounded-full flex items-center justify-center text-white text-xl">💡</div>
                                                 <div>
-                                                    <h4 className="text-sm font-black text-[#1a3a5a] uppercase tracking-wider">El Mentor propone un cambio</h4>
+                                                    <h4 className="text-sm font-black text-[#0f592f] uppercase tracking-wider">El Mentor propone un cambio</h4>
                                                     <p className="text-xs font-bold text-pilas-gold italic">Intento {selectedMessage.reprogramming_count} de 2</p>
                                                 </div>
                                             </div>
@@ -319,13 +319,13 @@ const Mensajes = () => {
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
                                                     <button 
                                                         onClick={() => handleAction(selectedMessage.id, 'ACEPTADA')}
-                                                        className="py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-[#112740] transition-all"
+                                                        className="py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-[#0a4624] transition-all"
                                                     >
                                                         Aceptar Cambio
                                                     </button>
                                                     <button 
                                                         onClick={() => setIsReprogramming(true)}
-                                                        className="py-4 bg-white border-2 border-pilas-gold text-[#1a3a5a] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-pilas-gold hover:text-white transition-all shadow-md"
+                                                        className="py-4 bg-white border-2 border-pilas-gold text-[#0f592f] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-pilas-gold hover:text-white transition-all shadow-md"
                                                     >
                                                         Reprogramar
                                                     </button>
@@ -342,12 +342,12 @@ const Mensajes = () => {
                                                         <input 
                                                             type="date" 
                                                             min={new Date().toLocaleDateString('sv-SE')}
-                                                            className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#1a3a5a] border border-pilas-gold/20"
+                                                            className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#0f592f] border border-pilas-gold/20"
                                                             onChange={(e) => setNewDate(e.target.value)}
                                                         />
                                                         <input 
                                                             type="time" 
-                                                            className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#1a3a5a] border border-pilas-gold/20"
+                                                            className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#0f592f] border border-pilas-gold/20"
                                                             onChange={(e) => setNewTime(e.target.value)}
                                                         />
                                                     </div>
@@ -400,14 +400,14 @@ const Mensajes = () => {
                                         <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl">📅</div>
                                         <div className="text-left">
                                             <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fecha de Sesión</div>
-                                            <div className="text-base font-black text-[#1a3a5a]">{new Date(selectedMessage.scheduled_date).toLocaleDateString()}</div>
+                                            <div className="text-base font-black text-[#0f592f]">{new Date(selectedMessage.scheduled_date).toLocaleDateString()}</div>
                                         </div>
                                     </div>
                                     <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
                                         <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl">⏰</div>
                                         <div className="text-left">
                                             <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Hora de Sesión</div>
-                                            <div className="text-base font-black text-[#1a3a5a]">{new Date(selectedMessage.scheduled_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                            <div className="text-base font-black text-[#0f592f]">{new Date(selectedMessage.scheduled_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -425,14 +425,14 @@ const Mensajes = () => {
                                     <div className="space-y-6">
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Modalidad</span>
-                                            <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#1a3a5a] border border-gray-100 uppercase tracking-tighter">
+                                            <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#0f592f] border border-gray-100 uppercase tracking-tighter">
                                                 {selectedMessage.modality === 'Presencial' ? '📍 Presencial' : '💻 Online'}
                                             </span>
                                         </div>
 
                                         <div className="flex items-center justify-between border-t border-gray-50 pt-4">
                                             <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Duración Estimada</span>
-                                            <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#1a3a5a] border border-gray-100 uppercase tracking-tighter">
+                                            <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#0f592f] border border-gray-100 uppercase tracking-tighter">
                                                 ⏱️ {selectedMessage.estimated_duration || '1 hora'}
                                             </span>
                                         </div>
@@ -440,7 +440,7 @@ const Mensajes = () => {
                                         {selectedMessage.modality === 'Presencial' && (
                                             <div className="flex items-center justify-between border-t border-gray-50 pt-4">
                                                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Lugar de Reunión</span>
-                                                <span className="text-sm font-black text-[#1a3a5a]">{selectedMessage.meeting_place || 'Por confirmar'}</span>
+                                                <span className="text-sm font-black text-[#0f592f]">{selectedMessage.meeting_place || 'Por confirmar'}</span>
                                             </div>
                                         )}
 
@@ -448,7 +448,7 @@ const Mensajes = () => {
                                             <div className="space-y-4 border-t border-gray-50 pt-4">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Plataforma</span>
-                                                    <span className="text-sm font-black text-[#1a3a5a]">{selectedMessage.platform}</span>
+                                                    <span className="text-sm font-black text-[#0f592f]">{selectedMessage.platform}</span>
                                                 </div>
 
                                                 {selectedMessage.status === 'ACEPTADA' ? (
@@ -459,12 +459,12 @@ const Mensajes = () => {
                                                                     <div className="bg-gray-50 rounded-2xl p-4 space-y-2 border border-gray-100">
                                                                         <div className="flex justify-between items-center text-xs">
                                                                             <span className="font-bold text-gray-400">ID de Reunión:</span>
-                                                                            <span className="font-black text-[#1a3a5a]">{selectedMessage.zoom_code || 'No proporcionado'}</span>
+                                                                            <span className="font-black text-[#0f592f]">{selectedMessage.zoom_code || 'No proporcionado'}</span>
                                                                         </div>
                                                                         {selectedMessage.zoom_password && (
                                                                             <div className="flex justify-between items-center text-xs">
                                                                                 <span className="font-bold text-gray-400">Contraseña:</span>
-                                                                                <span className="font-black text-[#1a3a5a]">{selectedMessage.zoom_password}</span>
+                                                                                <span className="font-black text-[#0f592f]">{selectedMessage.zoom_password}</span>
                                                                             </div>
                                                                         )}
                                                                     </div>
@@ -474,7 +474,7 @@ const Mensajes = () => {
                                                                             href={selectedMessage.meeting_link.startsWith('http') ? selectedMessage.meeting_link : `https://${selectedMessage.meeting_link}`}
                                                                             target="_blank" 
                                                                             rel="noopener noreferrer"
-                                                                            className="flex items-center justify-center gap-3 w-full py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-[#1a3a5a]/20 hover:scale-[1.02] transition-all"
+                                                                            className="flex items-center justify-center gap-3 w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all"
                                                                         >
                                                                             <span>🚀 Unirse a la Reunión</span>
                                                                         </a>
@@ -501,14 +501,14 @@ const Mensajes = () => {
                                                                         <input 
                                                                             type="text" 
                                                                             placeholder="ID Zoom"
-                                                                            className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#1a3a5a]"
+                                                                            className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
                                                                             value={linkData.zoom_code}
                                                                             onChange={(e) => setLinkData({...linkData, zoom_code: e.target.value})}
                                                                         />
                                                                         <input 
                                                                             type="text" 
                                                                             placeholder="Clave Zoom"
-                                                                            className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#1a3a5a]"
+                                                                            className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
                                                                             value={linkData.zoom_password}
                                                                             onChange={(e) => setLinkData({...linkData, zoom_password: e.target.value})}
                                                                         />
@@ -517,7 +517,7 @@ const Mensajes = () => {
                                                                     <input 
                                                                         type="url" 
                                                                         placeholder="https://meet.google.com/..."
-                                                                        className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#1a3a5a]"
+                                                                        className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
                                                                         value={linkData.meeting_link}
                                                                         onChange={(e) => setLinkData({...linkData, meeting_link: e.target.value})}
                                                                     />
@@ -560,7 +560,7 @@ const Mensajes = () => {
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-center opacity-30">
                             <div className="text-8-xl mb-6">📬</div>
-                            <p className="text-xl font-bold uppercase tracking-widest text-[#1a3a5a]">Selecciona un mensaje para leerlo</p>
+                            <p className="text-xl font-bold uppercase tracking-widest text-[#0f592f]">Selecciona un mensaje para leerlo</p>
                         </div>
                     )}
                 </div>
@@ -568,12 +568,12 @@ const Mensajes = () => {
 
             {/* CUSTOM CONFIRMATION MODAL */}
             {confirmDeleteModal.isOpen && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 overflow-hidden animate-in zoom-in duration-200 border border-gray-100 flex flex-col items-center text-center">
                         <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 text-3xl mb-6 shadow-sm border border-rose-100/50">
                             🗑️
                         </div>
-                        <h3 className="text-lg font-black text-[#1a3a5a] mb-2">¿Confirmar eliminación?</h3>
+                        <h3 className="text-lg font-black text-[#0f592f] mb-2">¿Confirmar eliminación?</h3>
                         <p className="text-gray-500 font-medium text-xs leading-relaxed mb-6">
                             {confirmDeleteModal.isBulk
                                 ? `¿Estás seguro de que deseas eliminar los ${selectedIds.length} mensajes seleccionados de tu bandeja de entrada? Esta acción no se puede deshacer.`

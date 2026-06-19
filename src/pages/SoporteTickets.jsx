@@ -88,7 +88,7 @@ const SoporteTickets = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
             </div>
         );
     }
@@ -102,14 +102,14 @@ const SoporteTickets = () => {
                     <span className="text-[10px] font-black text-pilas-gold bg-yellow-50 px-4 py-1.5 rounded-full border border-yellow-200 uppercase tracking-[0.25em]">
                         Centro de Ayuda
                     </span>
-                    <h1 className="text-4xl font-black text-[#1a3a5a] tracking-tight">Soporte y Reclamaciones</h1>
+                    <h1 className="text-4xl font-black text-[#0f592f] tracking-tight">Soporte y Reclamaciones</h1>
                     <p className="text-gray-500 font-medium text-xs leading-relaxed">
                         Reporta cualquier problema técnico o duda sobre el funcionamiento de la plataforma.
                     </p>
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="px-6 py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all border border-transparent hover:border-[#ffcc00]/20 flex items-center gap-2"
+                    className="px-6 py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all border border-transparent hover:border-[#ffcc00]/20 flex items-center gap-2"
                 >
                     <span>➕</span> Nuevo Ticket
                 </button>
@@ -132,7 +132,7 @@ const SoporteTickets = () => {
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-gray-50 pb-4">
                                     <div>
                                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Código: #{ticket.id}</span>
-                                        <h3 className="font-extrabold text-lg text-[#1a3a5a] leading-snug mt-1">{ticket.title}</h3>
+                                        <h3 className="font-extrabold text-lg text-[#0f592f] leading-snug mt-1">{ticket.title}</h3>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="text-[10px] text-gray-400 font-medium">{dateFormatted}</span>
@@ -151,7 +151,7 @@ const SoporteTickets = () => {
                                         <div className="bg-emerald-50/30 border border-emerald-100 rounded-3xl p-5 md:p-6 space-y-2 mt-4 animate-in slide-in-from-top-2">
                                             <div className="flex items-center gap-2">
                                                 <span className="text-sm">💬</span>
-                                                <h5 className="font-black text-xs text-[#1a3a5a] uppercase tracking-wider">Respuesta de Soporte</h5>
+                                                <h5 className="font-black text-xs text-[#0f592f] uppercase tracking-wider">Respuesta de Soporte</h5>
                                             </div>
                                             <p className="text-gray-700 text-xs font-semibold leading-relaxed">
                                                 {ticket.reply}
@@ -165,7 +165,7 @@ const SoporteTickets = () => {
                 ) : (
                     <div className="text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-200/80 flex flex-col items-center justify-center">
                         <span className="text-6xl mb-4">📨</span>
-                        <h3 className="text-lg font-black text-[#1a3a5a] mb-1">Sin Tickets Abiertos</h3>
+                        <h3 className="text-lg font-black text-[#0f592f] mb-1">Sin Tickets Abiertos</h3>
                         <p className="text-gray-400 text-xs font-medium max-w-sm">
                             ¿Tienes algún problema con las monedas, las videollamadas o la plataforma? Crea un ticket arriba y te responderemos pronto.
                         </p>
@@ -175,10 +175,10 @@ const SoporteTickets = () => {
 
             {/* MODAL CREAR TICKET */}
             {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
                     <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
                         <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                            <h2 className="text-2xl font-black text-[#1a3a5a] tracking-tighter">Crear Ticket</h2>
+                            <h2 className="text-2xl font-black text-[#0f592f] tracking-tighter">Crear Ticket</h2>
                             <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
                         </div>
 
@@ -191,7 +191,7 @@ const SoporteTickets = () => {
                                     placeholder="Ej: Error al canjear ESPE-Coins"
                                     value={newTicket.title} 
                                     onChange={(e) => setNewTicket({ ...newTicket, title: e.target.value })} 
-                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] placeholder-gray-400"
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] placeholder-gray-400"
                                 />
                             </div>
 
@@ -210,7 +210,7 @@ const SoporteTickets = () => {
                             <button 
                                 type="submit" 
                                 disabled={submitting}
-                                className="w-full py-5 bg-[#1a3a5a] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#1a3a5a]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                                className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
                             >
                                 {submitting ? 'Enviando...' : 'Reportar Ticket'}
                             </button>

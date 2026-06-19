@@ -103,7 +103,7 @@ const SeTutor = () => {
     if (loadingSubjects) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
             </div>
         );
     }
@@ -114,16 +114,16 @@ const SeTutor = () => {
                 <div className="w-20 h-20 bg-yellow-50 rounded-full flex items-center justify-center mx-auto border border-yellow-200 animate-pulse">
                     <span className="text-4xl text-pilas-gold">🛡️</span>
                 </div>
-                <h2 className="text-2xl font-black text-[#1a3a5a] tracking-tight">Solicitud en Revisión</h2>
+                <h2 className="text-2xl font-black text-[#0f592f] tracking-tight">Solicitud en Revisión</h2>
                 <p className="text-gray-500 text-sm font-medium leading-relaxed">
                     Tu postulación para convertirte en Tutor de Pilas! ha sido enviada con éxito.
                 </p>
-                <p className="text-[#1a3a5a]/75 text-xs font-semibold bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <p className="text-[#0f592f]/75 text-xs font-semibold bg-gray-50 p-4 rounded-2xl border border-gray-100">
                     El administrador está revisando tu biografía y materias seleccionadas. Pronto recibirás el veredicto en tu cuenta.
                 </p>
                 <button
                     onClick={() => navigate(`/profile/${currentUser.id}`)}
-                    className="w-full py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-md"
+                    className="w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-md"
                 >
                     Ir a Mi Perfil
                 </button>
@@ -139,7 +139,7 @@ const SeTutor = () => {
                 <span className="text-[10px] font-black text-pilas-gold bg-yellow-50 px-4 py-1.5 rounded-full border border-yellow-200 uppercase tracking-[0.25em]">
                     Comparte tu Conocimiento
                 </span>
-                <h1 className="text-4xl md:text-5xl font-black text-[#1a3a5a] tracking-tight">Sé un Tutor Pilas!</h1>
+                <h1 className="text-4xl md:text-5xl font-black text-[#0f592f] tracking-tight">Sé un Tutor Pilas!</h1>
                 <p className="text-gray-500 font-medium text-sm leading-relaxed">
                     Ayuda a otros compañeros a superar sus materias, consolida tus conocimientos y gana reconocimiento en la comunidad.
                 </p>
@@ -149,7 +149,7 @@ const SeTutor = () => {
                 
                 {/* COLUMNA IZQUIERDA: BENEFICIOS (5/12) */}
                 <aside className="lg:col-span-5 space-y-6">
-                    <div className="bg-[#1a3a5a] text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden flex flex-col gap-6">
+                    <div className="bg-[#0f592f] text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden flex flex-col gap-6">
                         <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/5 rounded-full blur-xl"></div>
                         <h3 className="font-extrabold text-xl text-[#ffcc00] tracking-tight">Beneficios de ser Mentor</h3>
                         
@@ -180,7 +180,7 @@ const SeTutor = () => {
 
                     <div className="bg-white p-6 rounded-[2rem] border border-gray-150 shadow-sm text-center">
                         <p className="text-xs font-semibold text-gray-500">¿Tienes dudas sobre el proceso?</p>
-                        <a href="/beneficios" className="text-xs font-black text-[#1a3a5a] hover:text-yellow-600 transition-colors uppercase tracking-widest mt-1 block">
+                        <a href="/beneficios" className="text-xs font-black text-[#0f592f] hover:text-yellow-600 transition-colors uppercase tracking-widest mt-1 block">
                             Leer Reglamento →
                         </a>
                     </div>
@@ -208,11 +208,11 @@ const SeTutor = () => {
                                                 >
                                                     <input
                                                         type="checkbox"
-                                                        className="rounded text-[#1a3a5a] focus:ring-[#ffcc00] w-4 h-4 cursor-pointer"
+                                                        className="rounded text-[#0f592f] focus:ring-[#ffcc00] w-4 h-4 cursor-pointer"
                                                         checked={isSelected}
                                                         onChange={() => handleSubjectToggle(sub.id)}
                                                     />
-                                                    <span className="text-[10px] font-black text-[#1a3a5a] uppercase truncate" title={sub.name}>{sub.name}</span>
+                                                    <span className="text-[10px] font-black text-[#0f592f] uppercase truncate" title={sub.name}>{sub.name}</span>
                                                 </label>
                                             );
                                         })}
@@ -246,7 +246,7 @@ const SeTutor = () => {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="w-full py-5 bg-[#1a3a5a] text-[#ffcc00] rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:shadow-[#1a3a5a]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+                            className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
                         >
                             {submitting ? 'Procesando Ascenso...' : 'Enviar Solicitud y Ascender'}
                         </button>

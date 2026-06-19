@@ -10,7 +10,7 @@ const PlaceholderView = ({ icon, title, description }) => {
             <div
                 className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{
-                    backgroundImage: 'radial-gradient(circle, #1e3a8a 1px, transparent 1px)',
+                    backgroundImage: 'radial-gradient(circle, #0f592f 1px, transparent 1px)',
                     backgroundSize: '24px 24px',
                 }}
             />
@@ -26,7 +26,7 @@ const PlaceholderView = ({ icon, title, description }) => {
 
                 {/* Textos */}
                 <div className="space-y-2">
-                    <h2 className="text-xl font-black text-[#1e3a8a] tracking-tight">{title}</h2>
+                    <h2 className="text-xl font-black text-[#0f592f] tracking-tight">{title}</h2>
                     <p className="text-sm text-gray-400 font-medium leading-relaxed">
                         {description || 'Esta sección está en construcción. Pronto estará disponible.'}
                     </p>

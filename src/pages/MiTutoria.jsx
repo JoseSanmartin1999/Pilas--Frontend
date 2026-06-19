@@ -92,7 +92,7 @@ const MiTutoria = () => {
         return (
             <div className="flex items-center justify-center h-full bg-gray-50/30">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-10 h-10 border-2 border-[#1e3a8a] border-t-transparent rounded-full animate-spin" />
+                    <div className="w-10 h-10 border-2 border-[#0f592f] border-t-transparent rounded-full animate-spin" />
                     <p className="text-sm font-bold text-gray-400 tracking-wide">Cargando tu espacio de trabajo...</p>
                 </div>
             </div>
@@ -108,7 +108,7 @@ const MiTutoria = () => {
                     <p className="font-black text-gray-700">{error}</p>
                     <button
                         onClick={() => window.location.reload()}
-                        className="px-6 py-2.5 bg-[#1e3a8a] text-pilas-gold rounded-xl font-black text-xs uppercase tracking-widest"
+                        className="px-6 py-2.5 bg-[#0f592f] text-pilas-gold rounded-xl font-black text-xs uppercase tracking-widest"
                     >
                         Reintentar
                     </button>
@@ -126,7 +126,7 @@ const MiTutoria = () => {
                         📭
                     </div>
                     <div className="space-y-2">
-                        <h2 className="text-xl font-black text-[#1e3a8a] tracking-tight">
+                        <h2 className="text-xl font-black text-[#0f592f] tracking-tight">
                             Sin tutorías activas
                         </h2>
                         <p className="text-sm text-gray-400 font-medium leading-relaxed">
@@ -136,7 +136,7 @@ const MiTutoria = () => {
                     </div>
                     <a
                         href="/buscar"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#1e3a8a] text-pilas-gold rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#1a3270] hover:scale-[1.02] transition-all shadow-lg shadow-[#1e3a8a]/20"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-pilas-gold rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20"
                     >
                         <span>🔍</span> Buscar tutor
                     </a>
@@ -182,11 +182,11 @@ const MiTutoria = () => {
             <div className="max-w-4xl mx-auto px-6 py-12">
                 {/* Encabezado */}
                 <div className="mb-10">
-                    <h1 className="text-3xl font-black text-[#1e3a8a] tracking-tight mb-2">
+                    <h1 className="text-3xl font-black text-[#0f592f] tracking-tight mb-2">
                         MiTutoría
                     </h1>
                     <p className="text-gray-500 font-medium">
-                        Tienes <span className="font-black text-[#1e3a8a]">{mentorships.length}</span> tutorías activas.
+                        Tienes <span className="font-black text-[#0f592f]">{mentorships.length}</span> tutorías activas.
                         Selecciona una para entrar al espacio de trabajo.
                     </p>
                 </div>
@@ -206,13 +206,13 @@ const MiTutoria = () => {
                                 className="group bg-white rounded-[2rem] border-2 border-gray-100 p-6 text-left hover:border-pilas-gold hover:shadow-xl hover:shadow-pilas-gold/10 hover:scale-[1.02] transition-all duration-200 flex flex-col gap-4"
                             >
                                 {/* Ícono de materia */}
-                                <div className="w-14 h-14 bg-gradient-to-br from-[#1e3a8a] to-[#1a3270] rounded-2xl flex items-center justify-center text-pilas-gold text-2xl shadow-lg shadow-[#1e3a8a]/20 group-hover:scale-110 transition-transform">
+                                <div className="w-14 h-14 bg-gradient-to-br from-[#0f592f] to-[#0a4624] rounded-2xl flex items-center justify-center text-pilas-gold text-2xl shadow-lg shadow-[#0f592f]/20 group-hover:scale-110 transition-transform">
                                     📖
                                 </div>
 
                                 {/* Info */}
                                 <div className="flex-1 space-y-1">
-                                    <h3 className="font-black text-[#1e3a8a] text-base leading-tight">
+                                    <h3 className="font-black text-[#0f592f] text-base leading-tight">
                                         {m.subject_name}
                                     </h3>
                                     <div className="flex items-center gap-1.5">
@@ -240,7 +240,7 @@ const MiTutoria = () => {
                                     <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">
                                         {new Date(m.scheduled_date).toLocaleDateString('es', { day: 'numeric', month: 'short' })}
                                     </span>
-                                    <span className="text-[10px] font-black text-[#1e3a8a] group-hover:text-pilas-gold transition-colors">
+                                    <span className="text-[10px] font-black text-[#0f592f] group-hover:text-pilas-gold transition-colors">
                                         Entrar →
                                     </span>
                                 </div>

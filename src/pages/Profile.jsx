@@ -9,6 +9,35 @@ const Profile = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [brokenImages, setBrokenImages] = useState({});
+
+  const handleImageError = (badgeId) => {
+    setBrokenImages(prev => ({ ...prev, [badgeId]: true }));
+  };
+
+  const getBadgeEmoji = (badgeName) => {
+    switch (badgeName) {
+      case 'Primeros Pasos':
+        return '🎯';
+      case 'Cerebro de Oro':
+        return '💡';
+      case 'Siempre Puntual':
+        return '⚡';
+      case 'Mentor Estrella':
+        return '⭐';
+      case 'Súper Aprendiz':
+        return '🎓';
+      case 'Héroe de la ESPE':
+      case 'Maestro ESPE':
+        return '🏆';
+      case 'Hola Mundo':
+        return '🌍';
+      case 'Perfil Estelar':
+        return '✨';
+      default:
+        return '🏅';
+    }
+  };
 
   // Estado para Pactar Tutoría
   const [showMentorshipModal, setShowMentorshipModal] = useState(false);
@@ -242,7 +271,7 @@ const Profile = () => {
 
   if (loading) return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
     </div>
   );
 
@@ -250,7 +279,7 @@ const Profile = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-50 text-center p-8">
       <div>
         <div className="text-6xl mb-4">🔌</div>
-        <h2 className="text-2xl font-black text-[#1a3a5a] mb-2">Error de conexión</h2>
+        <h2 className="text-2xl font-black text-[#0f592f] mb-2">Error de conexión</h2>
         <p className="text-gray-500 font-medium">No se pudo cargar el perfil del usuario. Por favor verifica que el servidor esté activo.</p>
       </div>
     </div>
@@ -266,7 +295,7 @@ const Profile = () => {
             {isOwnProfile && (
               <button
                 onClick={() => setShowModal(true)}
-                className="absolute top-6 right-6 p-2 bg-gray-50 text-gray-400 rounded-full hover:bg-[#ffcc00] hover:text-[#1a3a5a] transition-all opacity-0 group-hover:opacity-100"
+                className="absolute top-6 right-6 p-2 bg-gray-50 text-gray-400 rounded-full hover:bg-[#ffcc00] hover:text-[#0f592f] transition-all opacity-0 group-hover:opacity-100"
                 title="Editar Perfil"
               >
                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z" /></svg>
@@ -277,21 +306,21 @@ const Profile = () => {
               className="w-40 h-40 rounded-[2rem] mx-auto object-cover shadow-md mb-6 ring-4 ring-gray-50"
               alt="Perfil"
             />
-            <h2 className="mt-4 font-extrabold text-[#1a3a5a] text-2xl leading-tight">
+            <h2 className="mt-4 font-extrabold text-[#0f592f] text-2xl leading-tight">
               {user.full_name || `${user.nombre} ${user.apellidos}`}
             </h2>
 
             <div className="mt-8 space-y-3 text-sm font-medium text-gray-600 text-left bg-gray-50/50 p-6 rounded-3xl border border-gray-100/50">
-              <div className="flex justify-between items-center"><span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Semestre</span> <span className="font-bold text-[#1a3a5a] bg-white px-2 py-0.5 rounded shadow-sm border border-gray-100">{user.current_semester || '1'}°</span></div>
+              <div className="flex justify-between items-center"><span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Semestre</span> <span className="font-bold text-[#0f592f] bg-white px-2 py-0.5 rounded shadow-sm border border-gray-100">{user.current_semester || '1'}°</span></div>
               <div className="flex justify-between items-center"><span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Carrera</span> <span className="truncate max-w-[120px] text-right font-medium" title={user.career || user.carrera}>{user.career || user.carrera || '-'}</span></div>
               <div className="flex justify-between items-center"><span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Institución</span> <span className="font-medium text-gray-800">{user.institution || 'ESPE'}</span></div>
-              <div className="flex justify-between items-center"><span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Rol</span> <span className="bg-[#1a3a5a]/10 text-[#1a3a5a] font-bold px-3 py-1 rounded-lg text-xs tracking-wide">{user.role}</span></div>
+              <div className="flex justify-between items-center"><span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Rol</span> <span className="bg-[#0f592f]/10 text-[#0f592f] font-bold px-3 py-1 rounded-lg text-xs tracking-wide">{user.role}</span></div>
             </div>
           </div>
 
           {/* Tarjeta de Nivel y XP (Sólo si no es ADMIN) */}
           {user.role !== 'ADMIN' && (
-            <div className="bg-[#1a3a5a] p-6 rounded-[2rem] text-white shadow-sm ring-1 ring-gray-900/5 text-left relative overflow-hidden group">
+            <div className="bg-[#0f592f] p-6 rounded-[2rem] text-white shadow-sm ring-1 ring-gray-900/5 text-left relative overflow-hidden group">
               <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
               <div className="flex justify-between items-center mb-3">
                 <span className="text-xs font-black uppercase tracking-wider text-[#ffcc00] flex items-center gap-1">
@@ -348,11 +377,11 @@ const Profile = () => {
                   return (
                     <div key={idx} className="p-5 border-l-4 border-pilas-gold bg-gray-50 rounded-2xl flex flex-col space-y-3 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-center">
-                        <p className="text-xs font-black text-[#1a3a5a]">{fecha}</p>
+                        <p className="text-xs font-black text-[#0f592f]">{fecha}</p>
                         <p className="text-[10px] font-black text-gray-800 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-100">{hora}</p>
                       </div>
                       <div>
-                        <p className="text-[12px] font-black text-[#1a3a5a] uppercase truncate mb-1">{t.materia}</p>
+                        <p className="text-[12px] font-black text-[#0f592f] uppercase truncate mb-1">{t.materia}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
                             {t.modality === 'Presencial' ? '📍 ' + (t.meeting_place || 'Lugar por definir') : '💻 ' + (t.platform || 'Online')}
@@ -385,7 +414,7 @@ const Profile = () => {
         <div className="lg:col-span-8 flex flex-col space-y-6">
 
           {/* BARRA SUPERIOR: SCORE */}
-          <div className="bg-gradient-to-r from-[#1a3a5a] to-[#2a4a7a] p-8 rounded-[2rem] shadow-lg flex items-center justify-between overflow-hidden relative">
+          <div className="bg-gradient-to-r from-[#0f592f] to-[#0a4624] p-8 rounded-[2rem] shadow-lg flex items-center justify-between overflow-hidden relative">
             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl"></div>
             <div className="flex flex-col relative z-10">
               <span className="text-lg font-bold text-white/80 uppercase tracking-widest">Puntuación</span>
@@ -404,10 +433,10 @@ const Profile = () => {
           <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h4 className="text-[#1a3a5a] font-extrabold text-xl tracking-tight">Mis Logros e Insignias</h4>
+                <h4 className="text-[#0f592f] font-extrabold text-xl tracking-tight">Mis Logros e Insignias</h4>
                 <p className="text-gray-400 text-xs mt-1">Recompensas desbloqueadas por su participación y aportes.</p>
               </div>
-              <span className="text-[10px] font-bold text-[#1a3a5a] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">{user.badges?.length || 0} Insignias</span>
+              <span className="text-[10px] font-bold text-[#0f592f] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">{user.badges?.length || 0} Insignias</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -437,6 +466,10 @@ const Profile = () => {
                           return `Otorgado por recibir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como aprendiz.`;
                         case 'perfect_ratings':
                           return `Otorgado por lograr una calificación perfecta de 5 estrellas en ${parsed.value} tutorías.`;
+                        case 'first_login':
+                          return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
+                        case 'profile_configured':
+                          return 'Otorgado al personalizar tu perfil y completar tu avatar.';
                         default:
                           return b.criteria;
                       }
@@ -454,17 +487,22 @@ const Profile = () => {
                     
                     {/* Contenedor del Icono */}
                     <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center text-4xl shadow-md border border-gray-100/50 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300 relative z-10">
-                      {typeof badge.icon === 'string' && badge.icon.startsWith('http') ? (
-                        <img src={badge.icon} alt={badge.name} className="w-full h-full object-cover" />
+                      {typeof badge.icon === 'string' && badge.icon.startsWith('http') && !brokenImages[badge.id || badge.name] ? (
+                        <img 
+                          src={badge.icon} 
+                          alt={badge.name} 
+                          className="w-full h-full object-cover" 
+                          onError={() => handleImageError(badge.id || badge.name)}
+                        />
                       ) : (
-                        badge.icon || '🏅'
+                        getBadgeEmoji(badge.name)
                       )}
                     </div>
                     
                     {/* Información de la Insignia */}
                     <div className="flex flex-col justify-between text-left flex-1 relative z-10">
                       <div>
-                        <h5 className="font-black text-[#1a3a5a] text-sm md:text-base leading-snug tracking-tight mb-1 group-hover:text-amber-500 transition-colors">
+                        <h5 className="font-black text-[#0f592f] text-sm md:text-base leading-snug tracking-tight mb-1 group-hover:text-amber-500 transition-colors">
                           {badge.name}
                         </h5>
                         <p className="text-[11px] text-gray-500 font-medium leading-normal mb-3">
@@ -507,7 +545,7 @@ const Profile = () => {
 
           {/* COMENTARIOS / SOBRE MÍ */}
           <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 flex flex-col">
-            <h4 className="text-[#1a3a5a] font-extrabold text-xl tracking-tight mb-5">Sobre Mí</h4>
+            <h4 className="text-[#0f592f] font-extrabold text-xl tracking-tight mb-5">Sobre Mí</h4>
             <div className="bg-gray-50/80 rounded-3xl p-8 border border-gray-100/80 shadow-inner">
               <p className="text-gray-600 leading-relaxed text-sm font-medium">
                 {user.bio ? `"${user.bio}"` : <span className="italic px-2">Este usuario no ha agregado comentarios aún.</span>}
@@ -519,8 +557,8 @@ const Profile = () => {
           {user.role === 'MENTOR' && (
             <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 flex flex-col space-y-6">
               <div className="flex justify-between items-center">
-                <h4 className="text-[#1a3a5a] font-extrabold text-xl tracking-tight">Opiniones de Alumnos</h4>
-                <span className="text-[10px] font-bold text-[#1a3a5a] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">
+                <h4 className="text-[#0f592f] font-extrabold text-xl tracking-tight">Opiniones de Alumnos</h4>
+                <span className="text-[10px] font-bold text-[#0f592f] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">
                   {user.comments?.length || 0} opiniones
                 </span>
               </div>
@@ -563,7 +601,7 @@ const Profile = () => {
                         {/* Contenido de la opinión */}
                         <div className="flex-grow space-y-2 text-left">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                            <h5 className="font-extrabold text-[#1a3a5a] text-sm">{comment.apprentice_name}</h5>
+                            <h5 className="font-extrabold text-[#0f592f] text-sm">{comment.apprentice_name}</h5>
                             <span className="text-[10px] font-bold text-gray-400">{dateFormatted}</span>
                           </div>
 
@@ -605,7 +643,7 @@ const Profile = () => {
             {!isOwnProfile && user.role === 'MENTOR' && (
               <button 
                 onClick={() => setShowMentorshipModal(true)}
-                className="px-8 py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg hover:shadow-xl hover:bg-[#112740] transition-all flex-[2] text-center border border-transparent hover:border-[#ffcc00]/30"
+                className="px-8 py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg hover:shadow-xl hover:bg-[#0a4624] transition-all flex-[2] text-center border border-transparent hover:border-[#ffcc00]/30"
               >
                 Pactar Tutoría
               </button>
@@ -616,10 +654,10 @@ const Profile = () => {
 
       {/* MODAL PARA PACTAR TUTORÍA */}
       {showMentorshipModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-2xl font-black text-[#1a3a5a] tracking-tighter">Pactar Tutoría</h2>
+              <h2 className="text-2xl font-black text-[#0f592f] tracking-tighter">Pactar Tutoría</h2>
               <button onClick={() => setShowMentorshipModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
             </div>
 
@@ -630,7 +668,7 @@ const Profile = () => {
                   required
                   value={mentorshipData.subject_id} 
                   onChange={(e) => setMentorshipData({ ...mentorshipData, subject_id: e.target.value })} 
-                  className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]"
+                  className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]"
                 >
                   <option value="" disabled>Selecciona una materia...</option>
                   {(user.materias || []).map((m, idx) => {
@@ -644,11 +682,11 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Fecha</label>
-                  <input type="date" required min={new Date().toLocaleDateString('sv-SE')} value={mentorshipData.date} onChange={(e) => setMentorshipData({ ...mentorshipData, date: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]" />
+                  <input type="date" required min={new Date().toLocaleDateString('sv-SE')} value={mentorshipData.date} onChange={(e) => setMentorshipData({ ...mentorshipData, date: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
                 </div>
                 <div>
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Hora</label>
-                  <input type="time" required value={mentorshipData.time} onChange={(e) => setMentorshipData({ ...mentorshipData, time: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]" />
+                  <input type="time" required value={mentorshipData.time} onChange={(e) => setMentorshipData({ ...mentorshipData, time: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
                 </div>
               </div>
 
@@ -667,11 +705,11 @@ const Profile = () => {
               <div className="space-y-4">
                 <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest">¿Modalidad de Tutoría?</label>
                 <div className="flex gap-4">
-                  <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer font-bold text-xs ${mentorshipData.modality === 'Presencial' ? 'border-[#ffcc00] bg-yellow-50 text-[#1a3a5a]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}>
+                  <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer font-bold text-xs ${mentorshipData.modality === 'Presencial' ? 'border-[#ffcc00] bg-yellow-50 text-[#0f592f]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}>
                     <input type="radio" name="modality" value="Presencial" checked={mentorshipData.modality === 'Presencial'} onChange={(e) => setMentorshipData({ ...mentorshipData, modality: e.target.value })} className="hidden" />
                     <span>📍 Presencial</span>
                   </label>
-                  <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer font-bold text-xs ${mentorshipData.modality === 'Online' ? 'border-[#ffcc00] bg-yellow-50 text-[#1a3a5a]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}>
+                  <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer font-bold text-xs ${mentorshipData.modality === 'Online' ? 'border-[#ffcc00] bg-yellow-50 text-[#0f592f]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}>
                     <input type="radio" name="modality" value="Online" checked={mentorshipData.modality === 'Online'} onChange={(e) => setMentorshipData({ ...mentorshipData, modality: e.target.value })} className="hidden" />
                     <span>💻 Online</span>
                   </label>
@@ -686,7 +724,7 @@ const Profile = () => {
                       placeholder="Ej: Biblioteca central, Cubículo 5..."
                       value={mentorshipData.meeting_place} 
                       onChange={(e) => setMentorshipData({ ...mentorshipData, meeting_place: e.target.value })} 
-                      className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]" 
+                      className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" 
                     />
                   </div>
                 )}
@@ -700,7 +738,7 @@ const Profile = () => {
                           key={p}
                           type="button"
                           onClick={() => setMentorshipData({ ...mentorshipData, platform: p })}
-                          className={`py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${mentorshipData.platform === p ? 'bg-[#1a3a5a] text-[#ffcc00] shadow-lg scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                          className={`py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${mentorshipData.platform === p ? 'bg-[#0f592f] text-[#ffcc00] shadow-lg scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                         >
                           {p}
                         </button>
@@ -719,7 +757,7 @@ const Profile = () => {
                       key={t}
                       type="button"
                       onClick={() => setMentorshipData({ ...mentorshipData, estimated_duration: t })}
-                      className={`py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${mentorshipData.estimated_duration === t ? 'bg-[#1a3a5a] text-[#ffcc00] shadow-lg scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                      className={`py-3 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${mentorshipData.estimated_duration === t ? 'bg-[#0f592f] text-[#ffcc00] shadow-lg scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                     >
                       {t}
                     </button>
@@ -727,7 +765,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <button type="submit" className="w-full py-5 bg-[#1a3a5a] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#1a3a5a]/20 hover:scale-[1.02] transition-all">
+              <button type="submit" className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all">
                 Enviar Solicitud
               </button>
             </form>
@@ -737,10 +775,10 @@ const Profile = () => {
 
       {/* MODAL DE EDICIÓN NATIVO (Tailwind) */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#1a3a5a]/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-              <h2 className="text-2xl font-black text-[#1a3a5a] tracking-tighter">Ajustes de Perfil</h2>
+              <h2 className="text-2xl font-black text-[#0f592f] tracking-tighter">Ajustes de Perfil</h2>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
             </div>
 
@@ -753,7 +791,7 @@ const Profile = () => {
                 />
                 <div className="flex-1">
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Foto de Perfil</label>
-                  <input type="file" onChange={handleImageChange} className="text-[10px] file:bg-[#1a3a5a] file:text-white file:border-0 file:px-4 file:py-2 file:rounded-xl file:mr-3 file:font-bold cursor-pointer" accept="image/*" />
+                  <input type="file" onChange={handleImageChange} className="text-[10px] file:bg-[#0f592f] file:text-white file:border-0 file:px-4 file:py-2 file:rounded-xl file:mr-3 file:font-bold cursor-pointer" accept="image/*" />
                   <p className="text-[9px] text-gray-400 mt-1.5 leading-normal">
                     Tamaño máx: <strong>2 MB</strong> · Mín: <strong>200x200 px</strong>, Máx: <strong>2000x2000 px</strong>.
                   </p>
@@ -763,7 +801,7 @@ const Profile = () => {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Semestre</label>
-                  <input type="number" value={editData.current_semester} onChange={(e) => setEditData({ ...editData, current_semester: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a]" />
+                  <input type="number" value={editData.current_semester} onChange={(e) => setEditData({ ...editData, current_semester: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
                 </div>
                 <div>
                   <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado Académico</label>
@@ -795,7 +833,7 @@ const Profile = () => {
                           >
                             <input
                               type="checkbox"
-                              className="rounded text-[#1a3a5a] focus:ring-[#ffcc00] w-4 h-4 cursor-pointer"
+                              className="rounded text-[#0f592f] focus:ring-[#ffcc00] w-4 h-4 cursor-pointer"
                               checked={isSelected}
                               onChange={(e) => {
                                 const list = e.target.checked
@@ -804,7 +842,7 @@ const Profile = () => {
                                 setEditData({ ...editData, materias: list });
                               }}
                             />
-                            <span className="text-[10px] font-black text-[#1a3a5a] uppercase truncate" title={sub.name}>{sub.name}</span>
+                            <span className="text-[10px] font-black text-[#0f592f] uppercase truncate" title={sub.name}>{sub.name}</span>
                           </label>
                         );
                       })}
@@ -818,7 +856,7 @@ const Profile = () => {
                 </div>
               )}
 
-              <button type="submit" className="w-full py-5 bg-[#1a3a5a] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#1a3a5a]/20 hover:scale-[1.02] transition-all">
+              <button type="submit" className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all">
                 Actualizar Perfil
               </button>
             </form>

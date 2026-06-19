@@ -54,14 +54,14 @@ const Solicitudes = () => {
 
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1a3a5a]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
         </div>
     );
 
     return (
         <div className="max-w-5xl mx-auto p-4 md:p-10 min-h-screen bg-gray-50 font-sans">
             <header className="mb-12 text-center">
-                <h1 className="text-4xl font-black text-[#1a3a5a] tracking-tight mb-2">Solicitudes Pendientes</h1>
+                <h1 className="text-4xl font-black text-[#0f592f] tracking-tight mb-2">Solicitudes Pendientes</h1>
                 <p className="text-gray-500 font-medium">Gestiona las tutorías que te han solicitado los alumnos</p>
             </header>
 
@@ -77,11 +77,11 @@ const Solicitudes = () => {
                                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
                                     <div className="flex-1 space-y-6">
                                         <div className="space-y-2">
-                                            <p className="text-[#1a3a5a] text-lg leading-relaxed">
+                                            <p className="text-[#0f592f] text-lg leading-relaxed">
                                                 Hola Estimado Tutor <span className="font-black">({m.mentor_name})</span>
                                             </p>
                                             <p className="text-gray-600 text-lg leading-relaxed">
-                                                Permíteme saludarte, soy <span className="font-black text-[#1a3a5a]">{m.apprentice_name}</span> y quisiera solicitarte una tutoría en la materia de <span className="text-[#ffcc00] font-black uppercase tracking-wider">{m.subject_name}</span> para tratar los siguientes temas:
+                                                Permíteme saludarte, soy <span className="font-black text-[#0f592f]">{m.apprentice_name}</span> y quisiera solicitarte una tutoría en la materia de <span className="text-[#ffcc00] font-black uppercase tracking-wider">{m.subject_name}</span> para tratar los siguientes temas:
                                             </p>
                                         </div>
 
@@ -98,16 +98,16 @@ const Solicitudes = () => {
 
                                         <div className="flex flex-wrap gap-4 text-gray-600 italic">
                                             <p>
-                                                Propuesto para el: <span className="font-bold text-[#1a3a5a]">{date.toLocaleDateString()}</span> a las <span className="font-bold text-[#1a3a5a]">{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                Propuesto para el: <span className="font-bold text-[#0f592f]">{date.toLocaleDateString()}</span> a las <span className="font-bold text-[#0f592f]">{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                             </p>
                                             <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-lg not-italic">
-                                                <span className="text-xs font-black uppercase text-[#1a3a5a] tracking-tighter">Modalidad:</span>
+                                                <span className="text-xs font-black uppercase text-[#0f592f] tracking-tighter">Modalidad:</span>
                                                 <span className="text-xs font-bold text-gray-700">
                                                     {m.modality === 'Presencial' ? `📍 Presencial (${m.meeting_place || 'TBD'})` : `💻 Online (${m.platform || 'TBD'})`}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-lg not-italic">
-                                                <span className="text-xs font-black uppercase text-[#1a3a5a] tracking-tighter">Duración:</span>
+                                                <span className="text-xs font-black uppercase text-[#0f592f] tracking-tighter">Duración:</span>
                                                 <span className="text-xs font-bold text-gray-700">
                                                     ⏱️ {m.estimated_duration || '1 hora'}
                                                 </span>
@@ -125,14 +125,14 @@ const Solicitudes = () => {
                                                     setReprogrammingId(null);
                                                 }
                                             }}
-                                            className="w-full py-4 bg-[#1a3a5a] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-[#1a3a5a]/20 hover:bg-[#112740] transition-all"
+                                            className="w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-[#0f592f]/20 hover:bg-[#0a4624] transition-all"
                                         >
                                             {m.modality === 'Presencial' ? 'Aceptar' : 'Configurar y Aceptar'}
                                         </button>
                                         
                                         <button 
                                             onClick={() => setReprogrammingId(reprogrammingId === m.id ? null : m.id)}
-                                            className="w-full py-4 bg-white border-2 border-[#ffcc00] text-[#1a3a5a] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#ffcc00] hover:text-white transition-all"
+                                            className="w-full py-4 bg-white border-2 border-[#ffcc00] text-[#0f592f] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#ffcc00] hover:text-white transition-all"
                                         >
                                             Reprogramar
                                         </button>
@@ -154,7 +154,7 @@ const Solicitudes = () => {
                                                 <input 
                                                     type="date" 
                                                     min={new Date().toLocaleDateString('sv-SE')}
-                                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                     onChange={(e) => setNewDate(e.target.value)}
                                                 />
                                             </div>
@@ -162,7 +162,7 @@ const Solicitudes = () => {
                                                 <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nueva Hora</label>
                                                 <input 
                                                     type="time" 
-                                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                     onChange={(e) => setNewTime(e.target.value)}
                                                 />
                                             </div>
@@ -214,7 +214,7 @@ const Solicitudes = () => {
                                                         <input 
                                                             type="url" 
                                                             placeholder="https://meet.google.com/..."
-                                                            className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                            className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                             value={meetingData.meeting_link}
                                                             onChange={(e) => setMeetingData({ ...meetingData, meeting_link: e.target.value })}
                                                         />
@@ -226,7 +226,7 @@ const Solicitudes = () => {
                                                             <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código Zoom</label>
                                                             <input 
                                                                 type="text" 
-                                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                                 value={meetingData.zoom_code}
                                                                 onChange={(e) => setMeetingData({ ...meetingData, zoom_code: e.target.value })}
                                                             />
@@ -235,7 +235,7 @@ const Solicitudes = () => {
                                                             <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Clave Zoom</label>
                                                             <input 
                                                                 type="text" 
-                                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                                className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                                 value={meetingData.zoom_password}
                                                                 onChange={(e) => setMeetingData({ ...meetingData, zoom_password: e.target.value })}
                                                             />
@@ -249,7 +249,7 @@ const Solicitudes = () => {
 
                                 {acceptingId === m.id && (
                                     <div className="mt-8 pt-8 border-t border-dashed border-gray-200 animate-in slide-in-from-top duration-300">
-                                        <h4 className="text-[10px] font-black text-[#1a3a5a] uppercase tracking-widest mb-4">Detalles de la Reunión ({m.platform})</h4>
+                                        <h4 className="text-[10px] font-black text-[#0f592f] uppercase tracking-widest mb-4">Detalles de la Reunión ({m.platform})</h4>
                                         <div className="space-y-4">
                                             {(m.platform === 'Meet' || m.platform === 'Teams') && (
                                                 <div>
@@ -257,7 +257,7 @@ const Solicitudes = () => {
                                                     <input 
                                                         type="url" 
                                                         placeholder="https://meet.google.com/..."
-                                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                         value={meetingData.meeting_link}
                                                         onChange={(e) => setMeetingData({ ...meetingData, meeting_link: e.target.value })}
                                                     />
@@ -271,7 +271,7 @@ const Solicitudes = () => {
                                                         <input 
                                                             type="text" 
                                                             placeholder="ID de la reunión"
-                                                            className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                            className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                             value={meetingData.zoom_code}
                                                             onChange={(e) => setMeetingData({ ...meetingData, zoom_code: e.target.value })}
                                                         />
@@ -281,7 +281,7 @@ const Solicitudes = () => {
                                                         <input 
                                                             type="text" 
                                                             placeholder="Clave de acceso"
-                                                            className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#1a3a5a] border border-gray-100"
+                                                            className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                             value={meetingData.zoom_password}
                                                             onChange={(e) => setMeetingData({ ...meetingData, zoom_password: e.target.value })}
                                                         />
@@ -295,7 +295,7 @@ const Solicitudes = () => {
                                                     if ((m.platform === 'Meet' || m.platform === 'Teams') && !meetingData.meeting_link) return showNotification("Por favor ingresa el link de la reunión", "warning");
                                                     handleAction(m.id, 'ACEPTADA', meetingData);
                                                 }}
-                                                className="w-full bg-[#1a3a5a] text-[#ffcc00] font-black py-4 rounded-2xl uppercase text-xs tracking-widest hover:bg-[#112740] transition-all shadow-lg"
+                                                className="w-full bg-[#0f592f] text-[#ffcc00] font-black py-4 rounded-2xl uppercase text-xs tracking-widest hover:bg-[#0a4624] transition-all shadow-lg"
                                             >
                                                 Confirmar y Aceptar Tutoría
                                             </button>

@@ -232,7 +232,7 @@ const Register = () => {
                             </div>
                         )}
 
-                        <button type="submit" className="w-full bg-pilas-blue text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-900 transform transition-all shadow-lg">
+                        <button type="submit" className="w-full bg-pilas-blue text-white py-4 rounded-xl font-bold text-lg hover:bg-[#0a4624] transform transition-all shadow-lg">
                             Finalizar Registro
                         </button>
                     </form>

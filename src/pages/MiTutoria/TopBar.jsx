@@ -68,7 +68,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
             {/* IZQUIERDA — Materia y compañero */}
             <div className="flex items-center gap-4 flex-shrink-0">
                 <div className="flex flex-col">
-                    <span className="text-[#1e3a8a] font-black text-sm leading-tight tracking-tight flex items-center gap-1.5">
+                    <span className="text-[#0f592f] font-black text-sm leading-tight tracking-tight flex items-center gap-1.5">
                         {mentorship?.subject_name || 'Tutoría'}
                         {mentorship?.status === 'COMPLETADA' && (
                             <span className="text-[8px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest border border-red-200 animate-pulse">
@@ -118,7 +118,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
                     <button
                         id="btn-marcar-hito"
                         onClick={handleHito}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#1e3a8a] text-pilas-gold rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#1a3270] hover:shadow-lg hover:shadow-[#1e3a8a]/20 hover:scale-[1.02] transition-all duration-200"
+                        className="flex items-center gap-2 px-4 py-2 bg-[#0f592f] text-pilas-gold rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#0a4624] hover:shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all duration-200"
                     >
                         <span>🏆</span>
                         <span className="hidden sm:block">Marcar Hito</span>
@@ -150,7 +150,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
                         </div>
                         
                         <div className="text-center space-y-1">
-                            <h3 className="text-base font-black text-[#1e3a8a] tracking-tight">
+                            <h3 className="text-base font-black text-[#0f592f] tracking-tight">
                                 ¿Cerrar esta Tutoría?
                             </h3>
                             <p className="text-[11px] text-gray-400 font-medium">
@@ -160,17 +160,17 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
 
                         {/* Opciones tipo Tarjeta */}
                         <div className="space-y-2.5">
-                            <label className={`flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${closeType === 'finalizada' ? 'border-[#1e3a8a] bg-blue-50/10' : 'border-gray-100 hover:bg-gray-50'}`}>
+                            <label className={`flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${closeType === 'finalizada' ? 'border-[#0f592f] bg-blue-50/10' : 'border-gray-100 hover:bg-gray-50'}`}>
                                 <input
                                     type="radio"
                                     name="closeReason"
                                     value="finalizada"
                                     checked={closeType === 'finalizada'}
                                     onChange={() => setCloseType('finalizada')}
-                                    className="mt-1 text-[#1e3a8a] focus:ring-[#1e3a8a]"
+                                    className="mt-1 text-[#0f592f] focus:ring-[#0f592f]"
                                 />
                                 <div className="space-y-0.5">
-                                    <p className="text-xs font-black text-[#1e3a8a] uppercase tracking-wide">Tutoría Finalizada</p>
+                                    <p className="text-xs font-black text-[#0f592f] uppercase tracking-wide">Tutoría Finalizada</p>
                                     <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
                                         El aula pasará a estado inactivo (solo lectura) durante **2 días** para consulta y luego se eliminará.
                                     </p>
@@ -204,7 +204,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
                                 <select
                                     value={cancelReasonOpt}
                                     onChange={(e) => setCancelReasonOpt(e.target.value)}
-                                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-[#1e3a8a] font-bold focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 cursor-pointer"
+                                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-[#0f592f] font-bold focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 cursor-pointer"
                                 >
                                     <option value="Nunca se presentó a la tutoría">Nunca se presentó a la tutoría</option>
                                     <option value="No pudimos reprogramar">No pudimos reprogramar</option>
@@ -238,7 +238,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship }) => {
                                 id="btn-confirmar-cierre-tutoria"
                                 onClick={handleCloseTutoria}
                                 disabled={isConfirmDisabled}
-                                className={`flex-1 py-3 text-white rounded-2xl font-black text-[10px] uppercase tracking-wider transition-all disabled:opacity-40 active:scale-95 hover:shadow-lg ${closeType === 'cancelada' ? 'bg-red-600 hover:bg-red-700 hover:shadow-red-600/20' : 'bg-[#1e3a8a] hover:bg-[#1a3270] hover:shadow-[#1e3a8a]/20'}`}
+                                className={`flex-1 py-3 text-white rounded-2xl font-black text-[10px] uppercase tracking-wider transition-all disabled:opacity-40 active:scale-95 hover:shadow-lg ${closeType === 'cancelada' ? 'bg-red-600 hover:bg-red-700 hover:shadow-red-600/20' : 'bg-[#0f592f] hover:bg-[#0a4624] hover:shadow-[#0f592f]/20'}`}
                             >
                                 {isClosing ? 'Procesando...' : closeType === 'cancelada' ? 'Cancelar Aula' : 'Finalizar Aula'}
                             </button>

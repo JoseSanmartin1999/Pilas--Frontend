@@ -168,7 +168,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                 <div className="flex items-center gap-3">
                     <span className="text-2xl">💬</span>
                     <div>
-                        <p className="font-black text-[#1e3a8a] text-sm">Canal Directo</p>
+                        <p className="font-black text-[#0f592f] text-sm">Canal Directo</p>
                         <p className="text-[9px] text-gray-400 font-semibold">
                             Chat en tiempo real · {mentorship?.subject_name}
                         </p>
@@ -188,7 +188,7 @@ const ChatView = ({ mentorship, currentUser }) => {
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1">
                 {isLoadingHistory ? (
                     <div className="flex flex-col items-center justify-center h-full gap-3 opacity-40">
-                        <div className="w-8 h-8 border-2 border-[#1e3a8a] border-t-transparent rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-2 border-[#0f592f] border-t-transparent rounded-full animate-spin" />
                         <p className="text-xs font-bold text-gray-400">Cargando historial...</p>
                     </div>
                 ) : groupedMessages.length === 0 ? (
@@ -231,7 +231,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                                     {/* Avatar — solo si no está agrupado y no es propio */}
                                     {!isOwn && (
                                         <div className={`flex-shrink-0 ${msg.isGrouped ? 'w-8 opacity-0' : 'w-8'}`}>
-                                            <div className="w-8 h-8 bg-[#1e3a8a] rounded-xl flex items-center justify-center text-white text-xs font-black shadow-sm">
+                                            <div className="w-8 h-8 bg-[#0f592f] rounded-xl flex items-center justify-center text-white text-xs font-black shadow-sm">
                                                 {senderName?.[0] || '?'}
                                             </div>
                                         </div>
@@ -251,7 +251,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                                             className={`
                                                 px-4 py-2.5 shadow-sm
                                                 ${isOwn
-                                                    ? 'bg-[#1e3a8a] text-white rounded-2xl rounded-br-sm'
+                                                    ? 'bg-[#0f592f] text-white rounded-2xl rounded-br-sm'
                                                     : 'bg-white text-gray-800 rounded-2xl rounded-bl-sm border border-gray-100'
                                                 }
                                             `}
@@ -275,7 +275,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                 {/* Indicador de "está escribiendo" */}
                 {Object.keys(typingUsers).length > 0 && (
                     <div className="flex items-end gap-2 mt-3">
-                        <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center text-[#1e3a8a] text-xs font-black flex-shrink-0">
+                        <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center text-[#0f592f] text-xs font-black flex-shrink-0">
                             {Object.values(typingUsers)[0]?.[0] || '?'}
                         </div>
                         <div className="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm">
@@ -294,7 +294,7 @@ const ChatView = ({ mentorship, currentUser }) => {
 
             {/* === INPUT DE MENSAJE === */}
             <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100">
-                <div className="flex items-end gap-3 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[#1e3a8a] focus-within:shadow-[0_0_0_3px_rgba(30,58,138,0.08)] transition-all p-1 pl-4">
+                <div className="flex items-end gap-3 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[#0f592f] focus-within:shadow-[0_0_0_3px_rgba(30,58,138,0.08)] transition-all p-1 pl-4">
                     <textarea
                         ref={inputRef}
                         id="chat-input"
@@ -318,7 +318,7 @@ const ChatView = ({ mentorship, currentUser }) => {
                         id="btn-send-message"
                         onClick={sendMessage}
                         disabled={!inputText.trim() || !isConnected || mentorship?.status === 'COMPLETADA'}
-                        className="flex-shrink-0 w-10 h-10 bg-[#1e3a8a] text-pilas-gold rounded-xl flex items-center justify-center hover:bg-[#1a3270] hover:scale-105 active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 shadow-md shadow-[#1e3a8a]/20 m-0.5"
+                        className="flex-shrink-0 w-10 h-10 bg-[#0f592f] text-pilas-gold rounded-xl flex items-center justify-center hover:bg-[#0a4624] hover:scale-105 active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 shadow-md shadow-[#0f592f]/20 m-0.5"
                         title="Enviar (Enter)"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
