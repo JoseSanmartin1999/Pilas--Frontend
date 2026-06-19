@@ -84,7 +84,9 @@ const Profile = () => {
 
     // Validación de fecha y hora futura (RF: no menor a la actual, hora mayor si es el mismo día)
     const now = new Date();
-    const selectedDateTime = new Date(`${mentorshipData.date}T${mentorshipData.time}:00`);
+    const [year, month, day] = mentorshipData.date.split('-').map(Number);
+    const [hour, minute] = mentorshipData.time.split(':').map(Number);
+    const selectedDateTime = new Date(year, month - 1, day, hour, minute);
     if (selectedDateTime < now) {
       showNotification("La fecha y hora de la tutoría no pueden ser anteriores a la fecha y hora actual", "warning");
       return;

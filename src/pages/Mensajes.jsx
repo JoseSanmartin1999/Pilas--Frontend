@@ -365,7 +365,9 @@ const Mensajes = () => {
                                                                 }
                                                                 
                                                                 const now = new Date();
-                                                                const selectedDateTime = new Date(`${newDate}T${newTime}:00`);
+                                                                const [year, month, day] = newDate.split('-').map(Number);
+                                                                const [hour, minute] = newTime.split(':').map(Number);
+                                                                const selectedDateTime = new Date(year, month - 1, day, hour, minute);
                                                                 if (selectedDateTime < now) {
                                                                     return showNotification("La fecha y hora para reprogramar no pueden ser anteriores a la actual", "warning");
                                                                 }
