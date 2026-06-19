@@ -410,48 +410,94 @@ const Profile = () => {
               <span className="text-[10px] font-bold text-[#1a3a5a] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">{user.badges?.length || 0} Insignias</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {user.badges?.length > 0 ? user.badges.map((badge, idx) => {
                 const dateEarned = badge.earned_at 
                   ? new Date(badge.earned_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
                   : null;
 
+                const getBadgeDescription = (b) => {
+                  if (!b.criteria) {
+                    if (b.name === 'Primeros Pasos') return 'Otorgado al solicitar o impartir tu primera tutoría exitosamente.';
+                    if (b.name === 'Hola Mundo') return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
+                    if (b.name === 'Perfil Estelar') return 'Otorgado al personalizar tu perfil y completar tu avatar.';
+                    return 'Insignia otorgada por participación especial.';
+                  }
+                  try {
+                    const parsed = JSON.parse(b.criteria);
+                    if (parsed && parsed.type) {
+                      switch (parsed.type) {
+                        case 'mentorships_any':
+                          return `Otorgado por completar ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} (como tutor o aprendiz).`;
+                        case 'xp_earned':
+                          return `Otorgado por acumular ${parsed.value} Puntos de Experiencia (XP).`;
+                        case 'mentorships_given':
+                          return `Otorgado por impartir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como mentor.`;
+                        case 'mentorships_received':
+                          return `Otorgado por recibir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como aprendiz.`;
+                        case 'perfect_ratings':
+                          return `Otorgado por lograr una calificación perfecta de 5 estrellas en ${parsed.value} tutorías.`;
+                        default:
+                          return b.criteria;
+                      }
+                    }
+                  } catch (e) {
+                    // Si no es un JSON, retornamos la criteria directamente
+                    return b.criteria;
+                  }
+                  return b.criteria;
+                };
+
                 return (
-                  <div key={idx} className="flex flex-col items-center justify-center p-5 rounded-3xl border border-gray-100 hover:border-amber-400 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-gray-50/30 group relative">
-                    <div className="w-16 h-16 mb-3 bg-white rounded-2xl overflow-hidden flex items-center justify-center text-3xl shadow-sm border border-gray-100/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                  <div key={idx} className="flex gap-5 p-5 rounded-[2rem] border border-gray-100 bg-gradient-to-br from-white to-gray-50/20 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-100/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+                    <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-400/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+                    
+                    {/* Contenedor del Icono */}
+                    <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center text-4xl shadow-md border border-gray-100/50 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300 relative z-10">
                       {typeof badge.icon === 'string' && badge.icon.startsWith('http') ? (
                         <img src={badge.icon} alt={badge.name} className="w-full h-full object-cover" />
                       ) : (
                         badge.icon || '🏅'
                       )}
                     </div>
-                    <p className="text-xs font-black text-slate-800 text-center leading-tight truncate w-full" title={badge.name}>
-                      {badge.name}
-                    </p>
                     
-                    {/* Recompensas de la insignia */}
-                    <div className="flex gap-1.5 mt-2">
-                      {badge.xp_reward > 0 && (
-                        <span className="text-[8px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
-                          +{badge.xp_reward} XP
-                        </span>
-                      )}
-                      {badge.coins_reward > 0 && (
-                        <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
-                          +{badge.coins_reward}🪙
-                        </span>
-                      )}
+                    {/* Información de la Insignia */}
+                    <div className="flex flex-col justify-between text-left flex-1 relative z-10">
+                      <div>
+                        <h5 className="font-black text-[#1a3a5a] text-sm md:text-base leading-snug tracking-tight mb-1 group-hover:text-amber-500 transition-colors">
+                          {badge.name}
+                        </h5>
+                        <p className="text-[11px] text-gray-500 font-medium leading-normal mb-3">
+                          {getBadgeDescription(badge)}
+                        </p>
+                      </div>
+                      
+                      {/* Recompensas y Fecha */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-2 border-t border-dashed border-gray-100">
+                        <div className="flex gap-1.5">
+                          {badge.xp_reward > 0 && (
+                            <span className="text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100/80 px-2 py-0.5 rounded-lg uppercase tracking-tighter">
+                              +{badge.xp_reward} XP
+                            </span>
+                          )}
+                          {badge.coins_reward > 0 && (
+                            <span className="text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-100/80 px-2 py-0.5 rounded-lg uppercase tracking-tighter flex items-center gap-0.5">
+                              +{badge.coins_reward} 🪙
+                            </span>
+                          )}
+                        </div>
+                        
+                        {dateEarned && (
+                          <span className="text-[10px] text-gray-400 font-semibold flex items-center gap-1">
+                            <span>📅</span> {dateEarned}
+                          </span>
+                        )}
+                      </div>
                     </div>
-
-                    {dateEarned && (
-                      <span className="text-[9px] text-gray-400 font-medium mt-2.5">
-                        {dateEarned}
-                      </span>
-                    )}
                   </div>
                 );
               }) : (
-                <div className="col-span-full text-center py-10 bg-gray-50/50 rounded-3xl border border-dashed border-gray-200">
+                <div className="col-span-full text-center py-10 bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
                   <span className="text-4xl mb-2 block">🔒</span>
                   <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Aún no has desbloqueado insignias</p>
                 </div>
