@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import WorkspaceLayout from './MiTutoria/WorkspaceLayout';
 
-const BACKEND_URL = 'https://pilas-backend.onrender.com';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
 
 /**
  * MiTutoria — Página raíz del workspace
