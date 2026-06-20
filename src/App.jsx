@@ -16,6 +16,7 @@ import Recompensas from './pages/Recompensas';
 import SeTutor from './pages/SeTutor';
 import AdminDashboard from './pages/AdminDashboard';
 import SoporteTickets from './pages/SoporteTickets';
+import Beneficios from './pages/Beneficios';
 import Footer from './components/Footer';
 
 import { NotificationProvider } from './context/NotificationContext';
@@ -58,6 +59,7 @@ const AppContent = ({ auth, setAuth }) => {
           <Route path="/se-tutor" element={<SeTutor setAuth={setAuth} />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/tickets" element={<SoporteTickets />} />
+          <Route path="/beneficios" element={<Beneficios />} />
 
           {/* Ruta comodín para manejar errores 404 */}
           <Route path="*" element={<div className="text-center py-20">404 - Página no encontrada</div>} />
