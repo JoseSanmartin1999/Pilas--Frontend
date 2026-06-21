@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
+import logoEspePilas from '../assets/logoespepilas.png';
 import { useNotification } from '../context/NotificationContext';
 
 const Badge = ({ count }) => {
@@ -106,8 +107,10 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                 <div className="flex justify-between h-20 items-center">
 
                     {/* Logo Pilas! */}
-                    <Link to="/" className="flex-shrink-0 flex items-center">
+                    <Link to="/" className="flex-shrink-0 flex items-center space-x-3">
                         <img className="h-12 w-auto" src={logo} alt="Pilas!" />
+                        <span className="h-8 w-px bg-gray-200 block"></span>
+                        <img className="h-10 w-auto" src={logoEspePilas} alt="ESPE Pilas!" />
                     </Link>
 
                     <div className="hidden md:flex space-x-6 items-center">
