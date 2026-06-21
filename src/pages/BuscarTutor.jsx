@@ -7,6 +7,7 @@ const BuscarTutor = () => {
     const [mentors, setMentors] = useState([]);
     const [filter, setFilter] = useState('');
     const [selectedSemester, setSelectedSemester] = useState('all');
+    const [minRating, setMinRating] = useState(0);       // 0 = sin filtro de calificación
     const [sortBy, setSortBy] = useState('semester-asc');
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -39,14 +40,18 @@ const BuscarTutor = () => {
 
             // Filtrado por texto (nombre o materias)
             const nombreCompleto = m.nombre || '';
-            const matchesText = 
+            const matchesText =
                 nombreCompleto.toLowerCase().includes(filter.toLowerCase()) ||
                 (m.materias && m.materias.some(mat => mat.toLowerCase().includes(filter.toLowerCase())));
 
             // Filtrado por semestre
             const matchesSemester = selectedSemester === 'all' || String(m.current_semester) === selectedSemester;
 
-            return matchesText && matchesSemester;
+            // Filtrado por calificación mínima
+            const mentorScore = m.score || 0;
+            const matchesRating = minRating === 0 || mentorScore >= minRating;
+
+            return matchesText && matchesSemester && matchesRating;
         })
         .sort((a, b) => {
             if (sortBy === 'semester-asc') {
@@ -66,6 +71,8 @@ const BuscarTutor = () => {
             return 0;
         });
 
+    const hasActiveFilters = filter !== '' || selectedSemester !== 'all' || sortBy !== 'semester-asc' || minRating !== 0;
+
     if (loading) return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0f592f]"></div>
@@ -75,7 +82,7 @@ const BuscarTutor = () => {
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-10 bg-gray-50 min-h-screen font-sans">
             
-            {/* CABECERA GORGEOUS */}
+            {/* CABECERA */}
             <header className="mb-12 text-center max-w-2xl mx-auto space-y-3">
                 <span className="text-[10px] font-black text-pilas-gold uppercase tracking-[0.3em] bg-yellow-50 px-4 py-1.5 rounded-full border border-yellow-250/20">Encuentra a tu guía</span>
                 <h1 className="text-4xl md:text-5xl font-black text-[#0f592f] tracking-tight">Mentores Disponibles</h1>
@@ -86,9 +93,11 @@ const BuscarTutor = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 
-                {/* BARRA LATERAL: PANEL DE CONTROL DE FILTROS & ORDENACIÓN (4/12) */}
+                {/* BARRA LATERAL: PANEL DE CONTROL DE FILTROS & ORDENACIÓN */}
                 <aside className="lg:col-span-4 space-y-6">
                     <div className="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-6 sticky top-6">
+
+                        {/* Buscar por nombre o materia */}
                         <div>
                             <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                 🔍 Buscar Tutor
@@ -107,6 +116,7 @@ const BuscarTutor = () => {
                             </div>
                         </div>
 
+                        {/* Ordenar */}
                         <div>
                             <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                 📶 Ordenar por Semestre / Nombre
@@ -123,6 +133,7 @@ const BuscarTutor = () => {
                             </select>
                         </div>
 
+                        {/* Filtrar por semestre */}
                         <div>
                             <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
                                 🎓 Filtrar por Semestre
@@ -146,30 +157,80 @@ const BuscarTutor = () => {
                             </div>
                         </div>
 
+                        {/* ── NUEVO: Filtrar por Calificación Mínima ── */}
+                        <div>
+                            <h4 className="text-[#0f592f] font-extrabold text-sm uppercase tracking-wider mb-1 flex items-center gap-2">
+                                ⭐ Filtrar por Calificación
+                            </h4>
+                            <p className="text-[10px] text-gray-400 mb-3 font-medium">
+                                {minRating === 0 ? 'Mostrando todos los tutores' : `Mínimo ${minRating} estrella${minRating > 1 ? 's' : ''}`}
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                                {/* Botón "Todos" */}
+                                <button
+                                    onClick={() => setMinRating(0)}
+                                    className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all border ${minRating === 0 ? 'bg-[#0f592f] text-[#ffcc00] border-transparent shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200/50 hover:bg-gray-100'}`}
+                                >
+                                    Todos
+                                </button>
+
+                                {/* Botones de estrellas 1 a 5 */}
+                                {[1, 2, 3, 4, 5].map(star => (
+                                    <button
+                                        key={star}
+                                        onClick={() => setMinRating(star === minRating ? 0 : star)}
+                                        title={`${star}+ estrellas`}
+                                        className={`w-9 h-9 flex items-center justify-center rounded-xl text-base font-bold transition-all border
+                                            ${minRating === star
+                                                ? 'bg-amber-400 text-white border-transparent shadow-md shadow-amber-200 scale-110'
+                                                : star <= minRating
+                                                    ? 'bg-amber-50 text-amber-500 border-amber-200/50'
+                                                    : 'bg-gray-50 text-gray-300 border-gray-200/50 hover:text-amber-400 hover:bg-amber-50 hover:border-amber-200/30'
+                                            }`}
+                                    >
+                                        ★
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Botón para Limpiar Filtros */}
-                        {(filter !== '' || selectedSemester !== 'all' || sortBy !== 'semester-asc') && (
+                        {hasActiveFilters && (
                             <button
                                 onClick={() => {
                                     setFilter('');
                                     setSelectedSemester('all');
                                     setSortBy('semester-asc');
+                                    setMinRating(0);
                                     showNotification("Filtros restablecidos", "info");
                                 }}
                                 className="w-full mt-2 py-3 bg-gray-50 text-gray-400 border border-dashed border-gray-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-all"
                             >
-                                Limpiar Filtros
+                                🗑 Limpiar Filtros
                             </button>
                         )}
                     </div>
                 </aside>
 
-                {/* CUADRÍCULA DE TUTORES (8/12) */}
+                {/* CUADRÍCULA DE TUTORES */}
                 <main className="lg:col-span-8">
+                    {/* Contador de resultados */}
+                    <div className="mb-4 flex items-center gap-2">
+                        <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                            {filteredAndSortedMentors.length} tutor{filteredAndSortedMentors.length !== 1 ? 'es' : ''} encontrado{filteredAndSortedMentors.length !== 1 ? 's' : ''}
+                        </span>
+                        {minRating > 0 && (
+                            <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-600 border border-amber-200/50 text-[9px] font-black px-2.5 py-1 rounded-full">
+                                ⭐ {minRating}+ estrellas
+                            </span>
+                        )}
+                    </div>
+
                     {filteredAndSortedMentors.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredAndSortedMentors.map(mentor => (
-                                <div 
-                                    key={mentor.id} 
+                                <div
+                                    key={mentor.id}
                                     className="bg-white p-6 rounded-[2.5rem] shadow-md border border-gray-100 flex flex-col items-center hover:shadow-2xl hover:shadow-[#0f592f]/5 hover:border-[#ffcc00]/40 transition-all duration-300 transform hover:-translate-y-1 relative group"
                                 >
                                     {/* Semestre Badge Flotante */}
@@ -187,7 +248,7 @@ const BuscarTutor = () => {
                                         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full flex items-center justify-center" title="Disponible"></div>
                                     </div>
 
-                                    {/* Nombre y Puntuación */}
+                                    {/* Nombre */}
                                     <h3 className="font-extrabold text-[#0f592f] text-center text-base group-hover:text-yellow-600 transition-colors">
                                         {mentor.nombre}
                                     </h3>
@@ -195,19 +256,24 @@ const BuscarTutor = () => {
                                         {mentor.career || 'Ingeniería'}
                                     </p>
 
-                                    {/* Estrellas de Puntuación */}
-                                    <div className="flex text-amber-400 text-xs mb-4 gap-0.5" title={`${mentor.score || 4.5} estrellas`}>
-                                        {Array.from({ length: 5 }).map((_, i) => (
-                                            <span key={i}>{i < Math.round(mentor.score || 4.5) ? '★' : '☆'}</span>
-                                        ))}
+                                    {/* Estrellas de Puntuación + Número */}
+                                    <div className="flex items-center gap-1.5 mb-4">
+                                        <div className="flex text-amber-400 text-xs gap-0.5" title={`${mentor.score || 0} estrellas`}>
+                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                <span key={i}>{i < Math.round(mentor.score || 0) ? '★' : '☆'}</span>
+                                            ))}
+                                        </div>
+                                        <span className="text-[10px] font-black text-gray-400">
+                                            ({(mentor.score || 0).toFixed(1)})
+                                        </span>
                                     </div>
 
                                     {/* Materias */}
                                     <div className="flex flex-wrap justify-center gap-1.5 mb-6 flex-grow">
                                         {mentor.materias && mentor.materias.length > 0 ? (
                                             mentor.materias.slice(0, 3).map((mat, i) => (
-                                                <span 
-                                                    key={i} 
+                                                <span
+                                                    key={i}
                                                     className="px-2.5 py-1 bg-gray-50 border border-gray-150 text-gray-600 rounded-lg text-[9px] font-black uppercase tracking-tight"
                                                     title={mat}
                                                 >
@@ -219,7 +285,7 @@ const BuscarTutor = () => {
                                         )}
                                     </div>
 
-                                    {/* Botón Ver Más */}
+                                    {/* Botón Ver Perfil */}
                                     <button
                                         onClick={() => navigate(`/profile/${mentor.id}`)}
                                         className="w-full py-3 bg-white text-[#0f592f] border-2 border-[#0f592f] rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-[#0f592f] hover:text-[#ffcc00] hover:border-transparent transition-all shadow-sm"
@@ -233,7 +299,7 @@ const BuscarTutor = () => {
                         <div className="text-center py-24 bg-white rounded-[3rem] border border-dashed border-gray-200 shadow-sm">
                             <div className="text-6xl mb-6">🕵️‍♂️</div>
                             <h3 className="text-xl font-bold text-gray-400 uppercase tracking-widest mb-2">No se encontraron mentores</h3>
-                            <p className="text-gray-400 text-sm max-w-xs mx-auto">Prueba cambiando los términos de búsqueda o seleccionando otro semestre.</p>
+                            <p className="text-gray-400 text-sm max-w-xs mx-auto">Prueba cambiando los filtros de búsqueda, semestre o calificación.</p>
                         </div>
                     )}
                 </main>
