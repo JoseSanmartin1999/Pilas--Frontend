@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import SoporteTickets from './pages/SoporteTickets';
 import Beneficios from './pages/Beneficios';
 import Footer from './components/Footer';
+import FAQChatbot from './components/FAQChatbot';
 
 import { NotificationProvider } from './context/NotificationContext';
 
@@ -26,6 +27,7 @@ const AppContent = ({ auth, setAuth }) => {
   const location = useLocation();
   // En el workspace no queremos footer ni scroll global
   const isWorkspace = location.pathname.startsWith('/mi-tutoria');
+  const isAdminView = location.pathname.startsWith('/admin');
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -68,6 +70,7 @@ const AppContent = ({ auth, setAuth }) => {
 
       {/* El footer no aparece en el workspace tipo Slack */}
       {!isWorkspace && <Footer />}
+      {!isWorkspace && !isAdminView && <FAQChatbot />}
     </div>
   );
 };
