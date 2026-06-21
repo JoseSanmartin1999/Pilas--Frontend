@@ -11,6 +11,13 @@ axios.interceptors.request.use(
     if (apiBase && config.url && config.url.startsWith('https://pilas-backend.onrender.com')) {
       config.url = config.url.replace('https://pilas-backend.onrender.com', apiBase);
     }
+    
+    // Inyectar token JWT si existe en localStorage o sessionStorage
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)

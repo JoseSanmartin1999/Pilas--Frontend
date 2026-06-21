@@ -16,11 +16,13 @@ const Login = ({ setAuth }) => {
         setCredentials(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSuccessfulLogin = (user) => {
+    const handleSuccessfulLogin = (user, token) => {
         if (rememberMe) {
             localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('token', token);
         } else {
             sessionStorage.setItem('user', JSON.stringify(user));
+            sessionStorage.setItem('token', token);
         }
         
         if (setAuth) {
@@ -36,7 +38,7 @@ const Login = ({ setAuth }) => {
 
         try {
             const response = await axios.post(API_LOGIN_URL, credentials);
-            handleSuccessfulLogin(response.data.user);
+            handleSuccessfulLogin(response.data.user, response.data.token);
         } catch (err) {
             if (err.response?.data?.isNotVerified) {
                 navigate('/verify-email', { state: { email: credentials.email } });

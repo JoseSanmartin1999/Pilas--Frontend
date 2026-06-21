@@ -31,7 +31,9 @@ const AppContent = ({ auth, setAuth }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
     setAuth({ isLogged: false, role: 'APRENDIZ' });
     window.location.href = '/login';
   };

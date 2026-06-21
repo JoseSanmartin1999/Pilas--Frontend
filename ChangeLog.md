@@ -15,6 +15,10 @@ Este documento registra las mejoras y cambios realizados en el sistema de tutor�
     - **[CORREGIDO]** Corrección del algoritmo de coincidencia de palabras clave (`processUserQuery`) para soportar búsquedas y emparejamientos más flexibles (comprobando si la consulta contiene la palabra clave o si la palabra clave contiene la consulta).
     - **[CORREGIDO]** Soporte para devolver múltiples coincidencias relevantes en forma de lista ordenada por nivel de coincidencia en lugar de restringir la respuesta a una única pregunta fija.
     - **[ACTUALIZADO]** Se agregaron las palabras clave `'postular'` y `'ser tutor'` a la pregunta de semestre mínimo para ser tutor, garantizando que ambas preguntas de postulación se muestren al buscar o preguntar por tutorías.
+- **Aseguramiento de Ciberseguridad y Manejo de JWT (`main.jsx` [MODIFY], `Login.jsx` [MODIFY], `App.jsx` [MODIFY])**:
+    - **[AGREGADO]** Interceptor global de peticiones en Axios (`main.jsx`) para inyectar de manera transparente la cabecera `Authorization: Bearer <TOKEN>` con el token JWT si está disponible.
+    - **[ACTUALIZADO]** Modificación de la pantalla de inicio de sesión (`Login.jsx`) para recibir y guardar de forma persistente el token JWT en `localStorage` o `sessionStorage`.
+    - **[ACTUALIZADO]** Actualización del logout del sistema (`App.jsx`) para limpiar de forma segura el token JWT al cerrar sesión, mitigando riesgos de fugas.
 
 ### Backend (Recordatorios y Zona Horaria)
 - **Cálculo de Fechas Localizadas (`dateUtils.js` [NEW])**:
