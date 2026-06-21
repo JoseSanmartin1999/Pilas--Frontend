@@ -480,16 +480,12 @@ const Recompensas = () => {
 
                 {/* Navigation Tabs */}
                 <div className="flex border-b border-white/10 mb-8 gap-2 overflow-x-auto scrollbar-none">
-                    <button
-                        onClick={() => setActiveTab('tienda')}
-                        className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
-                            activeTab === 'tienda'
-                                ? 'border-[#ffcc00] text-[#ffcc00]'
-                                : 'border-transparent text-gray-400 hover:text-white'
-                        }`}
-                    >
+                    <div className="pb-4 px-6 text-sm font-black uppercase tracking-wider border-b-2 border-transparent text-gray-500 shrink-0 flex items-center gap-2 cursor-not-allowed select-none">
                         🛍️ Tienda de Beneficios
-                    </button>
+                        <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
+                            Próximamente
+                        </span>
+                    </div>
                     <button
                         onClick={() => setActiveTab('insignias')}
                         className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
@@ -514,7 +510,8 @@ const Recompensas = () => {
 
                 {/* Tab content rendering */}
                 {activeTab === 'tienda' && (
-                    <div className="bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md animate-fade-in">
+                    <div className="bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md animate-fade-in relative overflow-hidden">
+                        {/* Header de la sección */}
                         <div className="border-b border-white/10 pb-5 mb-6">
                             <h2 className="text-2xl font-black text-white flex items-center gap-2.5">
                                 <span>🛍️</span> Canjear ESPE-Coins
@@ -524,9 +521,10 @@ const Recompensas = () => {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Cupones borrosos de fondo */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 blur-sm opacity-30 pointer-events-none select-none">
                             {CUPONES.map((cupon) => {
-                                const canAfford = espeCoins >= cupon.cost;
+                                const canAfford = false;
 
                                 return (
                                     <div
@@ -575,6 +573,42 @@ const Recompensas = () => {
                                     </div>
                                 );
                             })}
+                        </div>
+
+                        {/* Overlay de bloqueo "Próximamente" */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm rounded-[2.5rem] z-10">
+                            {/* Icono animado */}
+                            <div className="relative mb-6">
+                                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center text-5xl shadow-2xl shadow-amber-500/10 animate-pulse">
+                                    🔒
+                                </div>
+                                <div className="absolute -top-1 -right-1 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center border-2 border-slate-950 shadow-lg">
+                                    <span className="text-sm">⭐</span>
+                                </div>
+                            </div>
+
+                            {/* Texto principal */}
+                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em] bg-amber-500/10 border border-amber-500/20 px-4 py-1.5 rounded-full mb-4">
+                                Próximamente
+                            </span>
+                            <h3 className="text-2xl md:text-3xl font-black text-white text-center tracking-tight mb-3">
+                                Tienda de Beneficios
+                            </h3>
+                            <p className="text-gray-400 text-sm text-center max-w-sm leading-relaxed mb-6">
+                                Estamos preparando algo increíble. Pronto podrás canjear tus <span className="text-amber-400 font-bold">ESPE-Coins</span> por cupones y productos oficiales de la ESPE.
+                            </p>
+
+                            {/* Coins acumulados */}
+                            <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 px-6 py-3 rounded-2xl shadow-inner">
+                                <span className="text-2xl">🪙</span>
+                                <div>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tus ESPE-Coins acumulados</p>
+                                    <p className="text-xl font-black text-amber-400">{espeCoins.toLocaleString()} coins</p>
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-gray-500 mt-4 font-medium">
+                                Sigue completando tutorías para acumular más coins 🚀
+                            </p>
                         </div>
                     </div>
                 )}
