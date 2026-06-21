@@ -191,6 +191,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                                                 <p className="text-xs font-black text-slate-700 truncate">{currentUser?.full_name}</p>
                                             </div>
                                             <Link to={`/profile/${currentUser?.id || ''}`} className="block px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pilas-blue transition-colors">Mi Perfil</Link>
+                                            <Link to="/tickets" className="block px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pilas-blue transition-colors">🛠️ Soporte</Link>
                                             <button
                                                 onClick={() => {
                                                     setShowDropdown(false);

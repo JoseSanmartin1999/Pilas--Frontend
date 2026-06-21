@@ -134,7 +134,7 @@ const BuscarTutor = () => {
                                 >
                                     Todos
                                 </button>
-                                {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
+                                {[4, 5, 6, 7, 8].map(sem => (
                                     <button
                                         key={sem}
                                         onClick={() => setSelectedSemester(String(sem))}
