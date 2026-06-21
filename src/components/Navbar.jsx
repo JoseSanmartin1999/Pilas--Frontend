@@ -139,7 +139,6 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                                             </Link>
                                         )}
                                         <Link to="/recompensas" className="nav-link">Recompensas</Link>
-                                        <Link to="/tickets" className="nav-link">Soporte</Link>
                                     </>
                                 )}
                             </>
@@ -334,14 +333,6 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                                         </Link>
                                     </>
                                 )}
-                                
-                                <Link 
-                                    to="/tickets" 
-                                    onClick={() => setIsOpenMobileMenu(false)}
-                                    className="px-4 py-3 bg-gray-50 hover:bg-[#0f592f]/5 text-xs font-bold rounded-xl text-slate-700 hover:text-[#0f592f] transition-all"
-                                >
-                                    Soporte
-                                </Link>
 
                                 <hr className="border-gray-100 my-2" />
 
