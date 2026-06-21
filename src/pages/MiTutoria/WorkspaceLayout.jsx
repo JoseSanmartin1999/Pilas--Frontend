@@ -97,6 +97,7 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                 userId: currentUser.id
             });
             showNotification(res.data.message || '¡Calificación registrada con éxito!', 'success');
+            window.dispatchEvent(new Event('gamificationStatsUpdated'));
             if (onRateMentorship) {
                 onRateMentorship(mentorship.id, rating, ratingComment);
             }

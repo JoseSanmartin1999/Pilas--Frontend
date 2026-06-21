@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
+import { useNotification } from '../context/NotificationContext';
 
 const Badge = ({ count }) => {
     if (!count || count <= 0) return null;
@@ -13,6 +14,7 @@ const Badge = ({ count }) => {
 };
 
 const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
+    const { showNotification } = useNotification();
     const [showDropdown, setShowDropdown] = useState(false);
     const [isOpenMobileMenu, setIsOpenMobileMenu] = useState(false);
     const [counts, setCounts] = useState({ pendingSolicitudes: 0, newInboxMessages: 0 });
@@ -39,12 +41,46 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                     userObj.level = profileRes.data.level;
                     userObj.xp = profileRes.data.xp;
                     savedStorage.setItem('user', JSON.stringify(userObj));
+
+                    // Detección de nuevas insignias ganadas
+                    const serverBadges = profileRes.data.badges || [];
+                    const serverBadgeIds = serverBadges.map(b => b.id);
+                    const cacheKey = `unlocked_badge_ids_${currentUser.id}`;
+                    const cachedIdsStr = localStorage.getItem(cacheKey);
+
+                    if (cachedIdsStr === null) {
+                        // Inicialización silenciosa en el primer arranque para evitar spam de medallas previas
+                        localStorage.setItem(cacheKey, JSON.stringify(serverBadgeIds));
+                    } else {
+                        try {
+                            const cachedIds = JSON.parse(cachedIdsStr) || [];
+                            const newBadges = serverBadges.filter(b => !cachedIds.includes(b.id));
+
+                            if (newBadges.length > 0) {
+                                newBadges.forEach(badge => {
+                                    showNotification(
+                                        `¡Has obtenido la insignia "${badge.name}"!`,
+                                        'badge',
+                                        {
+                                            name: badge.name,
+                                            icon: badge.image_url || badge.icon
+                                        }
+                                    );
+                                });
+                                const updatedIds = Array.from(new Set([...cachedIds, ...serverBadgeIds]));
+                                localStorage.setItem(cacheKey, JSON.stringify(updatedIds));
+                            }
+                        } catch (e) {
+                            console.error("Error al procesar caché de insignias:", e);
+                            localStorage.setItem(cacheKey, JSON.stringify(serverBadgeIds));
+                        }
+                    }
                 }
             }
         } catch (err) {
             console.error("Error fetching notification/gamification counts:", err);
         }
-    }, [currentUser.id, currentUser.role]);
+    }, [currentUser.id, currentUser.role, showNotification]);
 
     useEffect(() => {
         if (isAuthenticated && currentUser.id) {

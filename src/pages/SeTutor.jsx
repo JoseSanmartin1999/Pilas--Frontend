@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
+
 const SeTutor = () => {
     const { showNotification } = useNotification();
     const navigate = useNavigate();
@@ -38,7 +40,7 @@ const SeTutor = () => {
         const loadData = async () => {
             try {
                 // 1. Verificar si hay solicitudes pendientes
-                const appsRes = await axios.get('https://pilas-backend.onrender.com/api/admin/tutors/applications').catch(() => ({ data: [] }));
+                const appsRes = await axios.get(`${BACKEND_URL}/api/admin/tutors/applications`).catch(() => ({ data: [] }));
                 const pending = appsRes.data.find(app => String(app.user_id) === String(currentUser.id) && app.status === 'PENDING');
                 if (pending) {
                     setHasPendingApp(true);
@@ -46,9 +48,10 @@ const SeTutor = () => {
                     return;
                 }
 
-                // 2. Obtener el perfil para saber su semestre actual
-                const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
+                // 2. Obtener el perfil para saber su semestre actual y carrera
+                const profileRes = await axios.get(`${BACKEND_URL}/api/users/profile/${currentUser.id}`);
                 const semester = profileRes.data.current_semester || 1;
+                const careerName = profileRes.data.career || profileRes.data.carrera || '';
                 setUserSemester(semester);
 
                 // 3. Validar semestre >= 4
@@ -58,8 +61,8 @@ const SeTutor = () => {
                     return;
                 }
 
-                // 4. Cargar materias filtradas hasta ese semestre
-                const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${semester}`);
+                // 4. Cargar materias filtradas hasta ese semestre y por carrera
+                const res = await axios.get(`${BACKEND_URL}/api/subjects?semester=${semester}&career_name=${encodeURIComponent(careerName)}`);
                 setAllSubjects(res.data);
             } catch (err) {
                 console.error('Error al inicializar datos de tutor:', err);
@@ -126,7 +129,7 @@ const SeTutor = () => {
             formData.append('selected_subjects', JSON.stringify(selectedSubjects));
             formData.append('academic_record', academicRecord);
 
-            const res = await axios.post('https://pilas-backend.onrender.com/api/admin/tutors/applications', formData, {
+            const res = await axios.post(`${BACKEND_URL}/api/admin/tutors/applications`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 

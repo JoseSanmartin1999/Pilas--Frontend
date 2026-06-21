@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
+
 const AdminDashboard = () => {
     const { showNotification } = useNotification();
     const navigate = useNavigate();
@@ -46,6 +48,153 @@ const AdminDashboard = () => {
     const [replyText, setReplyText] = useState('');
     const [resolving, setResolving] = useState(false);
 
+    // Estados de Carreras y Materias
+    const [careers, setCareers] = useState([]);
+    const [selectedCareer, setSelectedCareer] = useState(null);
+    const [careerSubjects, setCareerSubjects] = useState([]);
+    const [showCareerModal, setShowCareerModal] = useState(false);
+    const [careerData, setCareerData] = useState({ id: null, name: '', description: '' });
+    const [showSubjectModal, setShowSubjectModal] = useState(false);
+    const [subjectData, setSubjectData] = useState({ id: null, name: '', semester: 1, code: '' });
+    const [savingCareer, setSavingCareer] = useState(false);
+    const [savingSubject, setSavingSubject] = useState(false);
+    const [parsingMalla, setParsingMalla] = useState(false);
+
+    const fetchCareers = async () => {
+        try {
+            const res = await axios.get(`${BACKEND_URL}/api/admin/careers`);
+            setCareers(res.data);
+        } catch (err) {
+            console.error("Error fetching careers:", err);
+            showNotification("No se pudieron cargar las carreras.", "error");
+        }
+    };
+
+    const fetchCareerSubjects = async (careerId) => {
+        try {
+            const res = await axios.get(`${BACKEND_URL}/api/admin/careers/${careerId}/subjects`);
+            setCareerSubjects(res.data);
+        } catch (err) {
+            console.error("Error fetching career subjects:", err);
+            showNotification("No se pudieron cargar las materias.", "error");
+        }
+    };
+
+    const handleSaveCareer = async (e) => {
+        e.preventDefault();
+        if (!careerData.name.trim()) {
+            showNotification("El nombre de la carrera es obligatorio.", "error");
+            return;
+        }
+        setSavingCareer(true);
+        try {
+            if (careerData.id) {
+                await axios.put(`${BACKEND_URL}/api/admin/careers/${careerData.id}`, {
+                    name: careerData.name,
+                    description: careerData.description
+                });
+                showNotification("Carrera actualizada con éxito.", "success");
+            } else {
+                await axios.post(`${BACKEND_URL}/api/admin/careers`, {
+                    name: careerData.name,
+                    description: careerData.description
+                });
+                showNotification("Carrera creada con éxito.", "success");
+            }
+            setShowCareerModal(false);
+            setCareerData({ id: null, name: '', description: '' });
+            fetchCareers();
+        } catch (err) {
+            console.error("Error al guardar carrera:", err);
+            showNotification(err.response?.data?.error || "Error al guardar carrera.", "error");
+        } finally {
+            setSavingCareer(false);
+        }
+    };
+
+    const handleDeleteCareer = async (careerId, careerName) => {
+        if (!window.confirm(`¿Estás seguro de que deseas eliminar la carrera "${careerName}"? Esto eliminará permanentemente todas sus materias asociadas y es irreversible.`)) return;
+        try {
+            await axios.delete(`${BACKEND_URL}/api/admin/careers/${careerId}`);
+            showNotification("Carrera eliminada con éxito.", "success");
+            if (selectedCareer?.id === careerId) {
+                setSelectedCareer(null);
+                setCareerSubjects([]);
+            }
+            fetchCareers();
+        } catch (err) {
+            console.error("Error al eliminar carrera:", err);
+            showNotification("No se pudo eliminar la carrera.", "error");
+        }
+    };
+
+    const handleUploadMalla = async (careerId, file) => {
+        if (!file) return;
+        setParsingMalla(true);
+        const formData = new FormData();
+        formData.append("malla_pdf", file);
+        try {
+            const res = await axios.post(`${BACKEND_URL}/api/admin/careers/${careerId}/malla`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            showNotification(res.data.message || "Malla escaneada y procesada correctamente.", "success");
+            fetchCareers();
+            if (selectedCareer?.id === careerId) {
+                fetchCareerSubjects(careerId);
+            }
+        } catch (err) {
+            console.error("Error al subir malla:", err);
+            showNotification(err.response?.data?.error || "Error al escanear la malla en PDF.", "error");
+        } finally {
+            setParsingMalla(false);
+        }
+    };
+
+    const handleSaveSubject = async (e) => {
+        e.preventDefault();
+        if (!subjectData.name.trim() || !subjectData.semester) {
+            showNotification("El nombre y el semestre son requeridos.", "error");
+            return;
+        }
+        setSavingSubject(true);
+        try {
+            const payload = {
+                name: subjectData.name,
+                semester: parseInt(subjectData.semester, 10),
+                code: subjectData.code || null,
+                career_id: selectedCareer.id
+            };
+            
+            if (subjectData.id) {
+                await axios.put(`${BACKEND_URL}/api/admin/subjects/${subjectData.id}`, payload);
+                showNotification("Materia actualizada con éxito.", "success");
+            } else {
+                await axios.post(`${BACKEND_URL}/api/admin/subjects`, payload);
+                showNotification("Materia creada con éxito.", "success");
+            }
+            setShowSubjectModal(false);
+            setSubjectData({ id: null, name: '', semester: 1, code: '' });
+            fetchCareerSubjects(selectedCareer.id);
+        } catch (err) {
+            console.error("Error al guardar materia:", err);
+            showNotification(err.response?.data?.error || "Error al guardar materia.", "error");
+        } finally {
+            setSavingSubject(false);
+        }
+    };
+
+    const handleDeleteSubject = async (subjectId, subjectName) => {
+        if (!window.confirm(`¿Estás seguro de que deseas eliminar la materia "${subjectName}"?`)) return;
+        try {
+            await axios.delete(`${BACKEND_URL}/api/admin/subjects/${subjectId}`);
+            showNotification("Materia eliminada con éxito.", "success");
+            fetchCareerSubjects(selectedCareer.id);
+        } catch (err) {
+            console.error("Error al eliminar materia:", err);
+            showNotification("No se pudo eliminar la materia.", "error");
+        }
+    };
+
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
     // Verificar accesos de administrador
@@ -67,7 +216,8 @@ const AdminDashboard = () => {
                 fetchUsers(),
                 fetchApplications(),
                 fetchTickets(),
-                fetchBadges()
+                fetchBadges(),
+                fetchCareers()
             ]);
         } catch (err) {
             console.error("Error cargando panel de control:", err);
@@ -78,27 +228,27 @@ const AdminDashboard = () => {
     };
 
     const fetchStats = async () => {
-        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/stats');
+        const res = await axios.get(`${BACKEND_URL}/api/admin/stats`);
         setStats(res.data);
     };
 
     const fetchUsers = async () => {
-        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/users');
+        const res = await axios.get(`${BACKEND_URL}/api/admin/users`);
         setUsers(res.data);
     };
 
     const fetchApplications = async () => {
-        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/tutors/applications');
+        const res = await axios.get(`${BACKEND_URL}/api/admin/tutors/applications`);
         setApplications(res.data);
     };
 
     const fetchTickets = async () => {
-        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/tickets');
+        const res = await axios.get(`${BACKEND_URL}/api/admin/tickets`);
         setTickets(res.data);
     };
 
     const fetchBadges = async () => {
-        const res = await axios.get('https://pilas-backend.onrender.com/api/admin/badges');
+        const res = await axios.get(`${BACKEND_URL}/api/admin/badges`);
         setBadges(res.data);
     };
 
@@ -172,13 +322,13 @@ const AdminDashboard = () => {
 
             if (badgeData.id) {
                 // Editar
-                await axios.put('https://pilas-backend.onrender.com/api/admin/badges/' + badgeData.id, formData, {
+                await axios.put(`${BACKEND_URL}/api/admin/badges/` + badgeData.id, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 showNotification("Insignia actualizada con éxito.", "success");
             } else {
                 // Crear
-                await axios.post('https://pilas-backend.onrender.com/api/admin/badges', formData, {
+                await axios.post(`${BACKEND_URL}/api/admin/badges`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 showNotification("Insignia creada con éxito.", "success");
@@ -200,7 +350,7 @@ const AdminDashboard = () => {
     const handleDeleteBadge = async (badgeId, badgeName) => {
         if (!window.confirm(`¿Estás seguro de que deseas eliminar la insignia "${badgeName}"?`)) return;
         try {
-            await axios.delete(`https://pilas-backend.onrender.com/api/admin/badges/${badgeId}`);
+            await axios.delete(`${BACKEND_URL}/api/admin/badges/${badgeId}`);
             showNotification("Insignia eliminada correctamente.", "success");
             fetchBadges();
         } catch (err) {
@@ -237,7 +387,7 @@ const AdminDashboard = () => {
     const handleToggleUserStatus = async (userId, currentStatus) => {
         const nextStatus = currentStatus === 'ACTIVO' ? 'BLOQUEADO' : 'ACTIVO';
         try {
-            await axios.put(`https://pilas-backend.onrender.com/api/admin/users/${userId}/status`, { status: nextStatus });
+            await axios.put(`${BACKEND_URL}/api/admin/users/${userId}/status`, { status: nextStatus });
             showNotification(`Usuario ${nextStatus === 'BLOQUEADO' ? 'bloqueado' : 'activado'} correctamente.`, "success");
             
             // Agregar log
@@ -248,11 +398,26 @@ const AdminDashboard = () => {
         }
     };
 
+    const handleUpdateUserRole = async (userId, name, nextRole) => {
+        try {
+            await axios.put(`${BACKEND_URL}/api/admin/users/${userId}/role`, { role: nextRole });
+            showNotification(`Rol de ${name} actualizado a ${nextRole} correctamente.`, "success");
+            
+            // Agregar log
+            logAction(`[INFO] Rol de usuario ${name} (ID ${userId}) cambiado a ${nextRole}`);
+            fetchUsers();
+            fetchStats(); // Actualizar estadísticas ya que cuentan usuarios por rol
+        } catch (err) {
+            console.error("Error al actualizar el rol del usuario:", err);
+            showNotification("No se pudo actualizar el rol del usuario.", "error");
+        }
+    };
+
     const handleDeleteUser = async (userId, name) => {
         if (!window.confirm(`¿Estás seguro de que deseas eliminar permanentemente al usuario ${name}? Esta acción es irreversible.`)) return;
 
         try {
-            await axios.delete(`https://pilas-backend.onrender.com/api/admin/users/${userId}`);
+            await axios.delete(`${BACKEND_URL}/api/admin/users/${userId}`);
             showNotification("Usuario eliminado correctamente.", "success");
             logAction(`[ALERTA] Usuario ${name} (ID ${userId}) eliminado físicamente.`);
             fetchUsers();
@@ -265,7 +430,7 @@ const AdminDashboard = () => {
     // Acciones de solicitudes de tutores
     const handleApproveApplication = async (appId, applicantName) => {
         try {
-            await axios.put(`https://pilas-backend.onrender.com/api/admin/tutors/applications/${appId}/approve`);
+            await axios.put(`${BACKEND_URL}/api/admin/tutors/applications/${appId}/approve`);
             showNotification(`¡Solicitud aprobada! ${applicantName} ha sido ascendido a Mentor.`, "success");
             logAction(`[APROBACIÓN] Solicitud ID ${appId} aprobada. Ascendido ${applicantName} a MENTOR.`);
             fetchApplications();
@@ -278,7 +443,7 @@ const AdminDashboard = () => {
 
     const handleRejectApplication = async (appId, applicantName) => {
         try {
-            await axios.put(`https://pilas-backend.onrender.com/api/admin/tutors/applications/${appId}/reject`);
+            await axios.put(`${BACKEND_URL}/api/admin/tutors/applications/${appId}/reject`);
             showNotification(`Solicitud de ${applicantName} rechazada correctamente.`, "info");
             logAction(`[RECHAZO] Solicitud ID ${appId} de ${applicantName} rechazada.`);
             fetchApplications();
@@ -295,7 +460,7 @@ const AdminDashboard = () => {
 
         setResolving(true);
         try {
-            await axios.put(`https://pilas-backend.onrender.com/api/admin/tickets/${selectedTicket.id}/resolve`, {
+            await axios.put(`${BACKEND_URL}/api/admin/tickets/${selectedTicket.id}/resolve`, {
                 reply: replyText,
                 status: 'RESOLVED'
             });
@@ -478,9 +643,10 @@ const AdminDashboard = () => {
                     
                     {[
                         { id: 'stats', label: 'Estadísticas', icon: '📊' },
-                        { id: 'applications', label: 'Solicitudes a Tutores', icon: '🎓', badge: applications.filter(a => a.status === 'PENDING').length },
-                        { id: 'users', label: 'Usuarios Registrados', icon: '👥' },
-                        { id: 'badges', label: 'Gestionar Insignias', icon: '🏆' },
+                        { id: 'applications', label: 'Solicitudes', icon: '🎓', badge: applications.filter(a => a.status === 'PENDING').length },
+                        { id: 'users', label: 'Usuarios', icon: '👥' },
+                        { id: 'careers', label: 'Gestionar Carreras', icon: '🏫' },
+                        { id: 'badges', label: 'Insignias & Logros', icon: '🏆' },
                         { id: 'system', label: 'Administración', icon: '⚙️' },
                         { id: 'tickets', label: 'Tickets de Soporte', icon: '📨', badge: tickets.filter(t => t.status === 'OPEN').length }
                     ].map(tab => (
@@ -733,9 +899,18 @@ const AdminDashboard = () => {
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5">
-                                                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black border uppercase tracking-wider ${getRoleBadge(user.role)}`}>
-                                                                {user.role}
-                                                            </span>
+                                                            <select
+                                                                value={user.role}
+                                                                onChange={(e) => handleUpdateUserRole(user.id, user.full_name, e.target.value)}
+                                                                disabled={user.id === currentUser.id}
+                                                                className={`px-2.5 py-1 rounded-lg text-[9px] font-black border uppercase tracking-wider cursor-pointer outline-none transition-all ${getRoleBadge(user.role)} ${
+                                                                    user.id === currentUser.id ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
+                                                                }`}
+                                                            >
+                                                                <option value="APRENDIZ" className="bg-white text-blue-750 font-bold text-left">APRENDIZ</option>
+                                                                <option value="MENTOR" className="bg-white text-yellow-600 font-bold text-left">MENTOR</option>
+                                                                <option value="ADMIN" className="bg-white text-purple-700 font-bold text-left">ADMIN</option>
+                                                            </select>
                                                         </td>
                                                         <td className="px-6 py-5 text-xs font-bold text-gray-700">
                                                             {user.current_semester ? `${user.current_semester}°` : '-'}
@@ -1041,6 +1216,200 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
+                    {/* SECCIÓN 7: GESTIÓN DE CARRERAS Y MATERIAS */}
+                    {activeTab === 'careers' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                            {selectedCareer ? (
+                                // Vista de materias de una carrera seleccionada
+                                <div className="space-y-6">
+                                    <header className="flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                                        <div className="text-left space-y-1">
+                                            <button 
+                                                onClick={() => { setSelectedCareer(null); setCareerSubjects([]); }}
+                                                className="text-xs font-bold text-gray-400 hover:text-[#0f592f] flex items-center gap-1.5 transition-colors unicode-bidi:isolate uppercase tracking-wider mb-2"
+                                            >
+                                                ← Volver a Carreras
+                                            </button>
+                                            <h2 className="text-2xl font-black text-[#0f592f] tracking-tight">{selectedCareer.name}</h2>
+                                            <p className="text-gray-500 font-semibold text-[10px] uppercase tracking-wider">Gestión de Materias Curriculares</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setSubjectData({ id: null, name: '', semester: 1, code: '' });
+                                                setShowSubjectModal(true);
+                                            }}
+                                            className="px-5 py-3.5 bg-[#0f592f] hover:bg-[#0a4624] text-[#ffcc00] font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-md transition-all flex items-center gap-2"
+                                        >
+                                            📚 Agregar Materia
+                                        </button>
+                                    </header>
+
+                                    {/* Subida rápida de PDF de malla para esta carrera */}
+                                    <div className="bg-gradient-to-r from-yellow-500/5 to-amber-500/5 border border-dashed border-amber-250 p-6 rounded-[2rem] text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+                                        <div>
+                                            <h4 className="font-extrabold text-[#0f592f] text-sm flex items-center gap-1.5">
+                                                <span>⚡</span> Importar Malla Curricular desde PDF
+                                            </h4>
+                                            <p className="text-[10px] text-gray-500 font-medium max-w-xl mt-1">
+                                                Sube el archivo PDF de la malla de estudios. El sistema escaneará automáticamente el documento, detectará los nombres y códigos de las materias por cada semestre, y las registrará en la base de datos de esta carrera.
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            {selectedCareer.malla_url && (
+                                                <a 
+                                                    href={selectedCareer.malla_url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="px-4 py-3 bg-white border border-gray-250 text-gray-600 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-gray-50 whitespace-nowrap transition-all"
+                                                >
+                                                    📄 Ver PDF Actual
+                                                </a>
+                                            )}
+                                            <label className="px-5 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest cursor-pointer shadow-sm transition-all relative whitespace-nowrap">
+                                                {parsingMalla ? "Escaneando..." : "Subir PDF y Escanear"}
+                                                <input 
+                                                    type="file" 
+                                                    accept="application/pdf"
+                                                    disabled={parsingMalla}
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) handleUploadMalla(selectedCareer.id, file);
+                                                    }}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                />
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* LISTA DE MATERIAS POR SEMESTRE */}
+                                    <div className="space-y-6 text-left">
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(sem => {
+                                            const semSubjects = careerSubjects.filter(s => s.semester === sem);
+                                            return (
+                                                <div key={sem} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-150/40 space-y-4">
+                                                    <h3 className="text-sm font-black text-[#0f592f] border-b border-gray-100 pb-3 flex justify-between items-center">
+                                                        <span>{sem}° Semestre (Nivel {sem})</span>
+                                                        <span className="text-[10px] text-gray-400 font-bold bg-gray-50 border border-gray-200 px-3 py-1 rounded-lg">
+                                                            {semSubjects.length} {semSubjects.length === 1 ? 'Materia' : 'Materias'}
+                                                        </span>
+                                                    </h3>
+                                                    {semSubjects.length > 0 ? (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            {semSubjects.map(sub => (
+                                                                <div key={sub.id} className="p-4 rounded-2xl bg-gray-50/50 border border-gray-100 flex items-center justify-between gap-4 hover:border-gray-200 transition-colors">
+                                                                    <div>
+                                                                        <h4 className="font-extrabold text-slate-800 text-xs">{sub.name}</h4>
+                                                                        <span className="text-[9px] font-black text-gray-450 uppercase tracking-widest block mt-1">
+                                                                            Código: {sub.code || 'S/C'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                setSubjectData({ id: sub.id, name: sub.name, semester: sub.semester, code: sub.code || '' });
+                                                                                setShowSubjectModal(true);
+                                                                            }}
+                                                                            className="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-500 flex items-center justify-center hover:text-[#0f592f] hover:border-[#0f592f] transition-all"
+                                                                            title="Editar"
+                                                                        >
+                                                                            ✏️
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDeleteSubject(sub.id, sub.name)}
+                                                                            className="w-8 h-8 rounded-lg bg-red-50 text-red-550 flex items-center justify-center hover:bg-red-100 transition-all"
+                                                                            title="Eliminar"
+                                                                        >
+                                                                            🗑️
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p className="text-xs text-gray-400 italic">No hay materias registradas en este semestre.</p>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ) : (
+                                // Vista principal de lista de carreras
+                                <div className="space-y-6">
+                                    <header className="flex justify-between items-center">
+                                        <div className="text-left space-y-1">
+                                            <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Gestión de Carreras</h2>
+                                            <p className="text-gray-500 font-medium text-xs">Crea carreras, sube sus mallas en PDF para extraer materias y administra su currículo académico.</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setCareerData({ id: null, name: '', description: '' });
+                                                setShowCareerModal(true);
+                                            }}
+                                            className="px-6 py-3.5 bg-[#0f592f] hover:bg-[#0a4624] text-[#ffcc00] font-black text-xs uppercase tracking-widest rounded-2xl shadow-md transition-all hover:scale-[1.02] flex items-center gap-2"
+                                        >
+                                            🏫 Nueva Carrera
+                                        </button>
+                                    </header>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                                        {careers.length > 0 ? (
+                                            careers.map(car => (
+                                                <div key={car.id} className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-150/40 hover:shadow-md transition-all flex flex-col justify-between h-[250px] relative overflow-hidden group">
+                                                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#0f592f]/5 rounded-bl-[4rem]"></div>
+                                                    <div>
+                                                        <span className="text-[9px] font-black text-[#0f592f] bg-[#0f592f]/10 px-3 py-1 rounded-full uppercase tracking-wider">Carrera</span>
+                                                        <h3 className="font-extrabold text-lg text-[#0f592f] mt-4 line-clamp-2" title={car.name}>{car.name}</h3>
+                                                        <p className="text-xs text-gray-550 mt-2 font-medium line-clamp-3 leading-relaxed">
+                                                            {car.description || 'Sin descripción detallada.'}
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="flex gap-3 pt-4 border-t border-gray-100 mt-4 relative z-10 flex-wrap">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedCareer(car);
+                                                                fetchCareerSubjects(car.id);
+                                                            }}
+                                                            className="px-4 py-2.5 bg-[#0f592f] hover:bg-[#0a4624] text-[#ffcc00] rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-all whitespace-nowrap shadow-sm"
+                                                        >
+                                                            📚 Ver Materias
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setCareerData({ id: car.id, name: car.name, description: car.description || '' });
+                                                                setShowCareerModal(true);
+                                                            }}
+                                                            className="px-4 py-2.5 bg-slate-50 text-slate-650 hover:bg-slate-100 rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-all whitespace-nowrap"
+                                                        >
+                                                            Editar
+                                                        </button>
+                                                        {car.name !== 'Ingeniería de Software' && (
+                                                            <button
+                                                                onClick={() => handleDeleteCareer(car.id, car.name)}
+                                                                className="px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-all whitespace-nowrap"
+                                                            >
+                                                                Eliminar
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="col-span-full text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-250 flex flex-col items-center justify-center">
+                                                <span className="text-5xl mb-3">🏫</span>
+                                                <h4 className="text-[#0f592f] font-black text-sm uppercase tracking-wider">No hay carreras registradas</h4>
+                                                <p className="text-gray-400 text-xs font-semibold max-w-sm mt-1">
+                                                    Agrega carreras académicas y carga sus mallas para habilitar tutorías en ellas.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                 </main>
             </div>
 
@@ -1199,6 +1568,120 @@ const AdminDashboard = () => {
                                 className="w-full py-5 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-500 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-amber-500/10 hover:scale-[1.02] transition-all disabled:opacity-50"
                             >
                                 {savingBadge ? 'Guardando...' : (badgeData.id ? 'Guardar Cambios' : 'Crear Insignia')}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL CREAR / EDITAR CARRERA */}
+            {showCareerModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200 border border-gray-100 text-left">
+                        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <div>
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                    {careerData.id ? 'Editar Carrera' : 'Crear Nueva Carrera'}
+                                </span>
+                                <h3 className="text-lg font-black text-[#0f592f] tracking-tight">Formulario de Carrera</h3>
+                            </div>
+                            <button onClick={() => setShowCareerModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
+                        </div>
+
+                        <form onSubmit={handleSaveCareer} className="p-8 space-y-5">
+                            <div>
+                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Carrera</label>
+                                <input 
+                                    type="text" 
+                                    required 
+                                    value={careerData.name} 
+                                    onChange={(e) => setCareerData({ ...careerData, name: e.target.value })} 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
+                                    placeholder="Ej: Ingeniería en Software"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción (Opcional)</label>
+                                <textarea 
+                                    rows="4"
+                                    value={careerData.description || ''} 
+                                    onChange={(e) => setCareerData({ ...careerData, description: e.target.value })} 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs resize-none" 
+                                    placeholder="Breve descripción de la carrera, enfoque, etc."
+                                />
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                disabled={savingCareer}
+                                className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                            >
+                                {savingCareer ? 'Guardando...' : (careerData.id ? 'Guardar Cambios' : 'Crear Carrera')}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* MODAL CREAR / EDITAR MATERIA */}
+            {showSubjectModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200 border border-gray-100 text-left">
+                        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <div>
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                    {subjectData.id ? 'Editar Materia' : 'Crear Nueva Materia'}
+                                </span>
+                                <h3 className="text-lg font-black text-[#0f592f] tracking-tight">Formulario de Materia</h3>
+                            </div>
+                            <button onClick={() => setShowSubjectModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
+                        </div>
+
+                        <form onSubmit={handleSaveSubject} className="p-8 space-y-5">
+                            <div>
+                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Materia</label>
+                                <input 
+                                    type="text" 
+                                    required 
+                                    value={subjectData.name} 
+                                    onChange={(e) => setSubjectData({ ...subjectData, name: e.target.value })} 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
+                                    placeholder="Ej: Programación Orientada a Objetos"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Semestre (Nivel)</label>
+                                    <select
+                                        value={subjectData.semester}
+                                        onChange={(e) => setSubjectData({ ...subjectData, semester: parseInt(e.target.value, 10) })}
+                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
+                                    >
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(sem => (
+                                            <option key={sem} value={sem}>{sem}° Semestre</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código (Opcional)</label>
+                                    <input 
+                                        type="text" 
+                                        value={subjectData.code || ''} 
+                                        onChange={(e) => setSubjectData({ ...subjectData, code: e.target.value })} 
+                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
+                                        placeholder="Ej: EXCTA0301"
+                                    />
+                                </div>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                disabled={savingSubject}
+                                className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                            >
+                                {savingSubject ? 'Guardando...' : (subjectData.id ? 'Guardar Cambios' : 'Crear Materia')}
                             </button>
                         </form>
                     </div>

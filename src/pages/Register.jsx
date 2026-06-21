@@ -4,29 +4,60 @@ import axios from 'axios';
 import logo from '../assets/logo.png'; // Ruta corregida a tus assets
 import { useNotification } from '../context/NotificationContext';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
+
 const Register = () => {
     const { showNotification } = useNotification();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         full_name: '', email: '', password: '', confirmPassword: '', role: 'APRENDIZ',
-        institution: 'ESPE', career: 'Software', student_id: '', current_semester: 1, bio: ''
+        institution: 'ESPE', career: '', student_id: '', current_semester: 1, bio: ''
     });
 
     const [showPassword, setShowPassword] = useState(false);
     const [image, setImage] = useState(null);
+    const [careers, setCareers] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [selectedSubjects, setSelectedSubjects] = useState([]);
 
-    // Cargar materias según el semestre (Lógica de desbloqueo basada en malla ESPE)
+    // Cargar carreras en el montaje del componente
+    useEffect(() => {
+        const fetchCareers = async () => {
+            try {
+                const res = await axios.get(`${BACKEND_URL}/api/admin/careers`);
+                setCareers(res.data);
+                if (res.data.length > 0) {
+                    // Buscar "Ingeniería de Software" o pre-seleccionar la primera
+                    const defaultCareer = res.data.find(c => c.name.toLowerCase().includes('software')) || res.data[0];
+                    setFormData(prev => ({ ...prev, career: defaultCareer.name }));
+                }
+            } catch (err) {
+                console.error("Error cargando carreras:", err);
+            }
+        };
+        fetchCareers();
+    }, []);
+
+    // Cargar materias según el semestre y la carrera seleccionada
     useEffect(() => {
         const fetchSubjects = async () => {
+            if (!formData.career) return;
             try {
-                const res = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${formData.current_semester}`);
+                const res = await axios.get(`${BACKEND_URL}/api/subjects?semester=${formData.current_semester}&career_name=${encodeURIComponent(formData.career)}`);
                 setSubjects(res.data);
             } catch { console.error("Error cargando materias"); }
         };
         fetchSubjects();
-    }, [formData.current_semester]);
+    }, [formData.current_semester, formData.career]);
+
+    // Si cambia el semestre o el rol y el semestre es <= 3, forzar rol a APRENDIZ
+    useEffect(() => {
+        const sem = parseInt(formData.current_semester, 10);
+        if (sem <= 3 && formData.role === 'MENTOR') {
+            setFormData(prev => ({ ...prev, role: 'APRENDIZ' }));
+            showNotification("Los estudiantes de primer a tercer semestre solo pueden registrarse como Aprendices.", "info");
+        }
+    }, [formData.current_semester, formData.role, showNotification]);
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,6 +129,11 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
 
+        if (parseInt(formData.current_semester, 10) <= 3 && formData.role === 'MENTOR') {
+            showNotification("Los estudiantes de primer a tercer semestre solo pueden registrarse como Aprendices.", "warning");
+            return;
+        }
+
         if (!formData.email.toLowerCase().endsWith('@espe.edu.ec')) {
             showNotification("El correo debe ser institucional de la ESPE (debe terminar en @espe.edu.ec).", "warning");
             return;
@@ -130,7 +166,7 @@ const Register = () => {
             }
 
             // Enviar todo directo al backend (multipart/form-data)
-            await axios.post('https://pilas-backend.onrender.com/api/auth/register', formDataPayload, {
+            await axios.post(`${BACKEND_URL}/api/auth/register`, formDataPayload, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             showNotification("Registro exitoso. Se ha enviado un código a tu correo.", "success");
@@ -186,8 +222,15 @@ const Register = () => {
 
                             <input name="student_id" onChange={handleInputChange} type="text" placeholder="ID Estudiante (L00...)" className="input-style" required />
 
-                            <select name="current_semester" onChange={handleInputChange} className="input-style">
-                                {[1, 2, 3, 4, 5, 6, 7, 8].map(n => <option key={n} value={n}>{n}° Semestre</option>)}
+                            <select name="career" value={formData.career} onChange={handleInputChange} className="input-style" required>
+                                <option value="">Selecciona tu Carrera</option>
+                                {careers.map(c => (
+                                    <option key={c.id} value={c.name}>{c.name}</option>
+                                ))}
+                            </select>
+
+                            <select name="current_semester" value={formData.current_semester} onChange={handleInputChange} className="input-style">
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n}° Semestre</option>)}
                             </select>
 
                             <div className="md:col-span-2">
@@ -205,9 +248,11 @@ const Register = () => {
 
                             <textarea name="bio" onChange={handleInputChange} placeholder="Cuéntanos un poco sobre ti (Bio)" className="input-style md:col-span-2 h-24"></textarea>
 
-                            <select name="role" onChange={handleInputChange} className="input-style font-bold text-pilas-blue md:col-span-2">
+                            <select name="role" value={formData.role} onChange={handleInputChange} className="input-style font-bold text-pilas-blue md:col-span-2">
                                 <option value="APRENDIZ">Soy Aprendiz</option>
-                                <option value="MENTOR">Soy Mentor</option>
+                                <option value="MENTOR" disabled={parseInt(formData.current_semester, 10) <= 3}>
+                                    Soy Mentor {parseInt(formData.current_semester, 10) <= 3 && " (Disponible desde 4° Semestre)"}
+                                </option>
                             </select>
                         </div>
 

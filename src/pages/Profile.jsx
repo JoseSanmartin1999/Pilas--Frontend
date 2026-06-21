@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
+
 const Profile = () => {
   const { showNotification } = useNotification();
   const navigate = useNavigate();
@@ -59,6 +61,10 @@ const Profile = () => {
   const [previewFoto, setPreviewFoto] = useState(null);
   const [allSubjects, setAllSubjects] = useState([]);
 
+  // Estados para la selección de insignias a mostrar
+  const [showFeatureModal, setShowFeatureModal] = useState(false);
+  const [selectedFeaturedBadgeIds, setSelectedFeaturedBadgeIds] = useState([]);
+
   // Control de accesos
   const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
   const profileId = id || currentUser.id;
@@ -71,7 +77,7 @@ const Profile = () => {
     }
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${profileId}`);
+        const res = await axios.get(`${BACKEND_URL}/api/users/profile/${profileId}`);
         setUser(res.data);
         // Inicializamos los datos de edición con el formato correcto
         setEditData({
@@ -88,21 +94,22 @@ const Profile = () => {
     fetchProfile();
   }, [profileId]);
 
-  // Cargamos todas las materias disponibles reactivamente según el semestre actual (RF#007)
+  // Cargamos todas las materias disponibles reactivamente según el semestre actual y la carrera del usuario (RF#007)
   useEffect(() => {
     const sem = parseInt(editData.current_semester, 10);
-    if (isNaN(sem) || sem < 1) return;
+    if (isNaN(sem) || sem < 1 || !user) return;
 
     const fetchSubjects = async () => {
       try {
-        const subjRes = await axios.get(`https://pilas-backend.onrender.com/api/subjects?semester=${sem}`);
+        const careerName = user.career || user.carrera || '';
+        const subjRes = await axios.get(`${BACKEND_URL}/api/subjects?semester=${sem}&career_name=${encodeURIComponent(careerName)}`);
         setAllSubjects(subjRes.data);
       } catch (err) {
         console.error("Error al cargar materias para el semestre:", err);
       }
     };
     fetchSubjects();
-  }, [editData.current_semester]);
+  }, [editData.current_semester, user]);
 
   const handlePactarTutoria = async (e) => {
     e.preventDefault();
@@ -136,7 +143,7 @@ const Profile = () => {
         estimated_duration: mentorshipData.estimated_duration
       };
 
-      await axios.post('https://pilas-backend.onrender.com/api/mentorships', payload);
+      await axios.post(`${BACKEND_URL}/api/mentorships`, payload);
       showNotification("¡Tutoría solicitada exitosamente!", "success");
       setShowMentorshipModal(false);
       setMentorshipData({ 
@@ -230,7 +237,7 @@ const Profile = () => {
     if (nuevaFoto) data.append('foto_perfil', nuevaFoto);
 
     try {
-      const res = await axios.put(`https://pilas-backend.onrender.com/api/users/profile/${profileId}`, data);
+      const res = await axios.put(`${BACKEND_URL}/api/users/profile/${profileId}`, data);
 
       const updatedMaterias = res.data.materias || [];
 
@@ -263,9 +270,49 @@ const Profile = () => {
 
       setShowModal(false);
       showNotification("¡Perfil actualizado con éxito!", "success");
+      window.dispatchEvent(new Event('gamificationStatsUpdated'));
     } catch (err) {
       console.error(err);
       showNotification("Error al actualizar el perfil", "error");
+    }
+  };
+
+  const handleOpenFeatureModal = () => {
+    if (!user || !user.badges) return;
+    const currentFeatured = user.badges
+      .filter(b => b.is_featured)
+      .map(b => b.id);
+    setSelectedFeaturedBadgeIds(currentFeatured);
+    setShowFeatureModal(true);
+  };
+
+  const handleToggleFeaturedBadge = (badgeId) => {
+    if (selectedFeaturedBadgeIds.includes(badgeId)) {
+      setSelectedFeaturedBadgeIds(prev => prev.filter(id => id !== badgeId));
+    } else {
+      if (selectedFeaturedBadgeIds.length >= 4) {
+        showNotification("Solo puedes destacar hasta 4 logros.", "warning");
+        return;
+      }
+      setSelectedFeaturedBadgeIds(prev => [...prev, badgeId]);
+    }
+  };
+
+  const handleSaveFeaturedBadges = async (e) => {
+    if (e) e.preventDefault();
+    try {
+      await axios.put(`${BACKEND_URL}/api/users/profile/${profileId}/featured-badges`, {
+        badgeIds: selectedFeaturedBadgeIds
+      });
+      showNotification("Logros destacados actualizados con éxito.", "success");
+      setShowFeatureModal(false);
+      
+      // Recargar el perfil para mostrar los cambios
+      const res = await axios.get(`${BACKEND_URL}/api/users/profile/${profileId}`);
+      setUser(res.data);
+    } catch (err) {
+      console.error("Error al actualizar logros destacados:", err);
+      showNotification("Error al guardar logros destacados", "error");
     }
   };
 
@@ -430,116 +477,162 @@ const Profile = () => {
           </div>
 
           {/* SECCIÓN LOGROS PROFESIONALES */}
-          <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5">
+          <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 relative group/badges">
             <div className="flex justify-between items-center mb-8">
               <div>
-                <h4 className="text-[#0f592f] font-extrabold text-xl tracking-tight">Mis Logros e Insignias</h4>
+                <div className="flex items-center gap-3">
+                  <h4 className="text-[#0f592f] font-extrabold text-xl tracking-tight">Mis Logros e Insignias</h4>
+                  {isOwnProfile && user.badges?.length > 4 && (
+                    <button
+                      onClick={handleOpenFeatureModal}
+                      className="p-2 bg-gray-50 text-gray-400 rounded-full hover:bg-[#ffcc00] hover:text-[#0f592f] transition-all opacity-0 group-hover/badges:opacity-100"
+                      title="Elegir insignias a mostrar"
+                    >
+                      <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10z" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
                 <p className="text-gray-400 text-xs mt-1">Recompensas desbloqueadas por su participación y aportes.</p>
               </div>
-              <span className="text-[10px] font-bold text-[#0f592f] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-widest">{user.badges?.length || 0} Insignias</span>
+              <span className="text-[10px] font-bold text-[#0f592f] bg-gray-100 px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                {user.badges?.length || 0} Insignias
+              </span>
             </div>
 
+            {/* Banner informativo si tiene > 4 insignias y ninguna elegida */}
+            {isOwnProfile && user.badges?.length > 4 && !user.badges.some(b => b.is_featured) && (
+              <div className="mb-6 p-4 bg-yellow-50 border border-yellow-100 rounded-2xl flex items-center justify-between text-yellow-800 text-xs font-medium">
+                <span>Tienes más de 4 insignias. Elige cuáles destacar en tu perfil para que otros usuarios las vean.</span>
+                <button
+                  onClick={handleOpenFeatureModal}
+                  className="ml-3 px-3 py-1.5 bg-[#0f592f] text-[#ffcc00] font-black uppercase text-[10px] tracking-wider rounded-xl hover:bg-[#0a4624] transition-all cursor-pointer"
+                >
+                  Configurar
+                </button>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {user.badges?.length > 0 ? user.badges.map((badge, idx) => {
-                const dateEarned = badge.earned_at 
-                  ? new Date(badge.earned_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
-                  : null;
+              {(() => {
+                const totalBadges = user.badges || [];
+                const hasMoreThanFour = totalBadges.length > 4;
+                const featuredBadges = totalBadges.filter(b => b.is_featured);
+                
+                const badgesToRender = hasMoreThanFour
+                  ? (featuredBadges.length > 0 ? featuredBadges : totalBadges)
+                  : totalBadges;
 
-                const getBadgeDescription = (b) => {
-                  if (!b.criteria) {
-                    if (b.name === 'Primeros Pasos') return 'Otorgado al solicitar o impartir tu primera tutoría exitosamente.';
-                    if (b.name === 'Hola Mundo') return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
-                    if (b.name === 'Perfil Estelar') return 'Otorgado al personalizar tu perfil y completar tu avatar.';
-                    return 'Insignia otorgada por participación especial.';
-                  }
-                  try {
-                    const parsed = JSON.parse(b.criteria);
-                    if (parsed && parsed.type) {
-                      switch (parsed.type) {
-                        case 'mentorships_any':
-                          return `Otorgado por completar ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} (como tutor o aprendiz).`;
-                        case 'xp_earned':
-                          return `Otorgado por acumular ${parsed.value} Puntos de Experiencia (XP).`;
-                        case 'mentorships_given':
-                          return `Otorgado por impartir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como mentor.`;
-                        case 'mentorships_received':
-                          return `Otorgado por recibir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como aprendiz.`;
-                        case 'perfect_ratings':
-                          return `Otorgado por lograr una calificación perfecta de 5 estrellas en ${parsed.value} tutorías.`;
-                        case 'first_login':
-                          return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
-                        case 'profile_configured':
-                          return 'Otorgado al personalizar tu perfil y completar tu avatar.';
-                        default:
-                          return b.criteria;
-                      }
+                return badgesToRender.length > 0 ? [...badgesToRender].sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0)).map((badge, idx) => {
+                  const dateEarned = badge.earned_at 
+                    ? new Date(badge.earned_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : null;
+
+                  const getBadgeDescription = (b) => {
+                    if (!b.criteria) {
+                      if (b.name === 'Primeros Pasos') return 'Otorgado al solicitar o impartir tu primera tutoría exitosamente.';
+                      if (b.name === 'Hola Mundo') return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
+                      if (b.name === 'Perfil Estelar') return 'Otorgado al personalizar tu perfil y completar tu avatar.';
+                      return 'Insignia otorgada por participación especial.';
                     }
-                  } catch (e) {
-                    // Si no es un JSON, retornamos la criteria directamente
+                    try {
+                      const parsed = JSON.parse(b.criteria);
+                      if (parsed && parsed.type) {
+                        switch (parsed.type) {
+                          case 'mentorships_any':
+                            return `Otorgado por completar ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} (como tutor o aprendiz).`;
+                          case 'xp_earned':
+                            return `Otorgado por acumular ${parsed.value} Puntos de Experiencia (XP).`;
+                          case 'mentorships_given':
+                            return `Otorgado por impartir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como mentor.`;
+                          case 'mentorships_received':
+                            return `Otorgado por recibir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como aprendiz.`;
+                          case 'perfect_ratings':
+                            return `Otorgado por lograr una calificación perfecta de 5 estrellas en ${parsed.value} tutorías.`;
+                          case 'first_login':
+                            return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
+                          case 'profile_configured':
+                            return 'Otorgado al personalizar tu perfil y completar tu avatar.';
+                          default:
+                            return b.criteria;
+                        }
+                      }
+                    } catch (e) {
+                      return b.criteria;
+                    }
                     return b.criteria;
-                  }
-                  return b.criteria;
-                };
+                  };
 
-                return (
-                  <div key={idx} className="flex gap-5 p-5 rounded-[2rem] border border-gray-100 bg-gradient-to-br from-white to-gray-50/20 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-100/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-                    <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-400/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
-                    
-                    {/* Contenedor del Icono */}
-                    <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center text-4xl shadow-md border border-gray-100/50 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300 relative z-10">
-                      {typeof badge.icon === 'string' && badge.icon.startsWith('http') && !brokenImages[badge.id || badge.name] ? (
-                        <img 
-                          src={badge.icon} 
-                          alt={badge.name} 
-                          className="w-full h-full object-cover" 
-                          onError={() => handleImageError(badge.id || badge.name)}
-                        />
-                      ) : (
-                        getBadgeEmoji(badge.name)
-                      )}
-                    </div>
-                    
-                    {/* Información de la Insignia */}
-                    <div className="flex flex-col justify-between text-left flex-1 relative z-10">
-                      <div>
-                        <h5 className="font-black text-[#0f592f] text-sm md:text-base leading-snug tracking-tight mb-1 group-hover:text-amber-500 transition-colors">
-                          {badge.name}
-                        </h5>
-                        <p className="text-[11px] text-gray-500 font-medium leading-normal mb-3">
-                          {getBadgeDescription(badge)}
-                        </p>
+                  return (
+                    <div key={idx} className={`flex gap-5 p-5 rounded-[2rem] border transition-all duration-300 relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 ${
+                      badge.is_featured
+                        ? 'border-amber-400 bg-gradient-to-br from-amber-500/5 to-white hover:border-amber-500 shadow-lg shadow-amber-100/5'
+                        : 'border-gray-100 bg-gradient-to-br from-white to-gray-50/20 hover:border-amber-400 hover:shadow-amber-100/10'
+                    }`}>
+                      <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-amber-400/5 rounded-full blur-xl group-hover:scale-150 transition-all duration-500"></div>
+                      
+                      {/* Contenedor del Icono */}
+                      <div className="w-20 h-20 bg-gradient-to-br from-white to-gray-50 rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center text-4xl shadow-md border border-gray-100/50 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300 relative z-10">
+                        {typeof badge.icon === 'string' && badge.icon.startsWith('http') && !brokenImages[badge.id || badge.name] ? (
+                          <img 
+                            src={badge.icon} 
+                            alt={badge.name} 
+                            className="w-full h-full object-cover" 
+                            onError={() => handleImageError(badge.id || badge.name)}
+                          />
+                        ) : (
+                          getBadgeEmoji(badge.name)
+                        )}
                       </div>
                       
-                      {/* Recompensas y Fecha */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-2 border-t border-dashed border-gray-100">
-                        <div className="flex gap-1.5">
-                          {badge.xp_reward > 0 && (
-                            <span className="text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100/80 px-2 py-0.5 rounded-lg uppercase tracking-tighter">
-                              +{badge.xp_reward} XP
-                            </span>
-                          )}
-                          {badge.coins_reward > 0 && (
-                            <span className="text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-100/80 px-2 py-0.5 rounded-lg uppercase tracking-tighter flex items-center gap-0.5">
-                              +{badge.coins_reward} 🪙
+                      {/* Información de la Insignia */}
+                      <div className="flex flex-col justify-between text-left flex-1 relative z-10">
+                        <div>
+                          <h5 className="font-black text-[#0f592f] text-sm md:text-base leading-snug tracking-tight mb-1 group-hover:text-amber-500 transition-colors flex items-center gap-1.5 flex-wrap">
+                            {badge.name}
+                            {badge.is_featured && (
+                              <span className="text-[8px] bg-amber-500/20 text-amber-600 border border-amber-500/30 font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-0.5 animate-pulse">
+                                ⭐ Destacado
+                              </span>
+                            )}
+                          </h5>
+                          <p className="text-[11px] text-gray-500 font-medium leading-normal mb-3">
+                            {getBadgeDescription(badge)}
+                          </p>
+                        </div>
+                        
+                        {/* Recompensas y Fecha */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 mt-auto pt-2 border-t border-dashed border-gray-100">
+                          <div className="flex gap-1.5">
+                            {badge.xp_reward > 0 && (
+                              <span className="text-[9px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100/80 px-2 py-0.5 rounded-lg uppercase tracking-tighter">
+                                +{badge.xp_reward} XP
+                              </span>
+                            )}
+                            {badge.coins_reward > 0 && (
+                              <span className="text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-100/80 px-2 py-0.5 rounded-lg uppercase tracking-tighter flex items-center gap-0.5">
+                                +{badge.coins_reward} 🪙
+                              </span>
+                            )}
+                          </div>
+                          
+                          {dateEarned && (
+                            <span className="text-[10px] text-gray-400 font-semibold flex items-center gap-1">
+                              <span>📅</span> {dateEarned}
                             </span>
                           )}
                         </div>
-                        
-                        {dateEarned && (
-                          <span className="text-[10px] text-gray-400 font-semibold flex items-center gap-1">
-                            <span>📅</span> {dateEarned}
-                          </span>
-                        )}
                       </div>
                     </div>
+                  );
+                }) : (
+                  <div className="col-span-full text-center py-10 bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
+                    <span className="text-4xl mb-2 block">🔒</span>
+                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Aún no has desbloqueado insignias</p>
                   </div>
                 );
-              }) : (
-                <div className="col-span-full text-center py-10 bg-gray-50/50 rounded-[2rem] border border-dashed border-gray-200">
-                  <span className="text-4xl mb-2 block">🔒</span>
-                  <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Aún no has desbloqueado insignias</p>
-                </div>
-              )}
+              })()}
             </div>
           </div>
 
@@ -860,6 +953,114 @@ const Profile = () => {
                 Actualizar Perfil
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* MODAL PARA SELECCIONAR INSIGNIAS DESTACADAS */}
+      {showFeatureModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+            <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+              <h2 className="text-2xl font-black text-[#0f592f] tracking-tighter flex items-center gap-2">
+                <span>⭐</span> Destacar Logros
+              </h2>
+              <button onClick={() => setShowFeatureModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
+            </div>
+
+            <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <p className="text-xs text-gray-500 font-medium">
+                Selecciona hasta 4 de tus logros desbloqueados para lucirlos con orgullo en tu perfil. ({selectedFeaturedBadgeIds.length} / 4 seleccionados)
+              </p>
+
+              <div className="space-y-3">
+                {user.badges && user.badges.length > 0 ? (
+                  user.badges.map((b) => {
+                    const isSelected = selectedFeaturedBadgeIds.includes(b.id);
+                    const getBadgeDescription = (badge) => {
+                      if (!badge.criteria) return "Insignia otorgada por participación especial.";
+                      try {
+                        const parsed = JSON.parse(badge.criteria);
+                        if (parsed && parsed.type) {
+                          switch (parsed.type) {
+                            case 'mentorships_any':
+                              return `Otorgado por completar ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''}.`;
+                            case 'xp_earned':
+                              return `Otorgado por acumular ${parsed.value} XP.`;
+                            case 'mentorships_given':
+                              return `Otorgado por impartir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como mentor.`;
+                            case 'mentorships_received':
+                              return `Otorgado por recibir ${parsed.value} tutoría${parsed.value > 1 ? 's' : ''} como aprendiz.`;
+                            case 'perfect_ratings':
+                              return `Otorgado por lograr 5 estrellas en ${parsed.value} tutorías.`;
+                            case 'first_login':
+                              return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
+                            case 'profile_configured':
+                              return 'Otorgado al personalizar tu perfil.';
+                            default:
+                              return badge.criteria;
+                          }
+                        }
+                      } catch (e) {
+                        return badge.criteria;
+                      }
+                      return badge.criteria;
+                    };
+
+                    return (
+                      <div
+                        key={b.id}
+                        onClick={() => handleToggleFeaturedBadge(b.id)}
+                        className={`p-4 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-300 ${
+                          isSelected 
+                            ? 'border-amber-400 bg-amber-50/30 text-[#0f592f] shadow-sm ring-1 ring-amber-400/20' 
+                            : 'border-gray-100 hover:border-gray-200 hover:shadow-sm bg-gray-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl shrink-0">
+                            {typeof b.icon === 'string' && b.icon.startsWith('http') && !brokenImages[b.id || b.name] ? (
+                              <img src={b.icon} alt={b.name} className="w-10 h-10 object-cover rounded-lg" onError={() => handleImageError(b.id || b.name)} />
+                            ) : (
+                              getBadgeEmoji(b.name)
+                            )}
+                          </span>
+                          <div className="text-left">
+                            <p className="font-extrabold text-sm text-[#0f592f] leading-tight">{b.name}</p>
+                            <p className="text-[11px] text-gray-500 mt-1 leading-snug">{getBadgeDescription(b)}</p>
+                          </div>
+                        </div>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
+                          isSelected 
+                            ? 'border-amber-400 bg-[#ffcc00] text-[#0f592f] font-black text-xs' 
+                            : 'border-gray-300 bg-white'
+                        }`}>
+                          {isSelected && "✓"}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-center text-xs text-gray-400 py-6">No tienes insignias para mostrar.</p>
+                )}
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFeatureModal(false)}
+                  className="flex-1 py-4 bg-white border border-gray-200 text-gray-600 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-gray-50 transition-all text-center shadow-sm"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveFeaturedBadges}
+                  className="flex-1 py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#0a4624] transition-all text-center shadow-lg cursor-pointer"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

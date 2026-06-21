@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 // Helper para interpretar el JSON de criteria (definido fuera del componente para evitar TDZ y recreación en render)
 const getCriteriaDescription = (criteriaStr) => {
@@ -58,7 +60,7 @@ const getBadgeEmoji = (badgeName) => {
 const Recompensas = () => {
     const { showNotification } = useNotification();
     
-    const [loading, setLoading] = useState(true);
+        const [loading, setLoading] = useState(true);
     const [brokenInsignias, setBrokenInsignias] = useState({});
     
     const handleInsigniaImageError = (id) => {
@@ -69,17 +71,123 @@ const Recompensas = () => {
     const [level, setLevel] = useState(1);
     const [dbBadges, setDbBadges] = useState([]);
     const [userUnlockedBadges, setUserUnlockedBadges] = useState([]);
+    const [apprenticeHours, setApprenticeHours] = useState([]);
+    const [mentorHours, setMentorHours] = useState([]);
+    
+    const [activeTab, setActiveTab] = useState('tienda'); // 'tienda', 'insignias', 'certificados'
+    const [certData, setCertData] = useState(null);
+    const [generatingPdf, setGeneratingPdf] = useState(false);
 
     const [showCouponModal, setShowCouponModal] = useState(false);
     const [activeCouponCode, setActiveCouponCode] = useState('');
     const [activeCouponTitle, setActiveCouponTitle] = useState('');
 
+    const [showFeatureModal, setShowFeatureModal] = useState(false);
+    const [selectedFeaturedBadgeIds, setSelectedFeaturedBadgeIds] = useState([]);
+
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+
+    const handleOpenFeatureModal = () => {
+        const currentFeatured = userUnlockedBadges
+            .filter(b => b.is_featured)
+            .map(b => b.id);
+        setSelectedFeaturedBadgeIds(currentFeatured);
+        setShowFeatureModal(true);
+    };
+
+    const handleToggleFeaturedBadge = (id) => {
+        if (selectedFeaturedBadgeIds.includes(id)) {
+            setSelectedFeaturedBadgeIds(prev => prev.filter(bId => bId !== id));
+        } else {
+            if (selectedFeaturedBadgeIds.length >= 4) {
+                showNotification("Solo puedes destacar hasta 4 logros.", "warning");
+                return;
+            }
+            setSelectedFeaturedBadgeIds(prev => [...prev, id]);
+        }
+    };
+
+    const handleSaveFeaturedBadges = async () => {
+        try {
+            await axios.put(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}/featured-badges`, {
+                badgeIds: selectedFeaturedBadgeIds
+            });
+            showNotification("Logros destacados actualizados con éxito", "success");
+            setShowFeatureModal(false);
+            await loadUserData();
+        } catch (err) {
+            console.error("Error al guardar logros destacados:", err);
+            showNotification("Error al guardar logros destacados", "error");
+        }
+    };
 
     // Listado de cupones desde archivo de configuración centralizado
     const CUPONES = config.COUPONS;
 
-    // loadUserData y loadUserDataSilently definidos arriba de useEffect con useCallback para evitar TDZ
+    // Helper determinista para generar códigos de verificación
+    const generateVerificationCode = (userId, subject, hours, role) => {
+        const val = `${userId}-${subject}-${hours}-${role}`;
+        let hash = 0;
+        for (let i = 0; i < val.length; i++) {
+            hash = val.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hex = Math.abs(hash).toString(16).toUpperCase();
+        return `CERT-${hex.substring(0, 8)}-${hours}`;
+    };
+
+    // Función para manejar la descarga del PDF
+    const handleDownloadCertificate = useCallback(async (certInfo) => {
+        if (generatingPdf) return;
+        setGeneratingPdf(true);
+        
+        const code = generateVerificationCode(currentUser.id, certInfo.subject, certInfo.hours, certInfo.role);
+        
+        setCertData({
+            name: currentUser.full_name || 'Estudiante de la ESPE',
+            type: certInfo.type,
+            hours: certInfo.hours,
+            subject: certInfo.subject,
+            role: certInfo.role,
+            code: code,
+            date: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+        });
+        
+        setTimeout(async () => {
+            try {
+                const element = document.getElementById('certificate-print-template');
+                if (!element) {
+                    throw new Error("No se encontró la plantilla de certificado.");
+                }
+                
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [1123, 794]
+                });
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, 1123, 794);
+                pdf.save(`certificado-${certInfo.role}-${certInfo.subject.replace(/\s+/g, '_')}-${certInfo.hours}h.pdf`);
+                showNotification("¡Certificado descargado con éxito!", "success");
+            } catch (err) {
+                console.error("Error al generar PDF:", err);
+                showNotification("Hubo un error al generar el certificado en PDF.", "error");
+            } finally {
+                setCertData(null);
+                setGeneratingPdf(false);
+            }
+        }, 600);
+    }, [currentUser.id, currentUser.full_name, generatingPdf, showNotification]);
+
+    // loadUserData y loadUserDataSilently
     const loadUserData = useCallback(async () => {
         try {
             setLoading(true);
@@ -93,6 +201,8 @@ const Recompensas = () => {
                 setXp(profileRes.data.xp || 0);
                 setLevel(profileRes.data.level || 1);
                 setUserUnlockedBadges(profileRes.data.badges || []);
+                setApprenticeHours(profileRes.data.apprentice_hours || []);
+                setMentorHours(profileRes.data.mentor_hours || []);
             }
             if (badgesRes.data) {
                 setDbBadges(badgesRes.data);
@@ -113,6 +223,8 @@ const Recompensas = () => {
                 setXp(profileRes.data.xp || 0);
                 setLevel(profileRes.data.level || 1);
                 setUserUnlockedBadges(profileRes.data.badges || []);
+                setApprenticeHours(profileRes.data.apprentice_hours || []);
+                setMentorHours(profileRes.data.mentor_hours || []);
             }
         } catch (err) {
             console.error("Error loading user data silently:", err);
@@ -199,9 +311,79 @@ const Recompensas = () => {
             coinsReward: badge.coins_reward || 0,
             criteriaDescription: getCriteriaDescription(badge.criteria),
             unlocked: !!userEarned,
-            earnedAt: userEarned ? userEarned.earned_at : null
+            earnedAt: userEarned ? userEarned.earned_at : null,
+            is_featured: userEarned ? !!userEarned.is_featured : false
         };
     });
+
+    const renderCertificateCard = ({ type, required, current, subject, role, desc, equiv }) => {
+        const isUnlocked = current >= required;
+        const progress = Math.min((current / required) * 100, 100);
+        
+        return (
+            <div 
+                key={type + '-' + subject}
+                className={`p-5 rounded-2xl border flex flex-col justify-between transition-all duration-300 ${
+                    isUnlocked 
+                        ? 'bg-gradient-to-br from-[#0f592f]/20 to-slate-900/60 border-[#0f592f]/40 hover:border-[#0f592f]/80 shadow-lg shadow-[#0f592f]/5'
+                        : 'bg-black/20 border-white/5 opacity-60'
+                }`}
+            >
+                <div>
+                    <div className="flex justify-between items-start gap-2 mb-3">
+                        <h5 className={`font-black text-xs uppercase tracking-wider leading-tight ${isUnlocked ? 'text-[#ffcc00]' : 'text-gray-400'}`}>
+                            {type}
+                        </h5>
+                        <span className="text-lg shrink-0">
+                            {isUnlocked ? '📜' : '🔒'}
+                        </span>
+                    </div>
+                    
+                    <p className="text-[11px] text-gray-300 leading-snug font-medium mb-3">
+                        {desc}
+                    </p>
+                    
+                    <span className="text-[9px] block text-gray-500 font-bold uppercase tracking-wider mb-4">
+                        ⏱️ {equiv}
+                    </span>
+                </div>
+                
+                <div>
+                    {isUnlocked ? (
+                        <button
+                            onClick={() => handleDownloadCertificate({ type, hours: current, subject, role })}
+                            disabled={generatingPdf}
+                            className="w-full py-2.5 bg-[#0f592f] hover:bg-[#0a4624] text-[#ffcc00] border border-[#ffcc00]/20 rounded-xl font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+                        >
+                            {generatingPdf ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-3.5 w-3.5 border-t-2 border-amber-400 border-r-transparent"></div>
+                                    <span>Generando...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>📥 Descargar PDF</span>
+                                </>
+                            )}
+                        </button>
+                    ) : (
+                        <div>
+                            <div className="flex justify-between text-[9px] font-black text-gray-400 mb-1.5">
+                                <span>REQUISITO: {required} HORAS</span>
+                                <span>{current} / {required} H</span>
+                            </div>
+                            <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                                <div 
+                                    className="h-full bg-slate-600 rounded-full transition-all duration-500"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     if (loading) {
         return (
@@ -296,86 +478,43 @@ const Recompensas = () => {
 
                 </div>
 
-                {/* Grid Inferior: Logros & Tienda */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
-                    {/* Sección Mis Logros (Insignias) */}
-                    <div className="lg:col-span-6 bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md">
-                        <div className="border-b border-white/10 pb-5 mb-6 flex justify-between items-center">
-                            <div>
-                                <h2 className="text-2xl font-black text-white flex items-center gap-2.5">
-                                    <span>🏆</span> Mis Logros
-                                </h2>
-                                <p className="text-gray-400 text-xs mt-1.5 font-medium">
-                                    Insignias y medallas obtenidas en la comunidad estudiantil.
-                                </p>
-                            </div>
-                            <span className="text-[10px] font-black text-[#ffcc00] bg-[#ffcc00]/10 border border-[#ffcc00]/20 px-3.5 py-1.5 rounded-xl uppercase tracking-widest">
-                                {userUnlockedBadges.length} desbloqueados
-                            </span>
-                        </div>
+                {/* Navigation Tabs */}
+                <div className="flex border-b border-white/10 mb-8 gap-2 overflow-x-auto scrollbar-none">
+                    <button
+                        onClick={() => setActiveTab('tienda')}
+                        className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
+                            activeTab === 'tienda'
+                                ? 'border-[#ffcc00] text-[#ffcc00]'
+                                : 'border-transparent text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        🛍️ Tienda de Beneficios
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('insignias')}
+                        className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
+                            activeTab === 'insignias'
+                                ? 'border-[#ffcc00] text-[#ffcc00]'
+                                : 'border-transparent text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        🏆 Mis Logros
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('certificados')}
+                        className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
+                            activeTab === 'certificados'
+                                ? 'border-[#ffcc00] text-[#ffcc00]'
+                                : 'border-transparent text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        📜 Mis Certificados
+                    </button>
+                </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {mappedBadges.map((insignia) => (
-                                <div
-                                    key={insignia.id}
-                                    className={`p-5 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden group/item ${
-                                        insignia.unlocked
-                                            ? 'bg-gradient-to-br from-indigo-950/40 to-slate-900/40 border-indigo-500/20 shadow-lg shadow-indigo-950/20 hover:border-indigo-500/40 hover:-translate-y-1'
-                                            : 'bg-black/20 border-white/5 opacity-50 filter grayscale hover:opacity-75 transition-opacity'
-                                    }`}
-                                >
-                                    {/* Icono de Insignia */}
-                                    <div className={`w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center text-3xl shrink-0 ${
-                                        insignia.unlocked
-                                            ? 'bg-indigo-950/80 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)] group-hover/item:scale-110 transition-transform duration-300'
-                                            : 'bg-slate-800 text-gray-500 border border-slate-700/50'
-                                    }`}>
-                                        {insignia.unlocked ? (
-                                            typeof insignia.icon === 'string' && insignia.icon.startsWith('http') && !brokenInsignias[insignia.id] ? (
-                                                <img 
-                                                    src={insignia.icon} 
-                                                    alt={insignia.name} 
-                                                    className="w-full h-full object-cover" 
-                                                    onError={() => handleInsigniaImageError(insignia.id)}
-                                                />
-                                            ) : (
-                                                getBadgeEmoji(insignia.name)
-                                            )
-                                        ) : '🔒'}
-                                    </div>
-
-                                    {/* Información */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-extrabold text-white text-sm leading-tight truncate group-hover/item:text-amber-400 transition-colors">
-                                                {insignia.name}
-                                            </h4>
-                                            {insignia.unlocked && (
-                                                <span className="text-[8px] bg-green-500/10 text-green-400 border border-green-500/20 font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-                                                    Ganado
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="text-[11px] text-gray-400 mt-1 leading-snug">
-                                            {insignia.criteriaDescription}
-                                        </p>
-                                        <div className="flex gap-2.5 mt-2.5">
-                                            <span className="text-[9px] font-black text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/25">
-                                                +{insignia.xpReward} XP
-                                            </span>
-                                            <span className="text-[9px] font-black text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/25">
-                                                +{insignia.coinsReward} 🪙
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Sección Tienda de Beneficios */}
-                    <div className="lg:col-span-6 bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md">
+                {/* Tab content rendering */}
+                {activeTab === 'tienda' && (
+                    <div className="bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md animate-fade-in">
                         <div className="border-b border-white/10 pb-5 mb-6">
                             <h2 className="text-2xl font-black text-white flex items-center gap-2.5">
                                 <span>🛍️</span> Canjear ESPE-Coins
@@ -385,7 +524,7 @@ const Recompensas = () => {
                             </p>
                         </div>
 
-                        <div className="flex flex-col gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {CUPONES.map((cupon) => {
                                 const canAfford = espeCoins >= cupon.cost;
 
@@ -423,7 +562,7 @@ const Recompensas = () => {
                                         {/* Botón de Canjeo */}
                                         <button
                                             onClick={() => handleRedeem(cupon)}
-                                            className={`font-black text-xs px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1.5 border outline-none shadow-md ${
+                                            className={`font-black text-xs px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1.5 border outline-none shadow-md cursor-pointer ${
                                                 canAfford
                                                     ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white border-amber-400/20 shadow-amber-500/10'
                                                     : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'
@@ -438,8 +577,230 @@ const Recompensas = () => {
                             })}
                         </div>
                     </div>
+                )}
 
-                </div>
+                {activeTab === 'insignias' && (
+                    <div className="bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md animate-fade-in">
+                        <div className="border-b border-white/10 pb-5 mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                            <div>
+                                <h2 className="text-2xl font-black text-white flex items-center gap-2.5">
+                                    <span>🏆</span> Mis Logros
+                                </h2>
+                                <p className="text-gray-400 text-xs mt-1.5 font-medium">
+                                    Insignias y medallas obtenidas en la comunidad estudiantil. (Puedes destacar hasta 4 logros en tu perfil).
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={handleOpenFeatureModal}
+                                    className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+                                >
+                                    ✏️ Destacar Logros
+                                </button>
+                                <span className="text-[10px] font-black text-[#ffcc00] bg-[#ffcc00]/10 border border-[#ffcc00]/20 px-3.5 py-1.5 rounded-xl uppercase tracking-widest">
+                                    {userUnlockedBadges.length} desbloqueados
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {mappedBadges.map((insignia) => (
+                                <div
+                                    key={insignia.id}
+                                    className={`p-5 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden group/item ${
+                                        insignia.unlocked
+                                            ? insignia.is_featured
+                                                ? 'bg-gradient-to-br from-indigo-950/70 to-amber-950/40 border-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.25)] hover:border-amber-300 hover:-translate-y-1'
+                                                : 'bg-gradient-to-br from-indigo-950/40 to-slate-900/40 border-indigo-500/20 shadow-lg shadow-indigo-950/20 hover:border-indigo-500/40 hover:-translate-y-1'
+                                            : 'bg-black/20 border-white/5 opacity-50 filter grayscale hover:opacity-75 transition-opacity'
+                                    }`}
+                                >
+                                    {/* Icono de Insignia */}
+                                    <div className={`w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center text-3xl shrink-0 ${
+                                        insignia.unlocked
+                                            ? 'bg-indigo-950/80 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)] group-hover/item:scale-110 transition-transform duration-300'
+                                            : 'bg-slate-800 text-gray-500 border border-slate-700/50'
+                                    }`}>
+                                        {insignia.unlocked ? (
+                                            typeof insignia.icon === 'string' && insignia.icon.startsWith('http') && !brokenInsignias[insignia.id] ? (
+                                                <img 
+                                                    src={insignia.icon} 
+                                                    alt={insignia.name} 
+                                                    className="w-full h-full object-cover" 
+                                                    onError={() => handleInsigniaImageError(insignia.id)}
+                                                />
+                                            ) : (
+                                                getBadgeEmoji(insignia.name)
+                                            )
+                                        ) : '🔒'}
+                                    </div>
+
+                                    {/* Información */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="font-extrabold text-white text-sm leading-tight truncate group-hover/item:text-amber-400 transition-colors">
+                                                {insignia.name}
+                                            </h4>
+                                            {insignia.is_featured && (
+                                                <span className="text-[8px] bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-0.5 animate-pulse">
+                                                    ⭐ Destacado
+                                                </span>
+                                            )}
+                                            {insignia.unlocked && !insignia.is_featured && (
+                                                <span className="text-[8px] bg-green-500/10 text-green-400 border border-green-500/20 font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                                                    Ganado
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-gray-400 mt-1 leading-snug">
+                                            {insignia.criteriaDescription}
+                                        </p>
+                                        <div className="flex gap-2.5 mt-2.5">
+                                            <span className="text-[9px] font-black text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/25">
+                                                +{insignia.xpReward} XP
+                                            </span>
+                                            <span className="text-[9px] font-black text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/25">
+                                                +{insignia.coinsReward} 🪙
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'certificados' && (
+                    <div className="bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md animate-fade-in">
+                        <div className="border-b border-white/10 pb-5 mb-6">
+                            <h2 className="text-2xl font-black text-white flex items-center gap-2.5">
+                                <span>📜</span> Mis Certificados Académicos
+                            </h2>
+                            <p className="text-gray-400 text-xs mt-1.5 font-medium">
+                                Genera y descarga certificados oficiales firmados según tus horas de tutorías completadas.
+                            </p>
+                        </div>
+
+                        {apprenticeHours.length === 0 && mentorHours.length === 0 ? (
+                            <div className="text-center py-12 flex flex-col items-center justify-center">
+                                <span className="text-5xl mb-4">📜</span>
+                                <h3 className="text-lg font-black text-white">Sin certificados disponibles</h3>
+                                <p className="text-gray-400 text-xs mt-2 max-w-md mx-auto leading-relaxed">
+                                    Aún no registras horas de tutorías completadas en la plataforma. 
+                                    Completa tutorías como estudiante o regístrate como tutor para impartir tutorías y comenzar a acumular horas académicas.
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                {/* Sección de Aprendiz */}
+                                {apprenticeHours.length > 0 && (
+                                    <div className="mb-10">
+                                        <h3 className="text-lg font-black text-amber-400 flex items-center gap-2 mb-6">
+                                            <span>🎓</span> Tutorías Recibidas (Como Estudiante)
+                                        </h3>
+                                        <div className="flex flex-col gap-6">
+                                            {apprenticeHours.map((subj) => (
+                                                <div key={subj.subject_id} className="bg-slate-950/40 border border-white/5 rounded-3xl p-6">
+                                                    <div className="flex justify-between items-center mb-4 gap-4">
+                                                        <h4 className="font-extrabold text-white text-base truncate uppercase tracking-wider">
+                                                            {subj.subject_name}
+                                                        </h4>
+                                                        <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3.5 py-1.5 rounded-xl font-black shrink-0">
+                                                            Total: {subj.total_hours} {subj.total_hours === 1 ? 'hora' : 'horas'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        {renderCertificateCard({
+                                                            type: 'Certificado de Iniciación / Logro',
+                                                            required: 10,
+                                                            current: subj.total_hours,
+                                                            subject: subj.subject_name,
+                                                            role: 'estudiante',
+                                                            desc: 'Ideal para validar la superación de una materia corta o taller intensivo. Impulso motivacional inicial.',
+                                                            equiv: '~1 mes (2-3h/semana)'
+                                                        })}
+                                                        {renderCertificateCard({
+                                                            type: 'Certificado de Consolidación',
+                                                            required: 30,
+                                                            current: subj.total_hours,
+                                                            subject: subj.subject_name,
+                                                            role: 'estudiante',
+                                                            desc: 'Demuestra un esfuerzo sostenido a lo largo de un ciclo académico completo.',
+                                                            equiv: '~1 trimestre o semestre regular'
+                                                        })}
+                                                        {renderCertificateCard({
+                                                            type: 'Certificado de Excelencia Académica',
+                                                            required: 80,
+                                                            current: subj.total_hours,
+                                                            subject: subj.subject_name,
+                                                            role: 'estudiante',
+                                                            desc: 'Demuestra un compromiso profundo a largo plazo. Excelente peso curricular de constancia.',
+                                                            equiv: '~1 año académico'
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Sección de Mentor */}
+                                {mentorHours.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-black text-amber-400 flex items-center gap-2 mb-6">
+                                            <span>👨‍🏫</span> Tutorías Realizadas (Como Tutor/Mentor)
+                                        </h3>
+                                        <div className="flex flex-col gap-6">
+                                            {mentorHours.map((subj) => (
+                                                <div key={subj.subject_id} className="bg-slate-950/40 border border-white/5 rounded-3xl p-6">
+                                                    <div className="flex justify-between items-center mb-4 gap-4">
+                                                        <h4 className="font-extrabold text-white text-base truncate uppercase tracking-wider">
+                                                            {subj.subject_name}
+                                                        </h4>
+                                                        <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-3.5 py-1.5 rounded-xl font-black shrink-0">
+                                                            Total: {subj.total_hours} {subj.total_hours === 1 ? 'hora' : 'horas'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        {renderCertificateCard({
+                                                            type: 'Certificado de Tutor Junior',
+                                                            required: 20,
+                                                            current: subj.total_hours,
+                                                            subject: subj.subject_name,
+                                                            role: 'tutor',
+                                                            desc: 'Valida que has superado la fase de inducción y has tenido un impacto inicial con tus estudiantes.',
+                                                            equiv: '~1 a 2 meses de mentoría'
+                                                        })}
+                                                        {renderCertificateCard({
+                                                            type: 'Certificado de Tutor Avanzado',
+                                                            required: 60,
+                                                            current: subj.total_hours,
+                                                            subject: subj.subject_name,
+                                                            role: 'tutor',
+                                                            desc: 'Valioso para tu currículum. Demuestra experiencia equivalente a pasantía o voluntariado formal.',
+                                                            equiv: '~1 semestre constante'
+                                                        })}
+                                                        {renderCertificateCard({
+                                                            type: 'Certificado de Mentor Experto / Líder',
+                                                            required: 120,
+                                                            current: subj.total_hours,
+                                                            subject: subj.subject_name,
+                                                            role: 'tutor',
+                                                            desc: 'Avala un dominio total de la enseñanza, mentoría a gran escala e impacto masivo en la comunidad.',
+                                                            equiv: '~1 año de trayectoria'
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
 
             </div>
 
@@ -481,18 +842,214 @@ const Recompensas = () => {
                         <div className="w-full grid grid-cols-2 gap-3 mt-8">
                             <button
                                 onClick={copyCouponCode}
-                                className="bg-white/5 hover:bg-white/10 text-white text-xs font-black py-3.5 rounded-2xl transition-all border border-white/10"
+                                className="bg-white/5 hover:bg-white/10 text-white text-xs font-black py-3.5 rounded-2xl transition-all border border-white/10 cursor-pointer"
                             >
                                 Copiar Código
                             </button>
                             <button
                                 onClick={() => setShowCouponModal(false)}
-                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-blue-600 text-white text-xs font-black py-3.5 rounded-2xl transition-all shadow-md shadow-indigo-600/15"
+                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-blue-600 text-white text-xs font-black py-3.5 rounded-2xl transition-all shadow-md shadow-indigo-600/15 cursor-pointer"
                             >
                                 Listo
                             </button>
                         </div>
 
+                    </div>
+                </div>
+            )}
+
+            {/* Plantilla Oculta de Certificado para Captura HTML2Canvas */}
+            {certData && (
+                <div style={{ position: 'absolute', top: '-10000px', left: '-10000px' }}>
+                    <div
+                        id="certificate-print-template"
+                        style={{
+                            width: '1123px',
+                            height: '794px',
+                            padding: '60px',
+                            boxSizing: 'border-box',
+                            backgroundColor: '#ffffff',
+                            color: '#1f2937',
+                            fontFamily: "'Outfit', 'Inter', sans-serif",
+                            position: 'relative',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            border: '20px solid #0f592f',
+                        }}
+                    >
+                        {/* Gold Filigree Line */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                top: '10px',
+                                left: '10px',
+                                right: '10px',
+                                bottom: '10px',
+                                border: '3px solid #ffcc00',
+                                pointerEvents: 'none',
+                            }}
+                        />
+
+                        {/* Certificate Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <span style={{ fontSize: '28px', fontWeight: '900', color: '#0f592f', letterSpacing: '3px' }}>PILAS!</span>
+                            </div>
+                            <div style={{ textAlign: 'right', flexGrow: 1 }}>
+                                <h4 style={{ fontSize: '12px', fontWeight: '900', color: '#0f592f', margin: '0', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                                    Universidad de las Fuerzas Armadas ESPE
+                                </h4>
+                                <span style={{ fontSize: '10px', fontWeight: '700', color: '#ffcc00', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    Departamento de Ciencias Académicas y Vinculación
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Certificate Body */}
+                        <div style={{ textAlign: 'center', margin: '20px 0' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '800', color: '#ffcc00', letterSpacing: '4px', textTransform: 'uppercase' }}>
+                                Certificado de Reconocimiento
+                            </span>
+                            <h1 style={{ fontSize: '36px', fontWeight: '900', color: '#0f592f', margin: '15px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                {certData.type}
+                            </h1>
+                            <p style={{ fontSize: '15px', color: '#4b5563', fontStyle: 'italic', margin: '0' }}>
+                                Concedido con honor a:
+                            </p>
+                            <h2 style={{ fontSize: '32px', fontWeight: '950', color: '#111827', margin: '10px auto 25px auto', borderBottom: '2.5px solid #ffcc00', paddingBottom: '10px', display: 'inline-block', minWidth: '450px' }}>
+                                {certData.name}
+                            </h2>
+                            <p style={{ fontSize: '16px', lineHeight: '1.7', color: '#374151', maxWidth: '850px', margin: '0 auto' }}>
+                                Por haber {certData.role === 'tutor' ? 'realizado con éxito' : 'recibido con constancia'} un total de{' '}
+                                <strong style={{ color: '#0f592f', fontWeight: '900' }}>{certData.hours} horas</strong> de tutoría{' '}
+                                {certData.role === 'tutor' ? 'académica impartida' : 'académica recibida'} en la asignatura de{' '}
+                                <strong style={{ color: '#0f592f', fontWeight: '900', textTransform: 'uppercase' }}>{certData.subject}</strong>,{' '}
+                                demostrando un alto compromiso con el desarrollo educativo, el aprendizaje colaborativo y la excelencia académica en la comunidad Pilas!.
+                            </p>
+                        </div>
+
+                        {/* Certificate Signatures and Seal */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', width: '100%', padding: '0 20px' }}>
+                            {/* Left signature */}
+                            <div style={{ textAlign: 'center', width: '220px' }}>
+                                <div style={{ borderBottom: '1px solid #9ca3af', paddingBottom: '5px', marginBottom: '8px' }}>
+                                    <span style={{ fontSize: '14px', fontStyle: 'italic', color: '#4b5563', fontFamily: 'serif' }}>Coordinación Académica</span>
+                                </div>
+                                <span style={{ fontSize: '9px', fontWeight: '850', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    Coordinación Pilas!
+                                </span>
+                            </div>
+
+                            {/* Center Sello */}
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                <svg width="80" height="80" viewBox="0 0 100 100" style={{ fill: '#ffcc00' }}>
+                                    <circle cx="50" cy="50" r="42" stroke="#0f592f" strokeWidth="4.5" fill="#ffffff" />
+                                    <circle cx="50" cy="50" r="36" stroke="#ffcc00" strokeWidth="1.5" strokeDasharray="3 2" fill="none" />
+                                    <path d="M 50 18 L 59 36 L 79 38 L 64 51 L 69 71 L 50 60 L 31 71 L 36 51 L 21 38 L 41 36 Z" fill="#ffcc00" stroke="#0f592f" strokeWidth="1" />
+                                    <text x="50" y="85" textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#0f592f" letterSpacing="0.5px">PILAS! ESPE</text>
+                                </svg>
+                            </div>
+
+                            {/* Right Date */}
+                            <div style={{ textAlign: 'center', width: '220px' }}>
+                                <div style={{ borderBottom: '1px solid #9ca3af', paddingBottom: '5px', marginBottom: '8px' }}>
+                                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#111827' }}>
+                                        {certData.date}
+                                    </span>
+                                </div>
+                                <span style={{ fontSize: '9px', fontWeight: '850', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    Fecha de Emisión
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Verification code at bottom */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '8px', color: '#9ca3af', fontFamily: 'monospace', width: '100%', marginTop: '10px' }}>
+                            <span>CÓDIGO DE VERIFICACIÓN: {certData.code}</span>
+                            <span>SISTEMA DE GAMIFICACIÓN PILAS!</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para Destacar Logros */}
+            {showFeatureModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+                    <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] max-w-lg w-full p-8 relative shadow-2xl">
+                        <button
+                            onClick={() => setShowFeatureModal(false)}
+                            className="absolute right-6 top-6 text-gray-400 hover:text-white text-xl outline-none cursor-pointer"
+                        >
+                            ✕
+                        </button>
+                        
+                        <h3 className="text-xl font-black text-white flex items-center gap-2 mb-2">
+                            <span>⭐</span> Destacar Logros
+                        </h3>
+                        <p className="text-xs text-gray-400 mb-6 font-medium">
+                            Selecciona hasta 4 de tus logros desbloqueados para lucirlos con orgullo en tu perfil. ({selectedFeaturedBadgeIds.length} / 4 seleccionados)
+                        </p>
+
+                        {/* Listado de logros desbloqueados */}
+                        <div className="max-h-60 overflow-y-auto space-y-2.5 pr-2 mb-6 scrollbar-thin">
+                            {mappedBadges.filter(b => b.unlocked).length === 0 ? (
+                                <p className="text-center text-xs text-gray-500 py-6">Aún no has desbloqueado ninguna insignia.</p>
+                            ) : (
+                                mappedBadges
+                                    .filter(b => b.unlocked)
+                                    .map(b => {
+                                        const isSelected = selectedFeaturedBadgeIds.includes(b.id);
+                                        return (
+                                            <div
+                                                key={b.id}
+                                                onClick={() => handleToggleFeaturedBadge(b.id)}
+                                                className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-300 ${
+                                                    isSelected 
+                                                        ? 'bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-amber-400 text-white shadow-md' 
+                                                        : 'bg-black/30 border-white/5 hover:border-white/20 text-gray-300'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl shrink-0">
+                                                        {typeof b.icon === 'string' && b.icon.startsWith('http') && !brokenInsignias[b.id] ? (
+                                                            <img src={b.icon} alt={b.name} className="w-8 h-8 object-cover rounded-lg" />
+                                                        ) : (
+                                                            getBadgeEmoji(b.name)
+                                                        )}
+                                                    </span>
+                                                    <div>
+                                                        <p className="font-extrabold text-xs leading-tight">{b.name}</p>
+                                                        <p className="text-[9px] text-gray-400 mt-1 leading-snug">{b.criteriaDescription}</p>
+                                                    </div>
+                                                </div>
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                                    isSelected 
+                                                        ? 'border-amber-400 bg-amber-400 text-slate-950 font-black text-[10px]' 
+                                                        : 'border-white/20'
+                                                }`}>
+                                                    {isSelected && "✓"}
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                            )}
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowFeatureModal(false)}
+                                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl font-black text-xs uppercase tracking-wider transition cursor-pointer"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveFeaturedBadges}
+                                className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/10 cursor-pointer"
+                            >
+                                Guardar
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

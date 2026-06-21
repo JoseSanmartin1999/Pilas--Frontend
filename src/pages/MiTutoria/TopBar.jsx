@@ -43,6 +43,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
                 cancellationReason: reasonToSend
             });
             showNotification(`🔒 ${data.message}`, 'success');
+            window.dispatchEvent(new Event('gamificationStatsUpdated'));
             if (onCloseMentorship) {
                 onCloseMentorship(mentorship.id, data.status);
             }
