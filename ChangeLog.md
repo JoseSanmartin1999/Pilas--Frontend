@@ -11,6 +11,10 @@ Este documento registra las mejoras y cambios realizados en el sistema de tutor�
 - **Notificación Premium de Medallas (`NotificationContext.jsx` [MODIFY], `Navbar.jsx` [MODIFY], `TopBar.jsx` [MODIFY], `WorkspaceLayout.jsx` [MODIFY])**:
     - **[AGREGADO]** Soporte en el contexto global de notificaciones para mostrar un toast de felicitaciones al ganar una medalla con diseño premium, bordes dorados, fondo degradado y animación de brinco (`bounce`).
     - **[AGREGADO]** Sincronización reactiva del perfil en el navbar y en el cierre/calificación de tutorías, comparando las insignias obtenidas con el `localStorage` para disparar la notificación flotante automáticamente en el momento del logro.
+- **Chatbot de Preguntas Frecuentes (`FAQChatbot.jsx` [MODIFY])**:
+    - **[CORREGIDO]** Corrección del algoritmo de coincidencia de palabras clave (`processUserQuery`) para soportar búsquedas y emparejamientos más flexibles (comprobando si la consulta contiene la palabra clave o si la palabra clave contiene la consulta).
+    - **[CORREGIDO]** Soporte para devolver múltiples coincidencias relevantes en forma de lista ordenada por nivel de coincidencia en lugar de restringir la respuesta a una única pregunta fija.
+    - **[ACTUALIZADO]** Se agregaron las palabras clave `'postular'` y `'ser tutor'` a la pregunta de semestre mínimo para ser tutor, garantizando que ambas preguntas de postulación se muestren al buscar o preguntar por tutorías.
 
 ### Backend (Recordatorios y Zona Horaria)
 - **Cálculo de Fechas Localizadas (`dateUtils.js` [NEW])**:

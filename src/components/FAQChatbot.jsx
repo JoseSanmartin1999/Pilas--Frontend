@@ -92,7 +92,7 @@ const FAQ_DATABASE = [
     category: 'tutor'
   },
   {
-    keywords: ['semestre', 'postular semestre', 'cuando puedo postular', 'nivel postular', 'ser tutor semestre'],
+    keywords: ['semestre', 'postular', 'ser tutor', 'postular semestre', 'cuando puedo postular', 'nivel postular', 'ser tutor semestre'],
     question: '¿Desde qué semestre puedo postular para ser tutor?',
     answer: 'A partir de 4to Semestre puedes realizar tu postulación para ser tutor. Un administrador revisará tu solicitud y la aprobará.',
     category: 'tutor'
@@ -178,26 +178,40 @@ export default function FAQChatbot() {
   const processUserQuery = (query) => {
     const cleanedQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // remover acentos
     
-    let bestMatch = null;
-    let maxMatches = 0;
+    const matchesList = [];
 
     FAQ_DATABASE.forEach(faq => {
       let matches = 0;
       faq.keywords.forEach(keyword => {
         const cleanedKeyword = keyword.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        if (cleanedQuery.includes(cleanedKeyword)) {
+        const queryMatchesKeyword = cleanedQuery.includes(cleanedKeyword);
+        const keywordMatchesQuery = cleanedQuery.length >= 3 && cleanedKeyword.includes(cleanedQuery);
+        
+        if (queryMatchesKeyword || keywordMatchesQuery) {
           matches++;
         }
       });
 
-      if (matches > maxMatches) {
-        maxMatches = matches;
-        bestMatch = faq;
+      if (matches > 0) {
+        matchesList.push({ faq, score: matches });
       }
     });
 
-    if (bestMatch && maxMatches > 0) {
-      addMessage('bot', `**Pregunta:** ${bestMatch.question}\n\n${bestMatch.answer}`);
+    if (matchesList.length > 0) {
+      // Sort by score descending
+      matchesList.sort((a, b) => b.score - a.score);
+      
+      if (matchesList.length === 1) {
+        const best = matchesList[0].faq;
+        addMessage('bot', `**Pregunta:** ${best.question}\n\n${best.answer}`);
+      } else {
+        const topMatches = matchesList.slice(0, 3);
+        let replyText = `Encontré las siguientes preguntas relacionadas con tu búsqueda:\n\n`;
+        topMatches.forEach(({ faq }) => {
+          replyText += `• **${faq.question}**\n${faq.answer}\n\n`;
+        });
+        addMessage('bot', replyText.trim());
+      }
     } else {
       addMessage('bot', 'Lo siento, no encontré una respuesta exacta a tu pregunta. 😅\n\nPrueba utilizando palabras clave más cortas (como "monedas", "tutor", "zoom", "chat", "workspace") o selecciona una de las categorías temáticas en los botones de arriba.');
     }
