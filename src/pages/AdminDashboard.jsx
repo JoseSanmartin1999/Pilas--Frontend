@@ -1546,6 +1546,8 @@ const AdminDashboard = () => {
                                         <option value="perfect_ratings">Tutorías calificadas con 5★ estrellas</option>
                                         <option value="first_login">Crear tu cuenta en Pilas!</option>
                                         <option value="profile_configured">Configurar tu perfil (Biografía)</option>
+                                        <option value="consecutive_logins">🔥 Inicios de sesión consecutivos por día</option>
+                                        <option value="high_rating_streak">⭐ Calificaciones altas (4★ o más) acumuladas</option>
                                     </select>
                                 </div>
 

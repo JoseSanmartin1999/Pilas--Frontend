@@ -25,6 +25,10 @@ const getCriteriaDescription = (criteriaStr) => {
                 return "Creaste tu Cuenta en pilas!";
             case 'profile_configured':
                 return "Configuraste tu perfil de usuario";
+            case 'consecutive_logins':
+                return `Inicia sesión ${crit.value} días seguidos consecutivos. 🔥`;
+            case 'high_rating_streak':
+                return `Acumula ${crit.value} tutorías con calificación de 4★ o más como tutor.`;
             default:
                 return "Criterio personalizado";
         }
