@@ -91,6 +91,12 @@ const FAQ_DATABASE = [
     answer: 'Si eres aprendiz y quieres enseñar, entra a la sección "Sé Tutor", selecciona las materias que dominas y redacta tu motivación. Tu postulación será enviada al Administrador. Una vez aprobada, tu rol cambiará a Mentor, habilitándote a dictar tutorías.',
     category: 'tutor'
   },
+  {
+    keywords: ['semestre', 'postular semestre', 'cuando puedo postular', 'nivel postular', 'ser tutor semestre'],
+    question: '¿Desde qué semestre puedo postular para ser tutor?',
+    answer: 'A partir de 4to Semestre puedes realizar tu postulación para ser tutor. Un administrador revisará tu solicitud y la aprobará.',
+    category: 'tutor'
+  },
   // CATEGORÍA: SOPORTE
   {
     keywords: ['soporte', 'ayuda', 'ticket', 'problema', 'error', 'reportar', 'contacto admin'],
