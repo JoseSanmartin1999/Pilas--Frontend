@@ -241,7 +241,7 @@ export default function FAQChatbot() {
           <img 
             src={chatbotIcon} 
             alt="Pili Chatbot" 
-            className="w-full h-full object-cover group-hover:rotate-6 transition-transform duration-300"
+            className="w-full h-full object-cover scale-[1.6] group-hover:rotate-6 transition-transform duration-300"
           />
         </button>
       )}
@@ -254,7 +254,7 @@ export default function FAQChatbot() {
           <div className="p-4 bg-gradient-to-r from-[#0f592f] to-[#197540] text-white flex items-center justify-between border-b border-emerald-800">
             <div className="flex items-center space-x-3">
               <div className="relative w-10 h-10 rounded-full bg-white flex items-center justify-center border border-white/50 overflow-hidden">
-                <img src={chatbotIcon} alt="Avatar Pili" className="w-full h-full object-cover" />
+                <img src={chatbotIcon} alt="Avatar Pili" className="w-full h-full object-cover scale-[1.6]" />
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border border-emerald-900"></span>
               </div>
               <div>
@@ -291,7 +291,7 @@ export default function FAQChatbot() {
               >
                 {msg.sender === 'bot' && (
                   <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
-                    <img src={chatbotIcon} alt="Bot" className="w-full h-full object-cover" />
+                    <img src={chatbotIcon} alt="Bot" className="w-full h-full object-cover scale-[1.6]" />
                   </div>
                 )}
                 <div 
