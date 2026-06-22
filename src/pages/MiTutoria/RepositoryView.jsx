@@ -43,6 +43,7 @@ const FILE_TYPE_COLORS = {
 const RepositoryView = ({ mentorship, currentUser }) => {
     const { showNotification } = useNotification();
     const isMentor = currentUser?.id === mentorship?.mentor_id;
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
 
     // State
     const [materials, setMaterials] = useState([]);
@@ -1025,7 +1026,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                         </p>
                                     </div>
                                     <a
-                                        href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}`}
+                                        href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}&token=${token}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20"
@@ -1048,7 +1049,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                             </div>
                             {(showPreview.file_type === 'image' || showPreview.file_type === 'video') && (
                                 <a
-                                    href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}`}
+                                    href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}&token=${token}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
