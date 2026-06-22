@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import logoEspePilas from '../assets/logoespepilas.png';
 
@@ -18,9 +19,9 @@ const Footer = () => {
         <div>
           <h4 className="font-bold text-pilas-gold mb-4">Enlaces Rápidos</h4>
           <ul className="space-y-2 text-white/70 text-sm">
-            <li><a href="#" className="hover:text-pilas-gold transition-colors">Sobre Nosotros</a></li>
-            <li><a href="#" className="hover:text-pilas-gold transition-colors">Términos y Condiciones</a></li>
-            <li><a href="#" className="hover:text-pilas-gold transition-colors">Soporte</a></li>
+            <li><Link to="/beneficios" className="hover:text-pilas-gold transition-colors">Sobre Nosotros / Beneficios</Link></li>
+            <li><Link to="/terminos" className="hover:text-pilas-gold transition-colors">Términos y Condiciones</Link></li>
+            <li><Link to="/tickets" className="hover:text-pilas-gold transition-colors">Soporte</Link></li>
           </ul>
         </div>
         <div>

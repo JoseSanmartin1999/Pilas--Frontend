@@ -17,6 +17,7 @@ import SeTutor from './pages/SeTutor';
 import AdminDashboard from './pages/AdminDashboard';
 import SoporteTickets from './pages/SoporteTickets';
 import Beneficios from './pages/Beneficios';
+import Terminos from './pages/Terminos';
 import Footer from './components/Footer';
 import FAQChatbot from './components/FAQChatbot';
 
@@ -64,6 +65,7 @@ const AppContent = ({ auth, setAuth }) => {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/tickets" element={<SoporteTickets />} />
           <Route path="/beneficios" element={<Beneficios />} />
+          <Route path="/terminos" element={<Terminos />} />
 
           {/* Ruta comodín para manejar errores 404 */}
           <Route path="*" element={<div className="text-center py-20">404 - Página no encontrada</div>} />
