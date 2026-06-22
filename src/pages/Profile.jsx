@@ -554,6 +554,8 @@ const Profile = () => {
                             return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
                           case 'profile_configured':
                             return 'Otorgado al personalizar tu perfil y completar tu avatar.';
+                          case 'early_adopter':
+                            return 'Otorgado por participar en las pruebas beta de Pilas!.';
                           default:
                             return b.criteria;
                         }
@@ -996,6 +998,8 @@ const Profile = () => {
                               return 'Otorgado por completar tu registro e iniciar tu camino en Pilas!.';
                             case 'profile_configured':
                               return 'Otorgado al personalizar tu perfil.';
+                            case 'early_adopter':
+                              return 'Otorgado por participar en las pruebas beta de Pilas!.';
                             default:
                               return badge.criteria;
                           }

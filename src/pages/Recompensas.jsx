@@ -25,6 +25,8 @@ const getCriteriaDescription = (criteriaStr) => {
                 return "Creaste tu Cuenta en pilas!";
             case 'profile_configured':
                 return "Configuraste tu perfil de usuario";
+            case 'early_adopter':
+                return "Otorgado por participar en las pruebas beta de Pilas!.";
             case 'consecutive_logins':
                 return `Inicia sesión ${crit.value} días seguidos consecutivos. 🔥`;
             case 'high_rating_streak':
