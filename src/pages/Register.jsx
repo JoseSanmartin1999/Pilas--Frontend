@@ -62,7 +62,13 @@ const Register = () => {
     }, [formData.current_semester, formData.role, showNotification]);
 
     const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'full_name') {
+            const filteredValue = value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s]/g, '');
+            setFormData({ ...formData, [name]: filteredValue });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const toggleSubject = (id) => {
@@ -196,7 +202,7 @@ const Register = () => {
 
                     <form className="space-y-6" onSubmit={handleRegister}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <input name="full_name" onChange={handleInputChange} type="text" placeholder="Nombre Completo" className="input-style" required />
+                            <input name="full_name" value={formData.full_name} onChange={handleInputChange} type="text" placeholder="Nombre Completo" className="input-style" required />
                             <input name="email" onChange={handleInputChange} type="email" placeholder="Correo Institucional" className="input-style" required />
 
                             {/* Contraseña con Visualización */}
