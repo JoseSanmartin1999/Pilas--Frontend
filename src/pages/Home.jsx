@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 const Home = () => {
+  const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+  const isAuthenticated = !!token;
+
   // Mock State para interactividad en el Dashboard visual derecho
   const [loginStreak, setLoginStreak] = useState(5);
   const [coins, setCoins] = useState(540);
@@ -92,7 +95,7 @@ const Home = () => {
             
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <Link 
-                to="/buscar" 
+                to={isAuthenticated ? "/buscar" : "/login"} 
                 className="inline-flex items-center justify-center px-8 py-4 rounded-2xl font-black bg-pilas-gold text-slate-900 hover:bg-[#ffdf66] hover:scale-[1.03] active:scale-95 transition-all duration-200 shadow-xl shadow-pilas-gold/10 text-xs uppercase tracking-widest text-center"
               >
                 Buscar un Tutor
@@ -101,7 +104,7 @@ const Home = () => {
                 </svg>
               </Link>
               <Link 
-                to="/se-tutor" 
+                to={isAuthenticated ? "/se-tutor" : "/registro"} 
                 className="inline-flex items-center justify-center px-8 py-4 rounded-2xl font-black bg-transparent border-2 border-slate-600 text-slate-200 hover:border-white hover:text-white hover:bg-white/5 active:scale-95 transition-all duration-200 text-xs uppercase tracking-widest text-center"
               >
                 Ser Mentor / Tutor
@@ -396,7 +399,7 @@ const Home = () => {
               Únete a la comunidad de estudiantes y mentores de la ESPE. Comparte conocimientos, gana recompensas y mejora tus calificaciones hoy mismo.
             </p>
             <Link 
-              to="/registro" 
+              to={isAuthenticated ? "/buscar" : "/registro"} 
               className="inline-flex items-center justify-center px-10 py-5 rounded-2xl font-black bg-pilas-gold text-slate-900 hover:bg-[#ffdf66] hover:scale-105 active:scale-95 transition-all duration-200 shadow-xl shadow-pilas-gold/15 text-xs uppercase tracking-widest"
             >
               Regístrate Ahora
