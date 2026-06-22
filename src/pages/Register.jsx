@@ -261,12 +261,15 @@ const Register = () => {
 
                             <textarea name="bio" onChange={handleInputChange} placeholder="Cuéntanos un poco sobre ti (Bio)" className="input-style md:col-span-2 h-24"></textarea>
 
-                            <select name="role" value={formData.role} onChange={handleInputChange} className="input-style font-bold text-pilas-blue md:col-span-2">
-                                <option value="APRENDIZ">Soy Aprendiz</option>
-                                <option value="MENTOR" disabled={parseInt(formData.current_semester, 10) <= 3}>
-                                    Soy Mentor {parseInt(formData.current_semester, 10) <= 3 && " (Disponible desde 4° Semestre)"}
-                                </option>
-                            </select>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Seleccionar tu Rol</label>
+                                <select name="role" value={formData.role} onChange={handleInputChange} className="input-style font-bold text-pilas-blue w-full">
+                                    <option value="APRENDIZ">Soy Aprendiz</option>
+                                    <option value="MENTOR" disabled={parseInt(formData.current_semester, 10) <= 3}>
+                                        Soy Mentor {parseInt(formData.current_semester, 10) <= 3 && " (Disponible desde 4° Semestre)"}
+                                    </option>
+                                </select>
+                            </div>
 
                             <div className="flex items-center gap-2 md:col-span-2 py-2">
                                 <input 
