@@ -15,6 +15,8 @@ const Register = () => {
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [acceptedTerms, setAcceptedTerms] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
     const [image, setImage] = useState(null);
     const [careers, setCareers] = useState([]);
     const [subjects, setSubjects] = useState([]);
@@ -128,6 +130,11 @@ const Register = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
+
+        if (!acceptedTerms) {
+            showNotification("Debes aceptar los Términos y Condiciones para registrarte.", "warning");
+            return;
+        }
 
         if (parseInt(formData.current_semester, 10) <= 3 && formData.role === 'MENTOR') {
             showNotification("Los estudiantes de primer a tercer semestre solo pueden registrarse como Aprendices.", "warning");
@@ -254,6 +261,27 @@ const Register = () => {
                                     Soy Mentor {parseInt(formData.current_semester, 10) <= 3 && " (Disponible desde 4° Semestre)"}
                                 </option>
                             </select>
+
+                            <div className="flex items-center gap-2 md:col-span-2 py-2">
+                                <input 
+                                    type="checkbox" 
+                                    id="accept-terms" 
+                                    checked={acceptedTerms} 
+                                    onChange={(e) => setAcceptedTerms(e.target.checked)} 
+                                    className="w-4 h-4 text-pilas-blue border-gray-300 rounded focus:ring-pilas-blue"
+                                    required
+                                />
+                                <label htmlFor="accept-terms" className="text-sm text-gray-600 select-none font-medium">
+                                    Acepto los{' '}
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowTermsModal(true)} 
+                                        className="text-pilas-blue font-bold hover:underline cursor-pointer bg-transparent border-0 p-0 inline-block align-baseline"
+                                    >
+                                        términos y condiciones
+                                    </button>
+                                </label>
+                            </div>
                         </div>
 
                         {/* Panel de Desbloqueo para Mentores [cite: 162] */}
@@ -283,6 +311,78 @@ const Register = () => {
                     </form>
                 </div>
             </div>
+
+            {/* Modal de Términos y Condiciones */}
+            {showTermsModal && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-slate-900 border border-white/10 max-w-2xl w-full rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[85vh] flex flex-col text-slate-100 relative animate-in fade-in zoom-in-95 duration-200">
+                        <button 
+                            type="button" 
+                            onClick={() => setShowTermsModal(false)} 
+                            className="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-light cursor-pointer bg-transparent border-0"
+                        >
+                            &times;
+                        </button>
+                        <div className="border-b border-white/5 pb-4">
+                            <h3 className="text-xl font-extrabold text-white flex items-center gap-2">
+                                📄 Términos y Condiciones de Pilas!
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-1 font-semibold">Última actualización: 22 de Junio, 2026</p>
+                        </div>
+                        <div className="flex-1 overflow-y-auto space-y-5 text-sm leading-relaxed pr-2 text-left">
+                            <div>
+                                <h4 className="font-bold text-pilas-gold">1. Introducción y Aceptación</h4>
+                                <p className="text-slate-300 text-xs mt-1">
+                                    Bienvenido a Pilas!, la plataforma oficial de tutoría académica y aprendizaje colaborativo de la ESPE. Al registrarte, aceptas estar sujeto a estos Términos y Condiciones.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-pilas-gold">2. Cuentas y Seguridad</h4>
+                                <p className="text-slate-300 text-xs mt-1">
+                                    El acceso requiere correo institucional (@espe.edu.ec). Eres responsable de proteger tu contraseña y credenciales.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-pilas-gold">3. Responsabilidades de Tutores y Aprendices</h4>
+                                <p className="text-slate-300 text-xs mt-1">
+                                    Los tutores deben tener promedio destacado y cumplir sus horarios. Los aprendices deben comprometerse con la honestidad académica y evaluar éticamente a sus tutores.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-pilas-gold">4. Sistema de ESPE Coins y Gamificación</h4>
+                                <p className="text-slate-300 text-xs mt-1">
+                                    Las monedas se acumulan impartiendo/recibiendo tutorías y se canjean por premios universitarios. La simulación o manipulación fraudulenta resultará en sanción.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-pilas-gold">5. Normas de Conducta y Privacidad</h4>
+                                <p className="text-slate-300 text-xs mt-1">
+                                    Se prohíbe el acoso de cualquier índole y la piratería de materiales. Los datos se protegen según la Ley de Protección de Datos Personales (LOPDP).
+                                </p>
+                            </div>
+                        </div>
+                        <div className="border-t border-white/5 pt-4 flex gap-4 justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowTermsModal(false)}
+                                className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold uppercase tracking-widest rounded-xl transition-all cursor-pointer"
+                            >
+                                Cerrar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setAcceptedTerms(true);
+                                    setShowTermsModal(false);
+                                }}
+                                className="px-5 py-2.5 bg-pilas-gold hover:bg-[#ffdf66] text-slate-950 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg cursor-pointer"
+                            >
+                                Aceptar Términos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
