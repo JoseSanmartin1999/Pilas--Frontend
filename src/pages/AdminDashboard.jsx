@@ -1283,7 +1283,7 @@ const AdminDashboard = () => {
 
                                     {/* LISTA DE MATERIAS POR SEMESTRE */}
                                     <div className="space-y-6 text-left">
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(sem => {
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => {
                                             const semSubjects = careerSubjects.filter(s => s.semester === sem);
                                             return (
                                                 <div key={sem} className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-150/40 space-y-4">
@@ -1661,7 +1661,7 @@ const AdminDashboard = () => {
                                         onChange={(e) => setSubjectData({ ...subjectData, semester: parseInt(e.target.value, 10) })}
                                         className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
                                     >
-                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(sem => (
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
                                             <option key={sem} value={sem}>{sem}° Semestre</option>
                                         ))}
                                     </select>

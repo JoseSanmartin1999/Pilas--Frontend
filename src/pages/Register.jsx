@@ -243,7 +243,7 @@ const Register = () => {
                             </select>
 
                             <select name="current_semester" value={formData.current_semester} onChange={handleInputChange} className="input-style">
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => <option key={n} value={n}>{n}° Semestre</option>)}
+                                {[1, 2, 3, 4, 5, 6, 7, 8].map(n => <option key={n} value={n}>{n}° Semestre</option>)}
                             </select>
 
                             <div className="md:col-span-2">
