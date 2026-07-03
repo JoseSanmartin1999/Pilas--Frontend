@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -30,6 +30,45 @@ const AppContent = ({ auth, setAuth }) => {
   const isWorkspace = location.pathname.startsWith('/mi-tutoria');
   const isAdminView = location.pathname.startsWith('/admin');
 
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      const isDismissed = localStorage.getItem('pwa_install_dismissed');
+      if (!isDismissed) {
+        setShowInstallBanner(true);
+      }
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    window.addEventListener('appinstalled', () => {
+      setDeferredPrompt(null);
+      setShowInstallBanner(false);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`PWA install choice: ${outcome}`);
+    setDeferredPrompt(null);
+    setShowInstallBanner(false);
+  };
+
+  const handleDismissInstall = () => {
+    setShowInstallBanner(false);
+    localStorage.setItem('pwa_install_dismissed', 'true');
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
@@ -41,6 +80,29 @@ const AppContent = ({ auth, setAuth }) => {
 
   return (
     <div className={`flex flex-col ${isWorkspace ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
+      {showInstallBanner && !isWorkspace && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-4 py-2.5 flex items-center justify-between text-xs sm:text-sm font-medium shadow-md z-50 animate-in slide-in-from-top duration-300">
+          <div className="flex items-center space-x-2">
+            <span className="text-lg">📲</span>
+            <span>¿Quieres una mejor experiencia? ¡Descarga la aplicación en tu celular!</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleInstallClick}
+              className="bg-white text-blue-700 px-3.5 py-1.5 rounded-full font-bold shadow hover:bg-blue-50 transition cursor-pointer"
+            >
+              Descargar APP aquí
+            </button>
+            <button
+              onClick={handleDismissInstall}
+              className="text-white hover:text-gray-200 font-bold px-2 cursor-pointer text-lg"
+              aria-label="Cerrar"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
       <Navbar isAuthenticated={auth.isLogged} userRole={auth.role} onLogout={handleLogout} />
 
       <main className={`flex-grow ${isWorkspace ? 'overflow-hidden' : ''}`}>
