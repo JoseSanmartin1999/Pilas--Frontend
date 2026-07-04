@@ -91,6 +91,15 @@ const Recompensas = () => {
     const [showFeatureModal, setShowFeatureModal] = useState(false);
     const [selectedFeaturedBadgeIds, setSelectedFeaturedBadgeIds] = useState([]);
 
+    // Nuevos estados para tienda y recompensas dinámicas
+    const [rewards, setRewards] = useState([]);
+    const [reqStatus, setReqStatus] = useState({ firstLogin: false, hasTutoring: false, surveyCompleted: false });
+    const [showClaimModal, setShowClaimModal] = useState(false);
+    const [selectedReward, setSelectedReward] = useState(null);
+    const [selectedOption, setSelectedOption] = useState('Kit Gamer Mouse + Teclado Gamer');
+    const [contactPhone, setContactPhone] = useState('');
+    const [claiming, setClaiming] = useState(false);
+
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
     const handleOpenFeatureModal = () => {
@@ -197,9 +206,11 @@ const Recompensas = () => {
     const loadUserData = useCallback(async () => {
         try {
             setLoading(true);
-            const [profileRes, badgesRes] = await Promise.all([
+            const [profileRes, badgesRes, rewardsRes, statusRes] = await Promise.all([
                 axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`),
-                axios.get('https://pilas-backend.onrender.com/api/admin/badges')
+                axios.get('https://pilas-backend.onrender.com/api/admin/badges'),
+                axios.get('https://pilas-backend.onrender.com/api/rewards'),
+                axios.get('https://pilas-backend.onrender.com/api/rewards/status')
             ]);
             
             if (profileRes.data) {
@@ -213,6 +224,12 @@ const Recompensas = () => {
             if (badgesRes.data) {
                 setDbBadges(badgesRes.data);
             }
+            if (rewardsRes.data) {
+                setRewards(rewardsRes.data);
+            }
+            if (statusRes.data) {
+                setReqStatus(statusRes.data);
+            }
         } catch (err) {
             console.error("Error loading user data for shop:", err);
             showNotification("Error de conexión al cargar datos de gamificación.", "error");
@@ -223,7 +240,10 @@ const Recompensas = () => {
 
     const loadUserDataSilently = useCallback(async () => {
         try {
-            const profileRes = await axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`);
+            const [profileRes, statusRes] = await Promise.all([
+                axios.get(`https://pilas-backend.onrender.com/api/users/profile/${currentUser.id}`),
+                axios.get('https://pilas-backend.onrender.com/api/rewards/status')
+            ]);
             if (profileRes.data) {
                 setEspeCoins(profileRes.data.espe_coins || 0);
                 setXp(profileRes.data.xp || 0);
@@ -231,6 +251,9 @@ const Recompensas = () => {
                 setUserUnlockedBadges(profileRes.data.badges || []);
                 setApprenticeHours(profileRes.data.apprentice_hours || []);
                 setMentorHours(profileRes.data.mentor_hours || []);
+            }
+            if (statusRes.data) {
+                setReqStatus(statusRes.data);
             }
         } catch (err) {
             console.error("Error loading user data silently:", err);
@@ -256,45 +279,108 @@ const Recompensas = () => {
         };
     }, [currentUser.id, loadUserData, loadUserDataSilently]);
 
-    // Lógica para canjear cupón en el backend
-    const handleRedeem = useCallback(async (cupon) => {
-        if (espeCoins < cupon.cost) {
-            showNotification(`Saldo insuficiente. Necesitas ${cupon.cost} ESPE-Coins`, "error");
-            return;
-        }
-
+    // Nuevas funciones para manejo de canje y encuestas
+    const handleSurveyClick = async () => {
+        window.open('https://forms.gle/1pB1RJS9B9b6ASMD7', '_blank');
         try {
-            const res = await axios.post('https://pilas-backend.onrender.com/api/rewards/redeem', {
-                userId: currentUser.id,
-                couponId: cupon.id,
-                cost: cupon.cost
+            const res = await axios.post('https://pilas-backend.onrender.com/api/rewards/complete-survey');
+            if (res.data) {
+                setReqStatus(prev => ({ ...prev, surveyCompleted: true }));
+                showNotification("¡Encuesta registrada como completada!", "success");
+            }
+        } catch (err) {
+            console.error("Error al registrar encuesta:", err);
+        }
+    };
+
+    const confirmClaimDirectly = async (reward) => {
+        try {
+            setClaiming(true);
+            const res = await axios.post('https://pilas-backend.onrender.com/api/rewards/claim', {
+                rewardId: reward.id
             });
 
             if (res.data) {
-                // Sincronizar espeCoins locales
-                setEspeCoins(res.data.espeCoins);
+                setEspeCoins(res.data.newCoins);
                 
                 // Actualizar local storage
                 const savedStorage = localStorage.getItem('user') ? localStorage : sessionStorage;
                 const userObj = JSON.parse(savedStorage.getItem('user') || '{}');
-                userObj.espe_coins = res.data.espeCoins;
+                userObj.espe_coins = res.data.newCoins;
                 savedStorage.setItem('user', JSON.stringify(userObj));
 
-                // Lanzar evento global para refrescar Navbar
                 window.dispatchEvent(new Event('gamificationStatsUpdated'));
-
-                setActiveCouponCode(res.data.code);
-                setActiveCouponTitle(cupon.title);
+                
+                setActiveCouponCode('ESPE-COIN-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+                setActiveCouponTitle(reward.title);
                 setShowCouponModal(true);
 
-                showNotification(`¡Enhorabuena! Canjeaste "${cupon.title}" con éxito`, "success");
+                showNotification(`¡Enhorabuena! Canjeaste "${reward.title}" con éxito`, "success");
             }
         } catch (err) {
-            console.error("Error al canjear cupón:", err);
-            const errMsg = err.response?.data?.error || "Error al procesar el canje del cupón";
+            console.error("Error al canjear recompensa:", err);
+            const errMsg = err.response?.data?.error || "Error al procesar el canje de recompensa";
             showNotification(errMsg, "error");
+        } finally {
+            setClaiming(false);
         }
-    }, [currentUser.id, espeCoins, showNotification]);
+    };
+
+    const handleClaimClick = (reward) => {
+        if (espeCoins < reward.cost) {
+            showNotification(`Saldo insuficiente. Necesitas ${reward.cost} ESPE-Coins`, "error");
+            return;
+        }
+
+        if (reward.is_special) {
+            if (!reqStatus.firstLogin || !reqStatus.hasTutoring || !reqStatus.surveyCompleted) {
+                showNotification("No cumples con todos los requisitos para este sorteo.", "error");
+                return;
+            }
+            setSelectedReward(reward);
+            setSelectedOption('Kit Gamer Mouse + Teclado Gamer');
+            setContactPhone('');
+            setShowClaimModal(true);
+        } else {
+            confirmClaimDirectly(reward);
+        }
+    };
+
+    const handleConfirmSpecialClaim = async () => {
+        if (!contactPhone.trim()) {
+            showNotification("Por favor ingresa un número de teléfono de contacto.", "warning");
+            return;
+        }
+
+        try {
+            setClaiming(true);
+            const res = await axios.post('https://pilas-backend.onrender.com/api/rewards/claim', {
+                rewardId: selectedReward.id,
+                selectedOption,
+                contactPhone
+            });
+
+            if (res.data) {
+                setEspeCoins(res.data.newCoins);
+                
+                // Actualizar local storage
+                const savedStorage = localStorage.getItem('user') ? localStorage : sessionStorage;
+                const userObj = JSON.parse(savedStorage.getItem('user') || '{}');
+                userObj.espe_coins = res.data.newCoins;
+                savedStorage.setItem('user', JSON.stringify(userObj));
+
+                window.dispatchEvent(new Event('gamificationStatsUpdated'));
+                setShowClaimModal(false);
+                showNotification(`¡Enhorabuena! Estás participando en el sorteo por: ${selectedOption}`, "success");
+            }
+        } catch (err) {
+            console.error("Error al canjear boleto de sorteo:", err);
+            const errMsg = err.response?.data?.error || "Error al reclamar el boleto de sorteo";
+            showNotification(errMsg, "error");
+        } finally {
+            setClaiming(false);
+        }
+    };
 
     const copyCouponCode = useCallback(() => {
         navigator.clipboard.writeText(activeCouponCode);
@@ -486,12 +572,16 @@ const Recompensas = () => {
 
                 {/* Navigation Tabs */}
                 <div className="flex border-b border-white/10 mb-8 gap-2 overflow-x-auto scrollbar-none">
-                    <div className="pb-4 px-6 text-sm font-black uppercase tracking-wider border-b-2 border-transparent text-gray-500 shrink-0 flex items-center gap-2 cursor-not-allowed select-none">
+                    <button
+                        onClick={() => setActiveTab('tienda')}
+                        className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
+                            activeTab === 'tienda'
+                                ? 'border-[#ffcc00] text-[#ffcc00]'
+                                : 'border-transparent text-gray-400 hover:text-white'
+                        }`}
+                    >
                         🛍️ Tienda de Beneficios
-                        <span className="text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
-                            Próximamente
-                        </span>
-                    </div>
+                    </button>
                     <button
                         onClick={() => setActiveTab('insignias')}
                         className={`pb-4 px-6 text-sm font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer shrink-0 ${
@@ -515,6 +605,7 @@ const Recompensas = () => {
                 </div>
 
                 {/* Tab content rendering */}
+                {/* Tab content rendering */}
                 {activeTab === 'tienda' && (
                     <div className="bg-slate-900/90 rounded-[2.5rem] p-8 shadow-2xl border border-white/5 backdrop-blur-md animate-fade-in relative overflow-hidden">
                         {/* Header de la sección */}
@@ -523,98 +614,192 @@ const Recompensas = () => {
                                 <span>🛍️</span> Canjear ESPE-Coins
                             </h2>
                             <p className="text-gray-400 text-xs mt-1.5 font-medium">
-                                Intercambia tus ESPE-Coins por cupones y productos oficiales.
+                                Intercambia tus ESPE-Coins por cupones, productos oficiales y boletos de sorteos.
                             </p>
                         </div>
 
-                        {/* Cupones borrosos de fondo */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 blur-sm opacity-30 pointer-events-none select-none">
-                            {CUPONES.map((cupon) => {
-                                const canAfford = false;
+                        {/* RECOMPENSA ESPECIAL (SORTEO) */}
+                        {rewards.find(r => r.is_special) && (() => {
+                            const specialReward = rewards.find(r => r.is_special);
+                            const hasTutoring = reqStatus.hasTutoring;
+                            const surveyCompleted = reqStatus.surveyCompleted;
+                            const firstLogin = reqStatus.firstLogin;
+                            const specialClaimed = reqStatus.specialClaimed;
+                            const meetsRequirements = firstLogin && hasTutoring && surveyCompleted;
+                            const canAfford = espeCoins >= specialReward.cost;
 
-                                return (
-                                    <div
-                                        key={cupon.id}
-                                        className="relative bg-slate-950/60 hover:bg-slate-950/90 border border-white/5 hover:border-[#ffcc00]/20 rounded-3xl p-5 flex items-center justify-between gap-4 transition-all duration-300 group/ticket overflow-hidden"
-                                    >
-                                        {/* Efectos de corte circular de ticket */}
-                                        <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-900 border-r border-white/5 rounded-full pointer-events-none"></div>
-                                        <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-900 border-l border-white/5 rounded-full pointer-events-none"></div>
-                                        
-                                        {/* Línea divisoria de cupón */}
-                                        <div className="absolute left-[70px] top-4 bottom-4 w-px border-l border-dashed border-white/10 pointer-events-none"></div>
+                            return (
+                                <div className="bg-gradient-to-br from-[#0f592f]/20 via-indigo-950/30 to-slate-950 border border-[#0f592f]/40 rounded-[2rem] p-6 md:p-8 mb-8 text-left relative overflow-hidden shadow-xl">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffcc00]/5 rounded-bl-[6rem] pointer-events-none"></div>
+                                    
+                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                                        <div className="space-y-4 max-w-2xl">
+                                            <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/35 font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                                                🔥 Sorteo Especial Gamer & Steam
+                                            </span>
+                                            <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mt-2">
+                                                {specialReward.title}
+                                            </h3>
+                                            <p className="text-xs text-gray-300 leading-relaxed font-medium">
+                                                {specialReward.description}
+                                            </p>
 
-                                        <div className="flex items-center gap-5 min-w-0 pl-3">
-                                            {/* Icono del cupón */}
-                                            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl shrink-0 shadow-lg group-hover/ticket:scale-105 transition-transform duration-300">
-                                                {cupon.icon}
-                                            </div>
-                                            {/* Info */}
-                                            <div className="min-w-0 pl-1">
-                                                <span className="text-[9px] bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                                    {cupon.category}
-                                                </span>
-                                                <h4 className="font-extrabold text-white text-sm truncate mt-1.5 leading-tight group-hover/ticket:text-amber-400 transition-colors">
-                                                    {cupon.title}
-                                                </h4>
-                                                <p className="text-[11px] text-gray-400 mt-1 truncate leading-relaxed">
-                                                    {cupon.description}
-                                                </p>
+                                            {/* CHECKLIST DE REQUISITOS */}
+                                            <div className="bg-black/30 border border-white/5 rounded-2xl p-5 space-y-3 mt-4">
+                                                <h4 className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-2">Requisitos para Reclamar</h4>
+                                                
+                                                <div className="flex items-center gap-2.5 text-xs text-gray-300">
+                                                    <span className="text-lg">✅</span>
+                                                    <span className="font-semibold text-gray-200">1. Iniciar sesión por primera vez</span>
+                                                </div>
+
+                                                <div className="flex items-center justify-between gap-4 text-xs">
+                                                    <div className="flex items-center gap-2.5 text-gray-300">
+                                                        <span className="text-lg">{hasTutoring ? '✅' : '🔒'}</span>
+                                                        <span className={`font-semibold ${hasTutoring ? 'text-gray-200' : 'text-gray-500'}`}>2. Crear o participar en una tutoría</span>
+                                                    </div>
+                                                    {!hasTutoring && (
+                                                        <span className="text-[9px] bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-black px-2 py-0.5 rounded-lg uppercase tracking-wider">
+                                                            Pendiente
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+                                                    <div className="flex items-center gap-2.5 text-gray-300">
+                                                        <span className="text-lg">{surveyCompleted ? '✅' : '🔒'}</span>
+                                                        <span className={`font-semibold ${surveyCompleted ? 'text-gray-200' : 'text-gray-500'}`}>3. Llenar la encuesta de opinión</span>
+                                                    </div>
+                                                    {!surveyCompleted ? (
+                                                        <button
+                                                            onClick={handleSurveyClick}
+                                                            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider rounded-xl transition shadow-md active:scale-95 cursor-pointer whitespace-nowrap"
+                                                        >
+                                                            📝 Llenar Encuesta
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-[9px] bg-green-500/10 text-green-400 border border-green-500/20 font-black px-2 py-0.5 rounded-lg uppercase tracking-wider">
+                                                            Completada
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Botón de Canjeo */}
-                                        <button
-                                            onClick={() => handleRedeem(cupon)}
-                                            className={`font-black text-xs px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1.5 border outline-none shadow-md cursor-pointer ${
-                                                canAfford
-                                                    ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white border-amber-400/20 shadow-amber-500/10'
-                                                    : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'
-                                            }`}
-                                            disabled={!canAfford}
-                                        >
-                                            <span>{cupon.cost}</span>
-                                            <span>🪙</span>
-                                        </button>
+                                        {/* Botón de Canjeo Especial */}
+                                        <div className="flex flex-col items-center justify-center bg-white/5 border border-white/10 rounded-3xl p-6 text-center lg:w-64 shrink-0">
+                                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Costo de Boleto</span>
+                                            <div className="flex items-center gap-1.5 justify-center mb-5">
+                                                <span className="text-3xl font-black text-[#ffcc00]">{specialReward.cost}</span>
+                                                <span className="text-2xl">🪙</span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleClaimClick(specialReward)}
+                                                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition shadow-md ${
+                                                    specialClaimed
+                                                        ? 'bg-[#0f592f]/20 text-gray-500 border border-white/5 cursor-not-allowed'
+                                                        : meetsRequirements && canAfford
+                                                            ? 'bg-[#0f592f] hover:bg-[#0a4624] text-[#ffcc00] border border-[#ffcc00]/20 hover:scale-105 active:scale-95 cursor-pointer'
+                                                            : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'
+                                                }`}
+                                                disabled={specialClaimed || !meetsRequirements || !canAfford || claiming}
+                                            >
+                                                {claiming ? "Procesando..." : specialClaimed ? "✓ Ya Participando" : "Reclamar Boleto"}
+                                            </button>
+                                            {specialClaimed && (
+                                                <span className="text-[9px] text-[#ffcc00] font-black uppercase tracking-wider mt-3 block">
+                                                    🎉 ¡Ya estás participando!
+                                                </span>
+                                            )}
+                                            {!specialClaimed && !meetsRequirements && (
+                                                <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-3 block">
+                                                    🔒 Completa los requisitos
+                                                </span>
+                                            )}
+                                            {!specialClaimed && meetsRequirements && !canAfford && (
+                                                <span className="text-[9px] text-red-400 font-bold uppercase tracking-wider mt-3 block">
+                                                    ❌ Saldo insuficiente
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
-                                );
-                            })}
-                        </div>
+                                </div>
+                            );
+                        })()}
 
-                        {/* Overlay de bloqueo "Próximamente" */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-sm rounded-[2.5rem] z-10">
-                            {/* Icono animado */}
-                            <div className="relative mb-6">
-                                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/30 flex items-center justify-center text-5xl shadow-2xl shadow-amber-500/10 animate-pulse">
-                                    🔒
-                                </div>
-                                <div className="absolute -top-1 -right-1 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center border-2 border-slate-950 shadow-lg">
-                                    <span className="text-sm">⭐</span>
-                                </div>
+                        {/* LISTADO DE RECOMPENSAS NORMALES */}
+                        <div className="border-t border-white/15 pt-6 mb-6">
+                            <h3 className="text-base font-black text-white text-left mb-4 uppercase tracking-wider">Beneficios del Catálogo</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {rewards.filter(r => !r.is_special).length === 0 ? (
+                                    <p className="text-center text-xs text-gray-500 py-10 col-span-full">No hay otros beneficios activos en la tienda.</p>
+                                ) : (
+                                    rewards.filter(r => !r.is_special).map((reward) => {
+                                        const canAfford = espeCoins >= reward.cost;
+
+                                        // Determinar categoría e ícono
+                                        let icon = "🎁";
+                                        let category = "General";
+                                        if (reward.title.toLowerCase().includes("bar") || reward.title.toLowerCase().includes("almuerzo") || reward.title.toLowerCase().includes("comedor")) {
+                                            icon = "🍲";
+                                            category = "Alimentación";
+                                        } else if (reward.title.toLowerCase().includes("parqueadero")) {
+                                            icon = "🚗";
+                                            category = "Servicios";
+                                        } else if (reward.title.toLowerCase().includes("termo") || reward.title.toLowerCase().includes("cuaderno") || reward.title.toLowerCase().includes("espe")) {
+                                            icon = "🥤";
+                                            category = "Merchandising";
+                                        }
+
+                                        return (
+                                            <div
+                                                key={reward.id}
+                                                className="relative bg-slate-950/60 hover:bg-slate-950/90 border border-white/5 hover:border-[#ffcc00]/20 rounded-3xl p-5 flex items-center justify-between gap-4 transition-all duration-300 group/ticket overflow-hidden"
+                                            >
+                                                {/* Efectos de corte circular de ticket */}
+                                                <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-900 border-r border-white/5 rounded-full pointer-events-none"></div>
+                                                <div className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-slate-900 border-l border-white/5 rounded-full pointer-events-none"></div>
+                                                
+                                                {/* Línea divisoria de cupón */}
+                                                <div className="absolute left-[70px] top-4 bottom-4 w-px border-l border-dashed border-white/10 pointer-events-none"></div>
+
+                                                <div className="flex items-center gap-5 min-w-0 pl-3">
+                                                    {/* Icono del cupón */}
+                                                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl shrink-0 shadow-lg group-hover/ticket:scale-105 transition-transform duration-300">
+                                                        {icon}
+                                                    </div>
+                                                    {/* Info */}
+                                                    <div className="min-w-0 pl-1 text-left">
+                                                        <span className="text-[9px] bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                            {category}
+                                                        </span>
+                                                        <h4 className="font-extrabold text-white text-sm truncate mt-1.5 leading-tight group-hover/ticket:text-amber-400 transition-colors">
+                                                            {reward.title}
+                                                        </h4>
+                                                        <p className="text-[11px] text-gray-400 mt-1 truncate leading-relaxed">
+                                                            {reward.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Botón de Canjeo */}
+                                                <button
+                                                    onClick={() => handleClaimClick(reward)}
+                                                    className={`font-black text-xs px-5 py-3 rounded-2xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0 flex items-center gap-1.5 border outline-none shadow-md cursor-pointer ${
+                                                        canAfford
+                                                            ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white border-amber-400/20 shadow-amber-500/10'
+                                                            : 'bg-white/5 text-gray-500 border-white/5 cursor-not-allowed'
+                                                    }`}
+                                                    disabled={!canAfford || claiming}
+                                                >
+                                                    <span>{reward.cost}</span>
+                                                    <span>🪙</span>
+                                                </button>
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
-
-                            {/* Texto principal */}
-                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.3em] bg-amber-500/10 border border-amber-500/20 px-4 py-1.5 rounded-full mb-4">
-                                Próximamente
-                            </span>
-                            <h3 className="text-2xl md:text-3xl font-black text-white text-center tracking-tight mb-3">
-                                Tienda de Beneficios
-                            </h3>
-                            <p className="text-gray-400 text-sm text-center max-w-sm leading-relaxed mb-6">
-                                Estamos preparando algo increíble. Pronto podrás canjear tus <span className="text-amber-400 font-bold">ESPE-Coins</span> por cupones y productos oficiales de la ESPE.
-                            </p>
-
-                            {/* Coins acumulados */}
-                            <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 px-6 py-3 rounded-2xl shadow-inner">
-                                <span className="text-2xl">🪙</span>
-                                <div>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tus ESPE-Coins acumulados</p>
-                                    <p className="text-xl font-black text-amber-400">{espeCoins.toLocaleString()} coins</p>
-                                </div>
-                            </div>
-                            <p className="text-[10px] text-gray-500 mt-4 font-medium">
-                                Sigue completando tutorías para acumular más coins 🚀
-                            </p>
                         </div>
                     </div>
                 )}
@@ -1088,6 +1273,82 @@ const Recompensas = () => {
                                 className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/10 cursor-pointer"
                             >
                                 Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para Reclamar Boleto de Sorteo (Especial) */}
+            {showClaimModal && selectedReward && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="bg-slate-900 border border-white/10 rounded-[2.5rem] max-w-md w-full p-8 relative shadow-2xl text-left">
+                        <button
+                            onClick={() => setShowClaimModal(false)}
+                            className="absolute right-6 top-6 text-gray-400 hover:text-white text-xl outline-none cursor-pointer"
+                        >
+                            ✕
+                        </button>
+                        
+                        <h3 className="text-xl font-black text-white flex items-center gap-2 mb-2">
+                            <span>🎫</span> Reclamar Premio del Sorteo
+                        </h3>
+                        <p className="text-xs text-gray-450 mb-6 font-medium leading-relaxed">
+                            Por favor selecciona el premio por el cual deseas participar y proporciona tu número de teléfono de contacto para registrar tu participación.
+                        </p>
+
+                        <div className="space-y-4 mb-6">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                                    Premio a elegir:
+                                </label>
+                                <select
+                                    value={selectedOption}
+                                    onChange={(e) => setSelectedOption(e.target.value)}
+                                    className="w-full px-4 py-3 bg-slate-950/60 border border-white/10 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-[#ffcc00] cursor-pointer"
+                                >
+                                    <option value="Kit Gamer Mouse + Teclado Gamer">Kit Gamer Mouse + Teclado Gamer</option>
+                                    <option value="Tarjeta de regalo de $10 en STEAM">Tarjeta de regalo de $10 en STEAM</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                                    Número de Teléfono de Contacto:
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Ej. 0999999999"
+                                    value={contactPhone}
+                                    onChange={(e) => setContactPhone(e.target.value)}
+                                    className="w-full px-4 py-3 bg-slate-950/60 border border-white/10 rounded-xl text-xs font-semibold text-white focus:outline-none focus:border-[#ffcc00]"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowClaimModal(false)}
+                                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl font-black text-xs uppercase tracking-wider transition cursor-pointer"
+                                disabled={claiming}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleConfirmSpecialClaim}
+                                className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/10 cursor-pointer flex items-center justify-center gap-1.5"
+                                disabled={claiming}
+                            >
+                                {claiming ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-3.5 w-3.5 border-t-2 border-slate-950 border-r-transparent"></div>
+                                        <span>Procesando...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>Confirmar Canje</span>
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

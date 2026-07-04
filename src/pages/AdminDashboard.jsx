@@ -18,6 +18,15 @@ const AdminDashboard = () => {
     const [badges, setBadges] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Estados de ESPE-Coins / Recompensas
+    const [rewards, setRewards] = useState([]);
+    const [claims, setClaims] = useState([]);
+    const [subTab, setSubTab] = useState('catalog'); // 'catalog', 'claims'
+    const [showRewardModal, setShowRewardModal] = useState(false);
+    const [rewardData, setRewardData] = useState({ id: null, title: '', description: '', cost: 100, is_active: 1, is_special: 0 });
+    const [savingReward, setSavingReward] = useState(false);
+    const [selectedRewardForClaims, setSelectedRewardForClaims] = useState(null);
+
     // Estados de insignias (Gamificación)
     const [showBadgeModal, setShowBadgeModal] = useState(false);
     const [badgeData, setBadgeData] = useState({ id: null, name: '', image_url: '', type: 'xp_earned', value: 100, xp_reward: 0, coins_reward: 0 });
@@ -217,7 +226,9 @@ const AdminDashboard = () => {
                 fetchApplications(),
                 fetchTickets(),
                 fetchBadges(),
-                fetchCareers()
+                fetchCareers(),
+                fetchRewards(),
+                fetchClaims()
             ]);
         } catch (err) {
             console.error("Error cargando panel de control:", err);
@@ -250,6 +261,16 @@ const AdminDashboard = () => {
     const fetchBadges = async () => {
         const res = await axios.get(`${BACKEND_URL}/api/admin/badges`);
         setBadges(res.data);
+    };
+
+    const fetchRewards = async () => {
+        const res = await axios.get(`${BACKEND_URL}/api/admin/rewards`);
+        setRewards(res.data);
+    };
+
+    const fetchClaims = async () => {
+        const res = await axios.get(`${BACKEND_URL}/api/admin/rewards/claims`);
+        setClaims(res.data);
     };
 
     const handleBadgeFileChange = (e) => {
@@ -340,11 +361,88 @@ const AdminDashboard = () => {
             fetchBadges();
         } catch (err) {
             console.error("Error al guardar insignia:", err);
-            const errMsg = err.response?.data?.details || err.response?.data?.error || err.message;
-            showNotification(`No se pudo guardar la insignia: ${errMsg}`, "error");
+            showNotification("No se pudo guardar la insignia.", "error");
         } finally {
             setSavingBadge(false);
         }
+    };
+
+    const handleSaveReward = async (e) => {
+        e.preventDefault();
+        if (!rewardData.title.trim() || !rewardData.description.trim() || rewardData.cost === undefined) {
+            showNotification("El título, descripción y costo son requeridos.", "error");
+            return;
+        }
+        setSavingReward(true);
+        try {
+            const payload = {
+                title: rewardData.title,
+                description: rewardData.description,
+                cost: parseInt(rewardData.cost, 10),
+                is_active: parseInt(rewardData.is_active, 10),
+                is_special: parseInt(rewardData.is_special, 10)
+            };
+
+            if (rewardData.id) {
+                await axios.put(`${BACKEND_URL}/api/admin/rewards/${rewardData.id}`, payload);
+                showNotification("Recompensa actualizada con éxito.", "success");
+            } else {
+                await axios.post(`${BACKEND_URL}/api/admin/rewards`, payload);
+                showNotification("Recompensa creada con éxito.", "success");
+            }
+            setShowRewardModal(false);
+            setRewardData({ id: null, title: '', description: '', cost: 100, is_active: 1, is_special: 0 });
+            fetchRewards();
+        } catch (err) {
+            console.error("Error al guardar recompensa:", err);
+            showNotification(err.response?.data?.error || "Error al guardar recompensa.", "error");
+        } finally {
+            setSavingReward(false);
+        }
+    };
+
+    const handleDeleteReward = async (id, title) => {
+        if (!window.confirm(`¿Estás seguro de que deseas eliminar la recompensa "${title}"?`)) return;
+        try {
+            await axios.delete(`${BACKEND_URL}/api/admin/rewards/${id}`);
+            showNotification("Recompensa eliminada con éxito.", "success");
+            fetchRewards();
+        } catch (err) {
+            console.error("Error al eliminar recompensa:", err);
+            showNotification("No se pudo eliminar la recompensa.", "error");
+        }
+    };
+
+    const handleDownloadCSV = (reward) => {
+        const rewardClaims = claims.filter(c => c.reward_id === reward.id);
+        if (rewardClaims.length === 0) {
+            showNotification("No hay reclamaciones para descargar.", "warning");
+            return;
+        }
+
+        // UTF-8 BOM to support accents/special chars in Excel
+        let csvContent = "\uFEFF";
+        csvContent += "Nombre,Correo,Opción Seleccionada,Teléfono de Contacto,Fecha de Canje\n";
+
+        rewardClaims.forEach(claim => {
+            const option = claim.selected_option ? claim.selected_option.replace(/"/g, '""') : '';
+            const phone = claim.contact_phone ? claim.contact_phone : '';
+            const name = claim.user_name ? claim.user_name.replace(/"/g, '""') : '';
+            const email = claim.user_email ? claim.user_email.replace(/"/g, '""') : '';
+            const date = new Date(claim.claimed_at).toLocaleString();
+
+            csvContent += `"${name}","${email}","${option}","${phone}","${date}"\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Reporte_Reclamaciones_${reward.title.replace(/\s+/g, '_')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showNotification(`Reporte descargado: ${reward.title}`, "success");
     };
 
     const handleDeleteBadge = async (badgeId, badgeName) => {
@@ -648,7 +746,8 @@ const AdminDashboard = () => {
                         { id: 'careers', label: 'Gestionar Carreras', icon: '🏫' },
                         { id: 'badges', label: 'Insignias & Logros', icon: '🏆' },
                         { id: 'system', label: 'Administración', icon: '⚙️' },
-                        { id: 'tickets', label: 'Tickets de Soporte', icon: '📨', badge: tickets.filter(t => t.status === 'OPEN').length }
+                        { id: 'tickets', label: 'Tickets de Soporte', icon: '📨', badge: tickets.filter(t => t.status === 'OPEN').length },
+                        { id: 'espe_coins', label: 'ESPE-Coins', icon: '🪙' }
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -1409,6 +1508,271 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     )}
+                    {/* SECCIÓN 8: ESPE-COINS (RECOMPENSAS Y RECLAMOS) */}
+                    {activeTab === 'espe_coins' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <header className="text-left space-y-1">
+                                    <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Gestión de ESPE-Coins</h2>
+                                    <p className="text-gray-500 font-medium text-xs">Administra las recompensas de la tienda y visualiza el historial de reclamaciones.</p>
+                                </header>
+                                {subTab === 'catalog' && (
+                                    <button
+                                        onClick={() => {
+                                            setRewardData({ id: null, title: '', description: '', cost: 100, is_active: 1, is_special: 0 });
+                                            setShowRewardModal(true);
+                                        }}
+                                        className="px-6 py-3.5 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-500 text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+                                    >
+                                        <span>🪙</span> Crear Recompensa
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* SUB-TABS */}
+                            <div className="flex border-b border-gray-200 gap-4">
+                                <button
+                                    onClick={() => setSubTab('catalog')}
+                                    className={`pb-3 px-4 text-xs font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer ${
+                                        subTab === 'catalog'
+                                            ? 'border-[#0f592f] text-[#0f592f]'
+                                            : 'border-transparent text-gray-400 hover:text-gray-700'
+                                    }`}
+                                >
+                                    Catálogo de Recompensas
+                                </button>
+                                <button
+                                    onClick={() => setSubTab('claims')}
+                                    className={`pb-3 px-4 text-xs font-black uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer ${
+                                        subTab === 'claims'
+                                            ? 'border-[#0f592f] text-[#0f592f]'
+                                            : 'border-transparent text-gray-400 hover:text-gray-700'
+                                    }`}
+                                >
+                                    Reclamaciones Activas
+                                </button>
+                            </div>
+
+                            {/* SUB-TAB 1: CATALOG */}
+                            {subTab === 'catalog' && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {rewards.length > 0 ? (
+                                        rewards.map(reward => (
+                                            <div key={reward.id} className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-150/40 hover:shadow-md transition-all duration-300 text-left flex flex-col justify-between group relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/5 to-transparent rounded-bl-[4rem]"></div>
+                                                
+                                                <div>
+                                                    <div className="w-12 h-12 bg-amber-50 rounded-2xl overflow-hidden flex items-center justify-center text-2xl shadow-inner border border-amber-100/50 mb-4">
+                                                        {reward.is_special ? "🎫" : "🎁"}
+                                                    </div>
+                                                    <h3 className="font-extrabold text-base text-[#0f592f] truncate" title={reward.title}>
+                                                        {reward.title}
+                                                    </h3>
+                                                    <p className="text-[10px] text-gray-400 font-semibold mt-1 line-clamp-3">
+                                                        {reward.description}
+                                                    </p>
+                                                    <div className="flex gap-4 mt-3 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                                                        <div className="flex-1 text-center">
+                                                            <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider block">Costo</span>
+                                                            <span className="text-xs font-black text-slate-700">{reward.cost} 🪙</span>
+                                                        </div>
+                                                        <div className="w-px bg-gray-200"></div>
+                                                        <div className="flex-1 text-center">
+                                                            <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider block">Tipo</span>
+                                                            <span className="text-xs font-black text-slate-700">
+                                                                {reward.is_special ? "Sorteo Especial" : "Catálogo Regular"}
+                                                            </span>
+                                                        </div>
+                                                        <div className="w-px bg-gray-200"></div>
+                                                        <div className="flex-1 text-center">
+                                                            <span className="text-[8px] text-gray-400 font-black uppercase tracking-wider block">Estado</span>
+                                                            <span className={`text-[10px] font-black uppercase ${reward.is_active ? 'text-green-600' : 'text-red-500'}`}>
+                                                                {reward.is_active ? "Activo" : "Inactivo"}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex gap-3 mt-6 pt-4 border-t border-gray-50 relative z-10">
+                                                    <button
+                                                        onClick={() => {
+                                                            setRewardData({
+                                                                id: reward.id,
+                                                                title: reward.title,
+                                                                description: reward.description,
+                                                                cost: reward.cost,
+                                                                is_active: reward.is_active,
+                                                                is_special: reward.is_special
+                                                            });
+                                                            setShowRewardModal(true);
+                                                        }}
+                                                        className="px-4 py-2.5 bg-slate-50 text-slate-650 hover:bg-slate-100 rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-colors"
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteReward(reward.id, reward.title)}
+                                                        className="px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-colors"
+                                                    >
+                                                        Eliminar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full text-center py-20 bg-white rounded-[2.5rem] border border-dashed border-gray-250 flex flex-col items-center justify-center">
+                                            <span className="text-5xl mb-3">🪙</span>
+                                            <h4 className="text-[#0f592f] font-black text-sm uppercase tracking-wider">No hay recompensas registradas</h4>
+                                            <p className="text-gray-400 text-xs font-semibold max-w-sm mt-1">
+                                                Crea recompensas en el catálogo para que los estudiantes las canjeen.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* SUB-TAB 2: CLAIMS */}
+                            {subTab === 'claims' && (
+                                <div className="space-y-6">
+                                    {!selectedRewardForClaims ? (
+                                        /* VISTA GENERAL: SECCIONES POR RECOMPENSA */
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {rewards.map(reward => {
+                                                const rewardClaims = claims.filter(c => c.reward_id === reward.id);
+                                                const totalClaimsCount = rewardClaims.length;
+
+                                                return (
+                                                    <div 
+                                                        key={reward.id} 
+                                                        className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-150/40 hover:shadow-md transition-all duration-300 text-left flex flex-col justify-between relative overflow-hidden group"
+                                                    >
+                                                        <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/5 to-transparent rounded-bl-[3rem]"></div>
+                                                        
+                                                        <div>
+                                                            <div className="w-10 h-10 bg-indigo-55/60 rounded-2xl flex items-center justify-center text-xl shadow-inner border border-indigo-100/50 mb-4">
+                                                                {reward.is_special ? "🎫" : "🎁"}
+                                                            </div>
+                                                            <h4 className="font-extrabold text-sm text-[#0f592f] truncate" title={reward.title}>
+                                                                {reward.title}
+                                                            </h4>
+                                                            <p className="text-[10px] text-gray-400 font-semibold mt-1">
+                                                                Costo: <strong className="text-slate-700">{reward.cost} 🪙</strong>
+                                                            </p>
+                                                            <div className="mt-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100/80 text-center">
+                                                                <span className="text-[9px] text-gray-450 font-black uppercase tracking-wider block">Total Canjeados</span>
+                                                                <span className="text-xl font-black text-slate-800">{totalClaimsCount} alumnos</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex gap-2 mt-6 pt-4 border-t border-gray-50">
+                                                            <button
+                                                                onClick={() => setSelectedRewardForClaims(reward)}
+                                                                className="px-3 py-2 bg-[#0f592f]/10 text-[#0f592f] hover:bg-[#0f592f] hover:text-white rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-all cursor-pointer"
+                                                            >
+                                                                Ver Alumnos
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDownloadCSV(reward)}
+                                                                disabled={totalClaimsCount === 0}
+                                                                className={`px-3 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider flex-1 transition-all flex items-center justify-center gap-1 ${
+                                                                    totalClaimsCount > 0
+                                                                        ? 'bg-amber-500/10 text-amber-700 hover:bg-amber-500 hover:text-white cursor-pointer'
+                                                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                                }`}
+                                                            >
+                                                                <span>📥</span> CSV Excel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        /* VISTA DETALLE: ALUMNOS DE UNA RECOMPENSA ESPECÍFICA */
+                                        <div className="space-y-6">
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-150/40">
+                                                <div className="text-left space-y-1.5">
+                                                    <button
+                                                        onClick={() => setSelectedRewardForClaims(null)}
+                                                        className="text-[10px] font-black text-[#0f592f] uppercase tracking-widest hover:underline flex items-center gap-1 cursor-pointer"
+                                                    >
+                                                        ← Volver al Listado
+                                                    </button>
+                                                    <h3 className="text-lg font-black text-[#0f592f] tracking-tight">
+                                                        Detalle de Reclamaciones: {selectedRewardForClaims.title}
+                                                    </h3>
+                                                    <p className="text-[11px] text-gray-450 font-semibold">
+                                                        Costo de la recompensa: {selectedRewardForClaims.cost} ESPE-Coins
+                                                    </p>
+                                                </div>
+                                                
+                                                <button
+                                                    onClick={() => handleDownloadCSV(selectedRewardForClaims)}
+                                                    className="px-5 py-3 bg-amber-500 hover:bg-amber-650 text-white font-black text-[10px] uppercase tracking-wider rounded-xl transition active:scale-95 shadow-md flex items-center gap-2 cursor-pointer"
+                                                >
+                                                    📥 Descargar Excel (CSV)
+                                                </button>
+                                            </div>
+
+                                            <div className="bg-white rounded-[2rem] shadow-sm border border-gray-150/50 overflow-hidden text-left">
+                                                <div className="overflow-x-auto">
+                                                    <table className="w-full text-left border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-gray-50 border-b border-gray-100 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                                                <th className="px-6 py-4">Usuario</th>
+                                                                {selectedRewardForClaims.is_special === 1 && (
+                                                                    <th className="px-6 py-4">Opción Seleccionada (Sorteo)</th>
+                                                                )}
+                                                                <th className="px-6 py-4">Teléfono de Contacto</th>
+                                                                <th className="px-6 py-4 text-center">Fecha Reclamada</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-gray-100">
+                                                            {claims.filter(c => c.reward_id === selectedRewardForClaims.id).length > 0 ? (
+                                                                claims
+                                                                    .filter(c => c.reward_id === selectedRewardForClaims.id)
+                                                                    .map(claim => (
+                                                                        <tr key={claim.id} className="hover:bg-gray-50/50 transition-colors">
+                                                                            <td className="px-6 py-4">
+                                                                                <h5 className="font-extrabold text-sm text-[#0f592f] leading-tight">{claim.user_name}</h5>
+                                                                                <span className="text-[10px] text-gray-450 font-semibold">{claim.user_email}</span>
+                                                                            </td>
+                                                                            {selectedRewardForClaims.is_special === 1 && (
+                                                                                <td className="px-6 py-4">
+                                                                                    <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-blue-50 border border-blue-150 text-blue-700 uppercase">
+                                                                                        {claim.selected_option}
+                                                                                    </span>
+                                                                                </td>
+                                                                            )}
+                                                                            <td className="px-6 py-4 font-semibold text-xs text-slate-700">
+                                                                                {claim.contact_phone ? claim.contact_phone : <span className="text-gray-400 italic">-</span>}
+                                                                            </td>
+                                                                            <td className="px-6 py-4 text-center text-xs font-semibold text-gray-450">
+                                                                                {new Date(claim.claimed_at).toLocaleString()}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))
+                                                            ) : (
+                                                                <tr>
+                                                                    <td colSpan={selectedRewardForClaims.is_special === 1 ? "4" : "3"} className="text-center py-20 bg-white">
+                                                                        <span className="text-5xl mb-3 block">🎫</span>
+                                                                        <h4 className="text-[#0f592f] font-black text-sm uppercase tracking-wider">No hay reclamos para esta recompensa</h4>
+                                                                        <p className="text-gray-400 text-xs font-semibold max-w-sm mt-1 mx-auto">
+                                                                            Los reclamos de los estudiantes para esta recompensa aparecerán aquí una vez canjeados.
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                 </main>
             </div>
@@ -1684,6 +2048,94 @@ const AdminDashboard = () => {
                                 className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
                             >
                                 {savingSubject ? 'Guardando...' : (subjectData.id ? 'Guardar Cambios' : 'Crear Materia')}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+            {/* MODAL CREAR / EDITAR RECOMPENSA */}
+            {showRewardModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200 border border-gray-100 text-left">
+                        <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                            <div>
+                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                    {rewardData.id ? 'Editar Recompensa' : 'Crear Nueva Recompensa'}
+                                </span>
+                                <h3 className="text-lg font-black text-[#0f592f] tracking-tight">Formulario de Recompensa</h3>
+                            </div>
+                            <button onClick={() => setShowRewardModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
+                        </div>
+
+                        <form onSubmit={handleSaveReward} className="p-8 space-y-5">
+                            <div>
+                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Título de la Recompensa</label>
+                                <input 
+                                    type="text" 
+                                    required 
+                                    value={rewardData.title} 
+                                    onChange={(e) => setRewardData({ ...rewardData, title: e.target.value })} 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
+                                    placeholder="Ej: Boleto de Sorteo: Kit Gamer"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción</label>
+                                <textarea 
+                                    required 
+                                    rows="3"
+                                    value={rewardData.description} 
+                                    onChange={(e) => setRewardData({ ...rewardData, description: e.target.value })} 
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs resize-none" 
+                                    placeholder="Escribe la descripción de la recompensa y los requisitos..."
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Costo (ESPE-Coins)</label>
+                                    <input 
+                                        type="number" 
+                                        required
+                                        min="0"
+                                        value={rewardData.cost} 
+                                        onChange={(e) => setRewardData({ ...rewardData, cost: parseInt(e.target.value, 10) || 0 })} 
+                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Tipo de Recompensa</label>
+                                    <select
+                                        value={rewardData.is_special}
+                                        onChange={(e) => setRewardData({ ...rewardData, is_special: parseInt(e.target.value, 10) })}
+                                        className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
+                                    >
+                                        <option value={0}>Catálogo Regular</option>
+                                        <option value={1}>Sorteo Especial (Raffle)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado</label>
+                                <select
+                                    value={rewardData.is_active}
+                                    onChange={(e) => setRewardData({ ...rewardData, is_active: parseInt(e.target.value, 10) })}
+                                    className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
+                                >
+                                    <option value={1}>Activo</option>
+                                    <option value={0}>Inactivo</option>
+                                </select>
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                disabled={savingReward}
+                                className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all disabled:opacity-50"
+                            >
+                                {savingReward ? 'Guardando...' : (rewardData.id ? 'Guardar Cambios' : 'Crear Recompensa')}
                             </button>
                         </form>
                     </div>

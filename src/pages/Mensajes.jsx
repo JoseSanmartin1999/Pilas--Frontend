@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 
 const Mensajes = () => {
     const { showNotification } = useNotification();
+    const navigate = useNavigate();
     const [responses, setResponses] = useState([]);
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -17,6 +19,8 @@ const Mensajes = () => {
     const [confirmDeleteModal, setConfirmDeleteModal] = useState({ isOpen: false, targetId: null, isBulk: false });
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+    const isSystemMessage = selectedMessage && selectedMessage.subject_name === 'Pilas! Comunidad';
+    const isWelcome = selectedMessage && selectedMessage.objectives.includes('Bienvenido');
 
     const fetchResponses = useCallback(async () => {
         try {
@@ -250,319 +254,434 @@ const Mensajes = () => {
                             <div className="flex justify-between items-center mb-10 border-b border-gray-100 pb-8">
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 bg-[#0f592f] rounded-2xl flex items-center justify-center text-white text-xl font-black">
-                                        {selectedMessage.mentor_name[0]}
+                                        {isSystemMessage ? '📢' : selectedMessage.mentor_name[0]}
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#0f592f]">{selectedMessage.mentor_name}</h2>
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Tutor de {selectedMessage.subject_name}</p>
+                                        <h2 className="text-xl font-black text-[#0f592f]">
+                                            {isSystemMessage ? 'Pilas! Comunidad' : selectedMessage.mentor_name}
+                                        </h2>
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                            {isSystemMessage ? 'Mensaje Oficial de la Plataforma' : `Tutor de ${selectedMessage.subject_name}`}
+                                        </p>
                                     </div>
                                 </div>
-                                <div className={`px-4 py-2 rounded-xl text-xs font-black border uppercase tracking-widest shadow-sm ${getStatusStyle(selectedMessage.status)}`}>
-                                    {selectedMessage.status}
-                                </div>
-                            </div>
-
-                            <div className="space-y-8">
-                                <h3 className="text-2xl font-black text-[#0f592f] leading-tight">
-                                    Actualización sobre tu solicitud de tutoría para <span className="text-pilas-gold">{selectedMessage.subject_name}</span>
-                                </h3>
-
-                                <div className="bg-gray-50/80 rounded-3xl p-8 border border-gray-100/50 shadow-inner leading-relaxed text-gray-600 font-medium">
-                                    <p className="mb-4">Hola <span className="font-bold text-[#0f592f]">{currentUser.full_name}</span>,</p>
-                                    {selectedMessage.status === 'PENDIENTE' && (
-                                        <div className="mt-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-100">
-                                            <p className="text-yellow-800 text-sm font-bold flex items-center gap-2">
-                                                <span className="animate-pulse w-2 h-2 bg-yellow-500 rounded-full"></span>
-                                                Propuesta pendiente de revisión
-                                            </p>
-                                        </div>
-                                    )}
-                                    {selectedMessage.status === 'CANCELADA' && (
-                                        <div className="mt-4 p-5 bg-red-50 rounded-2xl border border-red-100 text-left space-y-3">
-                                            <p className="text-red-800 text-sm font-bold flex items-center gap-2">
-                                                <span>⚠️</span> Tutoría Cancelada
-                                            </p>
-                                            <div className="bg-white/60 p-4 rounded-xl border border-red-200">
-                                                <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1.5">
-                                                    Motivo de la Cancelación:
-                                                </p>
-                                                <p className="text-xs font-semibold text-gray-700 italic">
-                                                    "{selectedMessage.reprogramming_reason || 'Falta de acuerdo tras varios intentos o cancelada por el tutor.'}"
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {selectedMessage.status === 'ACEPTADA' && (
-                                        <p className="mt-4 text-green-600 font-bold">
-                                            ¡Felicidades! Tu tutoría ha sido confirmada para la fecha y hora seleccionada.
-                                        </p>
-                                    )}
-                                    {selectedMessage.status === 'RECHAZADA' && (
-                                        <p className="mt-4 text-red-600 font-bold">
-                                            Lo sentimos, en esta ocasión el tutor no podrá atender tu solicitud.
-                                        </p>
-                                    )}
-                                </div>
-
-                                {selectedMessage.status === 'PENDIENTE' && selectedMessage.last_initiator_role === 'MENTOR' && (
-                                    <div className="animate-in zoom-in duration-300">
-                                        <div className="bg-pilas-gold/10 rounded-[2.5rem] p-8 border-2 border-pilas-gold/30 space-y-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-pilas-gold rounded-full flex items-center justify-center text-white text-xl">💡</div>
-                                                <div>
-                                                    <h4 className="text-sm font-black text-[#0f592f] uppercase tracking-wider">El Mentor propone un cambio</h4>
-                                                    <p className="text-xs font-bold text-pilas-gold italic">Intento {selectedMessage.reprogramming_count} de 2</p>
-                                                </div>
-                                            </div>
-
-                                            {selectedMessage.reprogramming_reason && (
-                                                <div className="bg-white/50 backdrop-blur-sm p-5 rounded-2xl border border-pilas-gold/20">
-                                                    <p className="text-[10px] font-black text-pilas-gold uppercase tracking-widest mb-2">Motivo indicado:</p>
-                                                    <p className="text-sm font-medium text-gray-700 italic">"{selectedMessage.reprogramming_reason}"</p>
-                                                </div>
-                                            )}
-
-                                            {!isReprogramming ? (
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                                                    <button 
-                                                        onClick={() => handleAction(selectedMessage.id, 'ACEPTADA')}
-                                                        className="py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-[#0a4624] transition-all"
-                                                    >
-                                                        Aceptar Cambio
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => setIsReprogramming(true)}
-                                                        className="py-4 bg-white border-2 border-pilas-gold text-[#0f592f] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-pilas-gold hover:text-white transition-all shadow-md"
-                                                    >
-                                                        Reprogramar
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleAction(selectedMessage.id, 'RECHAZADA')}
-                                                        className="py-4 bg-red-50 text-red-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-100 transition-all font-bold"
-                                                    >
-                                                        Rechazar
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-4 animate-in slide-in-from-top duration-300">
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <input 
-                                                            type="date" 
-                                                            min={new Date().toLocaleDateString('sv-SE')}
-                                                            className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#0f592f] border border-pilas-gold/20"
-                                                            onChange={(e) => setNewDate(e.target.value)}
-                                                        />
-                                                        <input 
-                                                            type="time" 
-                                                            className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#0f592f] border border-pilas-gold/20"
-                                                            onChange={(e) => setNewTime(e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <textarea 
-                                                        className="w-full px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-medium text-gray-600 text-sm border border-pilas-gold/20 resize-none"
-                                                        rows="3"
-                                                        placeholder="Explica por qué propones este cambio..."
-                                                        onChange={(e) => setReprogramReason(e.target.value)}
-                                                    ></textarea>
-                                                    <div className="flex gap-4">
-                                                        <button 
-                                                            onClick={() => {
-                                                                if (!newDate || !newTime || !reprogramReason.trim()) {
-                                                                    return showNotification("Por favor completa todos los campos", "warning");
-                                                                }
-                                                                
-                                                                const now = new Date();
-                                                                const [year, month, day] = newDate.split('-').map(Number);
-                                                                const [hour, minute] = newTime.split(':').map(Number);
-                                                                const selectedDateTime = new Date(year, month - 1, day, hour, minute);
-                                                                if (selectedDateTime < now) {
-                                                                    return showNotification("La fecha y hora para reprogramar no pueden ser anteriores a la actual", "warning");
-                                                                }
-
-                                                                handleAction(selectedMessage.id, 'PENDIENTE', {
-                                                                    scheduled_date: `${newDate}T${newTime}:00`,
-                                                                    reprogramming_reason: reprogramReason,
-                                                                    last_initiator_role: 'APRENDIZ'
-                                                                });
-                                                            }}
-                                                            className="flex-1 bg-pilas-gold text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest hover:bg-yellow-600 transition-all"
-                                                        >
-                                                            Enviar Contra-propuesta
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => setIsReprogramming(false)}
-                                                            className="px-6 bg-gray-100 text-gray-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:bg-gray-200 transition-all"
-                                                        >
-                                                            Cancelar
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
+                                {!isSystemMessage && (
+                                    <div className={`px-4 py-2 rounded-xl text-xs font-black border uppercase tracking-widest shadow-sm ${getStatusStyle(selectedMessage.status)}`}>
+                                        {selectedMessage.status}
                                     </div>
                                 )}
+                            </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl">📅</div>
-                                        <div className="text-left">
-                                            <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fecha de Sesión</div>
-                                            <div className="text-base font-black text-[#0f592f]">{new Date(selectedMessage.scheduled_date).toLocaleDateString()}</div>
+                            {isSystemMessage ? (
+                                <div className="space-y-8 animate-in fade-in slide-in-from-bottom duration-300">
+                                    {isWelcome ? (
+                                        <div className="bg-gradient-to-br from-[#0f592f]/5 to-[#0f592f]/10 rounded-[2.5rem] p-8 border border-[#0f592f]/20 shadow-sm space-y-6">
+                                            <div className="flex flex-col items-center text-center space-y-4">
+                                                <div className="w-20 h-20 bg-gradient-to-tr from-[#0f592f] to-emerald-600 rounded-full flex items-center justify-center text-white text-4xl shadow-lg shadow-[#0f592f]/10 animate-bounce">
+                                                    🎉
+                                                </div>
+                                                <h3 className="text-2xl font-black text-[#0f592f]">¡Bienvenido a Pilas!</h3>
+                                                <p className="text-sm font-semibold text-gray-500 max-w-md">
+                                                    Estamos muy contentos de que te unas a nuestra comunidad de aprendizaje cooperativo en la ESPE.
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm leading-relaxed text-gray-600 text-sm font-medium">
+                                                <p className="mb-4">Hola <span className="font-bold text-[#0f592f]">{currentUser.full_name}</span>,</p>
+                                                <p className="mb-4">
+                                                    Pilas! es un espacio diseñado para ayudar a consolidar tus conocimientos a través de tutorías entre pares o compartiendo tus habilidades como tutor con otros estudiantes.
+                                                </p>
+                                                <p className="mb-4">
+                                                    Para comenzar con el pie derecho, te recomendamos realizar las siguientes actividades:
+                                                </p>
+                                                <ul className="space-y-2.5 pl-2 mb-4">
+                                                    <li className="flex items-center gap-2 text-[#0f592f]">
+                                                        <span className="text-emerald-500 font-bold">✓</span> Completar los datos de tu perfil.
+                                                    </li>
+                                                    <li className="flex items-center gap-2 text-[#0f592f]">
+                                                        <span className="text-emerald-500 font-bold">✓</span> Participar o crear tu primera sesión de tutoría.
+                                                    </li>
+                                                    <li className="flex items-center gap-2 text-[#0f592f]">
+                                                        <span className="text-emerald-500 font-bold">✓</span> ¡Revisar la tienda de beneficios para canjear tus ESPE-Coins!
+                                                    </li>
+                                                </ul>
+                                                <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-800 text-xs font-bold flex items-center gap-2">
+                                                    💡 <strong>Tip:</strong> Al configurar tu perfil completo y participar en tutorías, recibirás monedas ESPE-Coins automáticas.
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                                                <button 
+                                                    onClick={() => navigate('/profile')}
+                                                    className="flex-1 py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-[#0a4624] transition-all cursor-pointer"
+                                                >
+                                                    ⚙️ Ir a Mi Perfil
+                                                </button>
+                                                <button 
+                                                    onClick={() => navigate('/buscar')}
+                                                    className="flex-1 py-4 bg-white border-2 border-[#0f592f] text-[#0f592f] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0f592f]/5 transition-all shadow-md cursor-pointer"
+                                                >
+                                                    🔍 Buscar Tutorías
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
-                                        <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl">⏰</div>
-                                        <div className="text-left">
-                                            <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Hora de Sesión</div>
-                                            <div className="text-base font-black text-[#0f592f]">{new Date(selectedMessage.scheduled_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                    ) : (
+                                        <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 rounded-[2.5rem] p-8 border border-amber-500/20 shadow-sm space-y-6">
+                                            <div className="flex flex-col items-center text-center space-y-4">
+                                                <div className="w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-white text-4xl shadow-lg shadow-amber-500/10">
+                                                    🎓
+                                                </div>
+                                                <h3 className="text-2xl font-black text-amber-950">Encuesta Importante de Tesis</h3>
+                                                <p className="text-sm font-semibold text-amber-800 max-w-md">
+                                                    Tu opinión es de vital importancia para recopilar datos estadísticos para mi tesis de grado.
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm leading-relaxed text-gray-600 text-sm font-medium">
+                                                <p className="mb-4">Estimado/a <span className="font-bold text-[#0f592f]">{currentUser.full_name}</span>,</p>
+                                                <p className="mb-4">
+                                                    Estoy llevando a cabo una investigación científica para evaluar el impacto de las tutorías de pares en el rendimiento académico. Te pido de favor que nos apoyes llenando este breve formulario.
+                                                </p>
+                                                <p className="mb-4 font-bold text-gray-800">
+                                                    ¿Por qué es importante llenar la encuesta?
+                                                </p>
+                                                <ul className="space-y-2.5 pl-2 mb-4">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-amber-500 font-bold">📌</span>
+                                                        <span><strong>Tesis de Grado:</strong> Los resultados serán publicados y analizados directamente en mi proyecto de tesis final.</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-amber-500 font-bold">📌</span>
+                                                        <span><strong>Sorteo Especial:</strong> Completar la encuesta es un requisito mandatorio para desbloquear el ticket del Sorteo del Kit Gamer o Tarjeta de Steam.</span>
+                                                    </li>
+                                                </ul>
+                                                <div className="p-4 bg-amber-50 border border-amber-100 rounded-2xl text-amber-800 text-xs font-semibold">
+                                                    ⚠️ Al terminar la encuesta, regresa a la sección de "Recompensas" en el menú superior para poder canjear tu participación en el sorteo.
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col gap-4 pt-2">
+                                                <a 
+                                                    href="https://forms.gle/1pB1RJS9B9b6ASMD7"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-center gap-3 w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-amber-500/20 hover:scale-[1.01] transition-all cursor-pointer text-center"
+                                                >
+                                                    📝 Llenar Encuesta de Tesis
+                                                </a>
+                                                <button 
+                                                    onClick={() => navigate('/recompensas')}
+                                                    className="w-full py-4 bg-white border-2 border-amber-500 text-amber-750 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-50 transition-all shadow-md cursor-pointer"
+                                                >
+                                                    🎁 Ir a la Tienda de Recompensas
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
+                            ) : (
+                                <div className="space-y-8">
+                                    <h3 className="text-2xl font-black text-[#0f592f] leading-tight">
+                                        Actualización sobre tu solicitud de tutoría para <span className="text-pilas-gold">{selectedMessage.subject_name}</span>
+                                    </h3>
 
-                                {/* NUEVA SECCIÓN: DETALLES DE MODALIDAD */}
-                                <div className="p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group">
-                                    <div className="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                        <span className="text-6xl">{selectedMessage.modality === 'Presencial' ? '📍' : '💻'}</span>
-                                    </div>
-                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                        <span className="w-1.5 h-1.5 bg-pilas-gold rounded-full"></span>
-                                        Detalles de la Cita
-                                    </h4>
-                                    
-                                    <div className="space-y-6">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Modalidad</span>
-                                            <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#0f592f] border border-gray-100 uppercase tracking-tighter">
-                                                {selectedMessage.modality === 'Presencial' ? '📍 Presencial' : '💻 Online'}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center justify-between border-t border-gray-50 pt-4">
-                                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Duración Estimada</span>
-                                            <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#0f592f] border border-gray-100 uppercase tracking-tighter">
-                                                ⏱️ {selectedMessage.estimated_duration || '1 hora'}
-                                            </span>
-                                        </div>
-
-                                        {selectedMessage.modality === 'Presencial' && (
-                                            <div className="flex items-center justify-between border-t border-gray-50 pt-4">
-                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Lugar de Reunión</span>
-                                                <span className="text-sm font-black text-[#0f592f]">{selectedMessage.meeting_place || 'Por confirmar'}</span>
+                                    <div className="bg-gray-50/80 rounded-3xl p-8 border border-gray-100/50 shadow-inner leading-relaxed text-gray-600 font-medium">
+                                        <p className="mb-4">Hola <span className="font-bold text-[#0f592f]">{currentUser.full_name}</span>,</p>
+                                        {selectedMessage.status === 'PENDIENTE' && (
+                                            <div className="mt-4 p-4 bg-yellow-50 rounded-2xl border border-yellow-100">
+                                                <p className="text-yellow-800 text-sm font-bold flex items-center gap-2">
+                                                    <span className="animate-pulse w-2 h-2 bg-yellow-500 rounded-full"></span>
+                                                    Propuesta pendiente de revisión
+                                                </p>
                                             </div>
                                         )}
+                                        {selectedMessage.status === 'CANCELADA' && (
+                                            <div className="mt-4 p-5 bg-red-50 rounded-2xl border border-red-100 text-left space-y-3">
+                                                <p className="text-red-800 text-sm font-bold flex items-center gap-2">
+                                                    <span>⚠️</span> Tutoría Cancelada
+                                                </p>
+                                                <div className="bg-white/60 p-4 rounded-xl border border-red-200">
+                                                    <p className="text-[9px] font-black text-red-600 uppercase tracking-widest mb-1.5">
+                                                        Motivo de la Cancelación:
+                                                    </p>
+                                                    <p className="text-xs font-semibold text-gray-700 italic">
+                                                        "{selectedMessage.reprogramming_reason || 'Falta de acuerdo tras varios intentos o cancelada por el tutor.'}"
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {selectedMessage.status === 'ACEPTADA' && (
+                                            <p className="mt-4 text-green-600 font-bold">
+                                                ¡Felicidades! Tu tutoría ha sido confirmada para la fecha y hora seleccionada.
+                                            </p>
+                                        )}
+                                        {selectedMessage.status === 'RECHAZADA' && (
+                                            <p className="mt-4 text-red-600 font-bold">
+                                                Lo sentimos, en esta ocasión el tutor no podrá atender tu solicitud.
+                                            </p>
+                                        )}
+                                    </div>
 
-                                        {selectedMessage.modality === 'Online' && (
-                                            <div className="space-y-4 border-t border-gray-50 pt-4">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Plataforma</span>
-                                                    <span className="text-sm font-black text-[#0f592f]">{selectedMessage.platform}</span>
+                                    {selectedMessage.status === 'PENDIENTE' && selectedMessage.last_initiator_role === 'MENTOR' && (
+                                        <div className="animate-in zoom-in duration-300">
+                                            <div className="bg-pilas-gold/10 rounded-[2.5rem] p-8 border-2 border-pilas-gold/30 space-y-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-pilas-gold rounded-full flex items-center justify-center text-white text-xl">💡</div>
+                                                    <div>
+                                                        <h4 className="text-sm font-black text-[#0f592f] uppercase tracking-wider">El Mentor propone un cambio</h4>
+                                                        <p className="text-xs font-bold text-pilas-gold italic">Intento {selectedMessage.reprogramming_count} de 2</p>
+                                                    </div>
                                                 </div>
 
-                                                {selectedMessage.status === 'ACEPTADA' ? (
-                                                    <div className="pt-4 space-y-4">
-                                                        {!isUpdatingLink ? (
-                                                            <>
-                                                                {selectedMessage.platform === 'Zoom' ? (
-                                                                    <div className="bg-gray-50 rounded-2xl p-4 space-y-2 border border-gray-100">
-                                                                        <div className="flex justify-between items-center text-xs">
-                                                                            <span className="font-bold text-gray-400">ID de Reunión:</span>
-                                                                            <span className="font-black text-[#0f592f]">{selectedMessage.zoom_code || 'No proporcionado'}</span>
-                                                                        </div>
-                                                                        {selectedMessage.zoom_password && (
-                                                                            <div className="flex justify-between items-center text-xs">
-                                                                                <span className="font-bold text-gray-400">Contraseña:</span>
-                                                                                <span className="font-black text-[#0f592f]">{selectedMessage.zoom_password}</span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                ) : (
-                                                                    selectedMessage.meeting_link ? (
-                                                                        <a 
-                                                                            href={selectedMessage.meeting_link.startsWith('http') ? selectedMessage.meeting_link : `https://${selectedMessage.meeting_link}`}
-                                                                            target="_blank" 
-                                                                            rel="noopener noreferrer"
-                                                                            className="flex items-center justify-center gap-3 w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all"
-                                                                        >
-                                                                            <span>🚀 Unirse a la Reunión</span>
-                                                                        </a>
-                                                                    ) : (
-                                                                        <div className="text-center p-4 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-2xl border border-yellow-100">
-                                                                            El tutor aún no ha proporcionado el enlace.
-                                                                        </div>
-                                                                    )
-                                                                )}
+                                                {selectedMessage.reprogramming_reason && (
+                                                    <div className="bg-white/50 backdrop-blur-sm p-5 rounded-2xl border border-pilas-gold/20">
+                                                        <p className="text-[10px] font-black text-pilas-gold uppercase tracking-widest mb-2">Motivo indicado:</p>
+                                                        <p className="text-sm font-medium text-gray-700 italic">"{selectedMessage.reprogramming_reason}"</p>
+                                                    </div>
+                                                )}
 
-                                                                {currentUser.id === selectedMessage.mentor_id && (
-                                                                    <button 
-                                                                        onClick={() => setIsUpdatingLink(true)}
-                                                                        className="w-full py-2 text-[10px] font-black text-pilas-gold uppercase tracking-widest hover:underline"
-                                                                    >
-                                                                        {selectedMessage.meeting_link || selectedMessage.zoom_code ? '✎ Editar Enlace' : '+ Agregar Enlace de Reunión'}
-                                                                    </button>
-                                                                )}
-                                                            </>
-                                                        ) : (
-                                                            <div className="bg-gray-50 p-4 rounded-2xl border border-pilas-gold/20 space-y-4 animate-in slide-in-from-top-2 duration-300">
-                                                                {selectedMessage.platform === 'Zoom' ? (
-                                                                    <div className="grid grid-cols-2 gap-2">
-                                                                        <input 
-                                                                            type="text" 
-                                                                            placeholder="ID Zoom"
-                                                                            className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
-                                                                            value={linkData.zoom_code}
-                                                                            onChange={(e) => setLinkData({...linkData, zoom_code: e.target.value})}
-                                                                        />
-                                                                        <input 
-                                                                            type="text" 
-                                                                            placeholder="Clave Zoom"
-                                                                            className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
-                                                                            value={linkData.zoom_password}
-                                                                            onChange={(e) => setLinkData({...linkData, zoom_password: e.target.value})}
-                                                                        />
-                                                                    </div>
-                                                                ) : (
-                                                                    <input 
-                                                                        type="url" 
-                                                                        placeholder="https://meet.google.com/..."
-                                                                        className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
-                                                                        value={linkData.meeting_link}
-                                                                        onChange={(e) => setLinkData({...linkData, meeting_link: e.target.value})}
-                                                                    />
-                                                                )}
-                                                                <div className="flex gap-2">
-                                                                    <button 
-                                                                        onClick={handleUpdateLink}
-                                                                        className="flex-1 py-2 bg-pilas-gold text-white text-[10px] font-black rounded-lg uppercase tracking-widest"
-                                                                    >
-                                                                        Guardar
-                                                                    </button>
-                                                                    <button 
-                                                                        onClick={() => setIsUpdatingLink(false)}
-                                                                        className="px-4 py-2 bg-gray-200 text-gray-500 text-[10px] font-black rounded-lg uppercase tracking-widest"
-                                                                    >
-                                                                        X
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        )}
+                                                {!isReprogramming ? (
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                                                        <button 
+                                                            onClick={() => handleAction(selectedMessage.id, 'ACEPTADA')}
+                                                            className="py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:bg-[#0a4624] transition-all"
+                                                        >
+                                                            Aceptar Cambio
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => setIsReprogramming(true)}
+                                                            className="py-4 bg-white border-2 border-pilas-gold text-[#0f592f] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-pilas-gold hover:text-white transition-all shadow-md"
+                                                        >
+                                                            Reprogramar
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleAction(selectedMessage.id, 'RECHAZADA')}
+                                                            className="py-4 bg-red-50 text-red-500 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-100 transition-all font-bold"
+                                                        >
+                                                            Rechazar
+                                                        </button>
                                                     </div>
                                                 ) : (
-                                                    <div className="text-center p-4 bg-gray-50 text-gray-400 text-[10px] font-bold rounded-2xl border border-dashed border-gray-200 uppercase tracking-widest">
-                                                        Los detalles de acceso aparecerán cuando se acepte la tutoría
+                                                    <div className="space-y-4 animate-in slide-in-from-top duration-300">
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <input 
+                                                                type="date" 
+                                                                min={new Date().toLocaleDateString('sv-SE')}
+                                                                className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#0f592f] border border-pilas-gold/20"
+                                                                onChange={(e) => setNewDate(e.target.value)}
+                                                            />
+                                                            <input 
+                                                                type="time" 
+                                                                className="px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-bold text-[#0f592f] border border-pilas-gold/20"
+                                                                onChange={(e) => setNewTime(e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <textarea 
+                                                            className="w-full px-5 py-3 bg-white rounded-2xl focus:ring-2 focus:ring-pilas-gold outline-none font-medium text-gray-600 text-sm border border-pilas-gold/20 resize-none"
+                                                            rows="3"
+                                                            placeholder="Explica por qué propones este cambio..."
+                                                            onChange={(e) => setReprogramReason(e.target.value)}
+                                                        ></textarea>
+                                                        <div className="flex gap-4">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    if (!newDate || !newTime || !reprogramReason.trim()) {
+                                                                        return showNotification("Por favor completa todos los campos", "warning");
+                                                                    }
+                                                                    
+                                                                    const now = new Date();
+                                                                    const [year, month, day] = newDate.split('-').map(Number);
+                                                                    const [hour, minute] = newTime.split(':').map(Number);
+                                                                    const selectedDateTime = new Date(year, month - 1, day, hour, minute);
+                                                                    if (selectedDateTime < now) {
+                                                                        return showNotification("La fecha y hora para reprogramar no pueden ser anteriores a la actual", "warning");
+                                                                    }
+
+                                                                    handleAction(selectedMessage.id, 'PENDIENTE', {
+                                                                        scheduled_date: `${newDate}T${newTime}:00`,
+                                                                        reprogramming_reason: reprogramReason,
+                                                                        last_initiator_role: 'APRENDIZ'
+                                                                    });
+                                                                }}
+                                                                className="flex-1 bg-pilas-gold text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest hover:bg-yellow-600 transition-all"
+                                                            >
+                                                                Enviar Contra-propuesta
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => setIsReprogramming(false)}
+                                                                className="px-6 bg-gray-100 text-gray-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest hover:bg-gray-200 transition-all"
+                                                            >
+                                                                Cancelar
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 )}
                                             </div>
-                                        )}
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+                                            <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl">📅</div>
+                                            <div className="text-left">
+                                                <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Fecha de Sesión</div>
+                                                <div className="text-base font-black text-[#0f592f]">{new Date(selectedMessage.scheduled_date).toLocaleDateString()}</div>
+                                            </div>
+                                        </div>
+                                        <div className="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4">
+                                            <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-xl">⏰</div>
+                                            <div className="text-left">
+                                                <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Hora de Sesión</div>
+                                                <div className="text-base font-black text-[#0f592f]">{new Date(selectedMessage.scheduled_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* NUEVA SECCIÓN: DETALLES DE MODALIDAD */}
+                                    <div className="p-8 bg-white rounded-[2rem] border border-gray-100 shadow-sm relative overflow-hidden group">
+                                        <div className="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                            <span className="text-6xl">{selectedMessage.modality === 'Presencial' ? '📍' : '💻'}</span>
+                                        </div>
+                                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 bg-pilas-gold rounded-full"></span>
+                                            Detalles de la Cita
+                                        </h4>
+                                        
+                                        <div className="space-y-6">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Modalidad</span>
+                                                <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#0f592f] border border-gray-100 uppercase tracking-tighter">
+                                                    {selectedMessage.modality === 'Presencial' ? '📍 Presencial' : '💻 Online'}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex items-center justify-between border-t border-gray-50 pt-4">
+                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Duración Estimada</span>
+                                                <span className="bg-gray-50 px-4 py-1.5 rounded-full text-xs font-black text-[#0f592f] border border-gray-100 uppercase tracking-tighter">
+                                                    ⏱️ {selectedMessage.estimated_duration || '1 hora'}
+                                                </span>
+                                            </div>
+
+                                            {selectedMessage.modality === 'Presencial' && (
+                                                <div className="flex items-center justify-between border-t border-gray-50 pt-4">
+                                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Lugar de Reunión</span>
+                                                    <span className="text-sm font-black text-[#0f592f]">{selectedMessage.meeting_place || 'Por confirmar'}</span>
+                                                </div>
+                                            )}
+
+                                            {selectedMessage.modality === 'Online' && (
+                                                <div className="space-y-4 border-t border-gray-50 pt-4">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Plataforma</span>
+                                                        <span className="text-sm font-black text-[#0f592f]">{selectedMessage.platform}</span>
+                                                    </div>
+
+                                                    {selectedMessage.status === 'ACEPTADA' ? (
+                                                        <div className="pt-4 space-y-4">
+                                                            {!isUpdatingLink ? (
+                                                                <>
+                                                                    {selectedMessage.platform === 'Zoom' ? (
+                                                                        <div className="bg-gray-50 rounded-2xl p-4 space-y-2 border border-gray-100">
+                                                                            <div className="flex justify-between items-center text-xs">
+                                                                                <span className="font-bold text-gray-400">ID de Reunión:</span>
+                                                                                <span className="font-black text-[#0f592f]">{selectedMessage.zoom_code || 'No proporcionado'}</span>
+                                                                            </div>
+                                                                            {selectedMessage.zoom_password && (
+                                                                                <div className="flex justify-between items-center text-xs">
+                                                                                    <span className="font-bold text-gray-400">Contraseña:</span>
+                                                                                    <span className="font-black text-[#0f592f]">{selectedMessage.zoom_password}</span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
+                                                                        selectedMessage.meeting_link ? (
+                                                                            <a 
+                                                                                href={selectedMessage.meeting_link.startsWith('http') ? selectedMessage.meeting_link : `https://${selectedMessage.meeting_link}`}
+                                                                                target="_blank" 
+                                                                                rel="noopener noreferrer"
+                                                                                className="flex items-center justify-center gap-3 w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all"
+                                                                            >
+                                                                                <span>🚀 Unirse a la Reunión</span>
+                                                                            </a>
+                                                                        ) : (
+                                                                            <div className="text-center p-4 bg-yellow-50 text-yellow-700 text-xs font-bold rounded-2xl border border-yellow-100">
+                                                                                El tutor aún no ha proporcionado el enlace.
+                                                                            </div>
+                                                                        )
+                                                                    )}
+
+                                                                    {currentUser.id === selectedMessage.mentor_id && (
+                                                                        <button 
+                                                                            onClick={() => setIsUpdatingLink(true)}
+                                                                            className="w-full py-2 text-[10px] font-black text-pilas-gold uppercase tracking-widest hover:underline"
+                                                                        >
+                                                                            {selectedMessage.meeting_link || selectedMessage.zoom_code ? '✎ Editar Enlace' : '+ Agregar Enlace de Reunión'}
+                                                                        </button>
+                                                                    )}
+                                                                </>
+                                                            ) : (
+                                                                <div className="bg-gray-50 p-4 rounded-2xl border border-pilas-gold/20 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                                                                    {selectedMessage.platform === 'Zoom' ? (
+                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                            <input 
+                                                                                type="text" 
+                                                                                placeholder="ID Zoom"
+                                                                                className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
+                                                                                value={linkData.zoom_code}
+                                                                                onChange={(e) => setLinkData({...linkData, zoom_code: e.target.value})}
+                                                                            />
+                                                                            <input 
+                                                                                type="text" 
+                                                                                placeholder="Clave Zoom"
+                                                                                className="px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
+                                                                                value={linkData.zoom_password}
+                                                                                onChange={(e) => setLinkData({...linkData, zoom_password: e.target.value})}
+                                                                            />
+                                                                        </div>
+                                                                    ) : (
+                                                                        <input 
+                                                                            type="url" 
+                                                                            placeholder="https://meet.google.com/..."
+                                                                            className="w-full px-3 py-2 text-xs bg-white border border-gray-200 rounded-xl outline-none focus:ring-1 focus:ring-pilas-gold font-bold text-[#0f592f]"
+                                                                            value={linkData.meeting_link}
+                                                                            onChange={(e) => setLinkData({...linkData, meeting_link: e.target.value})}
+                                                                        />
+                                                                    )}
+                                                                    <div className="flex gap-2">
+                                                                        <button 
+                                                                            onClick={handleUpdateLink}
+                                                                            className="flex-1 py-2 bg-pilas-gold text-white text-[10px] font-black rounded-lg uppercase tracking-widest"
+                                                                        >
+                                                                            Guardar
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => setIsUpdatingLink(false)}
+                                                                            className="px-4 py-2 bg-gray-200 text-gray-500 text-[10px] font-black rounded-lg uppercase tracking-widest"
+                                                                        >
+                                                                            X
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-center p-4 bg-gray-50 text-gray-400 text-[10px] font-bold rounded-2xl border border-dashed border-gray-200 uppercase tracking-widest">
+                                                            Los detalles de acceso aparecerán cuando se acepte la tutoría
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="p-8 bg-pilas-gold/5 rounded-[2rem] border border-pilas-gold/20">
+                                        <h4 className="text-[10px] font-black text-pilas-gold uppercase tracking-widest mb-4">Temas solicitados</h4>
+                                        <p className="text-sm font-bold text-gray-600 whitespace-pre-line leading-relaxed">
+                                            {selectedMessage.objectives}
+                                        </p>
                                     </div>
                                 </div>
-
-                                <div className="p-8 bg-pilas-gold/5 rounded-[2rem] border border-pilas-gold/20">
-                                    <h4 className="text-[10px] font-black text-pilas-gold uppercase tracking-widest mb-4">Temas solicitados</h4>
-                                    <p className="text-sm font-bold text-gray-600 whitespace-pre-line leading-relaxed">
-                                        {selectedMessage.objectives}
-                                    </p>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-center opacity-30">
