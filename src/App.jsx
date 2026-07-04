@@ -20,6 +20,7 @@ import Beneficios from './pages/Beneficios';
 import Terminos from './pages/Terminos';
 import Footer from './components/Footer';
 import FAQChatbot from './components/FAQChatbot';
+import GuidedTour from './components/GuidedTour';
 
 import { NotificationProvider } from './context/NotificationContext';
 
@@ -104,6 +105,7 @@ const AppContent = ({ auth, setAuth }) => {
         </div>
       )}
       <Navbar isAuthenticated={auth.isLogged} userRole={auth.role} onLogout={handleLogout} />
+      <GuidedTour />
 
       <main className={`flex-grow ${isWorkspace ? 'overflow-hidden' : ''}`}>
         <Routes>

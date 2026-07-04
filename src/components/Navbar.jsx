@@ -122,12 +122,12 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                                     </>
                                 ) : (
                                     <>
-                                        <Link to="/buscar" className="nav-link">Busca Tutor</Link>
-                                        <Link to="/mi-tutoria" className="nav-link relative">
+                                        <Link to="/buscar" id="tour-busca-tutor" className="nav-link">Busca Tutor</Link>
+                                        <Link to="/mi-tutoria" id="tour-mi-tutoria" className="nav-link relative">
                                             MiTutoría
                                         </Link>
                                         <Link to="/calendario" className="nav-link">Calendario</Link>
-                                        <Link to="/mensajes" className="nav-link relative">
+                                        <Link to="/mensajes" id="tour-mensajes" className="nav-link relative">
                                             Bandeja de Entrada
                                             <Badge count={counts.newInboxMessages} />
                                         </Link>
@@ -158,7 +158,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                             <div className="flex items-center gap-3 relative">
                                 {/* Nivel (XP Pill) */}
                                 {currentUser.role !== 'ADMIN' && (
-                                    <div className="flex items-center gap-1 bg-[#0f592f] text-[#ffcc00] border border-[#ffcc00]/20 px-3.5 py-1.5 rounded-full text-xs font-black shadow-sm tracking-wide">
+                                    <div id="tour-nivel" className="flex items-center gap-1 bg-[#0f592f] text-[#ffcc00] border border-[#ffcc00]/20 px-3.5 py-1.5 rounded-full text-xs font-black shadow-sm tracking-wide">
                                         <span className="text-sm">⭐</span>
                                         <span>NIVEL {userLevel}</span>
                                     </div>
@@ -167,6 +167,7 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                                 {/* ESPE-Coins Pill */}
                                 {currentUser.role !== 'ADMIN' && (
                                     <button 
+                                        id="tour-monedas"
                                         onClick={() => navigate('/recompensas')}
                                         className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-500 text-white px-3.5 py-1.5 rounded-full text-xs font-black shadow-md shadow-amber-500/10 hover:shadow-amber-500/25 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 outline-none"
                                         title="Ver mis recompensas"
@@ -193,6 +194,17 @@ const Navbar = ({ isAuthenticated, userRole, onLogout }) => {
                                                 <p className="text-xs font-black text-slate-700 truncate">{currentUser?.full_name}</p>
                                             </div>
                                             <Link to={`/profile/${currentUser?.id || ''}`} className="block px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pilas-blue transition-colors">Mi Perfil</Link>
+                                            {currentUser.role !== 'ADMIN' && (
+                                                <button
+                                                    onClick={() => {
+                                                        setShowDropdown(false);
+                                                        window.dispatchEvent(new CustomEvent('startGuidedTour'));
+                                                    }}
+                                                    className="w-full text-left block px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pilas-blue transition-colors cursor-pointer"
+                                                >
+                                                    ✨ Ver Tour Guiado
+                                                </button>
+                                            )}
                                             <Link to="/tickets" className="block px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-pilas-blue transition-colors">🛠️ Soporte</Link>
                                             <button
                                                 onClick={() => {
