@@ -6,76 +6,90 @@ const TOURS = {
         {
             title: "¡Bienvenido a Pilas! 👋",
             text: "Pilas! es la plataforma oficial de tutorías de la ESPE. Queremos darte un pequeño recorrido para que conozcas las herramientas principales y consolides tu aprendizaje de forma cooperativa.",
-            targetSelector: null
+            targetSelector: null,
+            placement: "center"
         },
         {
             title: "Encuentra un Tutor 🔍",
             text: "¿Necesitas ayuda con alguna materia? Aquí puedes buscar y filtrar tutores destacados de tu misma carrera, revisar sus calificaciones e iniciar solicitudes de tutoría en segundos.",
-            targetSelector: "#tour-busca-tutor"
+            targetSelector: "#tour-busca-tutor",
+            placement: "bottom"
         },
         {
             title: "Gestiona tus Tutorías 📂",
             text: "En esta sección podrás dar seguimiento a tus tutorías activas (creadas o recibidas), acceder a las salas de chat individuales y conectarte a las videollamadas confirmadas.",
-            targetSelector: "#tour-mi-tutoria"
+            targetSelector: "#tour-mi-tutoria",
+            placement: "bottom"
         },
         {
             title: "Bandeja de Entrada 📬",
             text: "Aquí recibirás las notificaciones de solicitudes aceptadas, propuestas de cambio de horario de tus tutores, enlaces de Zoom/Meet y comunicaciones oficiales de la comunidad.",
-            targetSelector: "#tour-mensajes"
+            targetSelector: "#tour-mensajes",
+            placement: "bottom"
         },
         {
             title: "Tu Nivel y Logros ⭐",
             text: "Este indicador muestra tu Nivel actual. Al participar en tutorías y realizar actividades acumularás puntos de experiencia (XP) para subir de nivel y obtener insignias de mérito.",
-            targetSelector: "#tour-nivel"
+            targetSelector: "#tour-nivel",
+            placement: "bottom"
         },
         {
             title: "ESPE-Coins y Tienda 🪙",
             text: "¡Aquí ves tu saldo de ESPE-Coins! Completa tu perfil, inicia sesión a diario y participa en tutorías para acumular monedas y canjearlas en la sección de Recompensas por sorteos gamer y otros premios.",
-            targetSelector: "#tour-monedas"
+            targetSelector: "#tour-monedas",
+            placement: "bottom"
         }
     ],
     buscar: [
         {
             title: "Búsqueda Inteligente 🕵️‍♂️",
             text: "Utiliza este panel de control lateral para buscar materias específicas, filtrar por semestres, ordenar de forma alfabética o ver los tutores con mejores calificaciones.",
-            targetSelector: "#tour-buscar-filtros"
+            targetSelector: "#tour-buscar-filtros",
+            placement: "side"
         },
         {
             title: "Tus Mentores Disponibles 👥",
             text: "Aquí puedes ver a tus compañeros disponibles para dar tutorías. Se muestra su semestre actual, estrellas de reputación y las materias de especialidad.",
-            targetSelector: "#tour-buscar-tutores"
+            targetSelector: "#tour-buscar-tutores",
+            placement: "side"
         },
         {
             title: "Acceder a Detalles del Mentor 📄",
             text: "Haz clic en 'Ver Perfil' del tutor para revisar su perfil académico completo, insignias destacadas, opiniones de otros alumnos y pactar una cita.",
-            targetSelector: "#tour-ver-perfil"
+            targetSelector: "#tour-ver-perfil",
+            placement: "side"
         }
     ],
     solicitar: [
         {
             title: "Información del Tutor 👤",
             text: "Este panel lateral te muestra los datos clave del mentor: semestre actual, carrera universitaria y las materias oficiales que imparte.",
-            targetSelector: "#tour-perfil-header"
+            targetSelector: "#tour-perfil-header",
+            placement: "side"
         },
         {
             title: "Logros y Aportes 🏅",
             text: "Aquí verás las insignias de gamificación y la puntuación promedio del tutor. Te ayuda a conocer la calidad de su labor como tutor.",
-            targetSelector: "#tour-perfil-insignias"
+            targetSelector: "#tour-perfil-insignias",
+            placement: "side"
         },
         {
             title: "Pactar la Cita 📅",
             text: "Presiona este botón de 'Pactar Tutoría' para abrir el formulario de agendamiento y proponer un encuentro al mentor.",
-            targetSelector: "#tour-boton-pactar"
+            targetSelector: "#tour-boton-pactar",
+            placement: "side"
         },
         {
             title: "Formulario de Tutoría 📝",
             text: "Elige la materia que deseas repasar, define la fecha y hora sugerida, selecciona modalidad (presencial u online) y describe tus temas de interés.",
-            targetSelector: "#tour-agendar-formulario"
+            targetSelector: "#tour-agendar-formulario",
+            placement: "side"
         },
         {
             title: "Enviar Solicitud 🚀",
             text: "¡Presiona 'Enviar Solicitud' para proponer la tutoría! El mentor podrá aceptar tu horario, contraproponer otro cambio o rechazarla.",
-            targetSelector: "#tour-boton-enviar"
+            targetSelector: "#tour-boton-enviar",
+            placement: "side"
         }
     ]
 };
@@ -287,32 +301,62 @@ const GuidedTour = () => {
             };
         }
 
-        // Posicionamiento adaptativo (arriba o abajo del elemento)
+        const cardWidth = 320;
         const cardHeight = 260; // altura aproximada
-        const spaceBelow = window.innerHeight - targetRect.bottom;
-        const placeBelow = spaceBelow > cardHeight || targetRect.top < cardHeight;
-
-        const top = placeBelow 
-            ? targetRect.bottom + 16 
-            : targetRect.top - cardHeight - 16;
-
-        // Centrar horizontalmente respecto al elemento
-        const elementWidth = targetRect.width;
-        const cardWidth = 320; // ancho fijo de la tarjeta
-        const elementCenter = targetRect.left + elementWidth / 2;
         
-        let left = elementCenter - cardWidth / 2;
-        // Prevenir desbordamiento de bordes izquierdo y derecho
-        left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, left));
+        // Verificamos si la pantalla es de escritorio (suficientemente ancha)
+        const isDesktop = window.innerWidth > 800;
+        const preferSide = step.placement === "side";
 
-        return {
-            position: 'fixed',
-            top: `${top}px`,
-            left: `${left}px`,
-            width: `${cardWidth}px`,
-            zIndex: 10000,
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-        };
+        if (isDesktop && preferSide) {
+            // Intentamos colocar a la derecha del elemento
+            let left = targetRect.right + 16;
+            let top = targetRect.top + targetRect.height / 2 - cardHeight / 2;
+
+            // Si se sale por la derecha, lo colocamos a la izquierda del elemento
+            if (left + cardWidth > window.innerWidth) {
+                left = targetRect.left - cardWidth - 16;
+            }
+
+            // Prevenir que se desborde verticalmente
+            top = Math.max(16, Math.min(window.innerHeight - cardHeight - 16, top));
+            // Prevenir desbordamiento horizontal extremo
+            left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, left));
+
+            return {
+                position: 'fixed',
+                top: `${top}px`,
+                left: `${left}px`,
+                width: `${cardWidth}px`,
+                zIndex: 10000,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            };
+        } else {
+            // Posicionamiento adaptativo vertical (arriba o abajo del elemento)
+            const spaceBelow = window.innerHeight - targetRect.bottom;
+            const placeBelow = spaceBelow > cardHeight || targetRect.top < cardHeight;
+
+            const top = placeBelow 
+                ? targetRect.bottom + 16 
+                : targetRect.top - cardHeight - 16;
+
+            // Centrar horizontalmente respecto al elemento
+            const elementWidth = targetRect.width;
+            const elementCenter = targetRect.left + elementWidth / 2;
+            
+            let left = elementCenter - cardWidth / 2;
+            // Prevenir desbordamiento de bordes izquierdo y derecho
+            left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, left));
+
+            return {
+                position: 'fixed',
+                top: `${top}px`,
+                left: `${left}px`,
+                width: `${cardWidth}px`,
+                zIndex: 10000,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+            };
+        }
     };
 
     return (
