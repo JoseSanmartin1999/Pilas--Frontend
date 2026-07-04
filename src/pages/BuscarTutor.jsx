@@ -95,7 +95,7 @@ const BuscarTutor = () => {
                 
                 {/* BARRA LATERAL: PANEL DE CONTROL DE FILTROS & ORDENACIÓN */}
                 <aside className="lg:col-span-4 space-y-6">
-                    <div className="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-6 sticky top-6">
+                    <div id="tour-buscar-filtros" className="bg-white p-8 rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-6 sticky top-6">
 
                         {/* Buscar por nombre o materia */}
                         <div>
@@ -227,8 +227,8 @@ const BuscarTutor = () => {
                     </div>
 
                     {filteredAndSortedMentors.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredAndSortedMentors.map(mentor => (
+                        <div id="tour-buscar-tutores" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredAndSortedMentors.map((mentor, index) => (
                                 <div
                                     key={mentor.id}
                                     className="bg-white p-6 rounded-[2.5rem] shadow-md border border-gray-100 flex flex-col items-center hover:shadow-2xl hover:shadow-[#0f592f]/5 hover:border-[#ffcc00]/40 transition-all duration-300 transform hover:-translate-y-1 relative group"
@@ -287,6 +287,7 @@ const BuscarTutor = () => {
 
                                     {/* Botón Ver Perfil */}
                                     <button
+                                        id={index === 0 ? "tour-ver-perfil" : undefined}
                                         onClick={() => navigate(`/profile/${mentor.id}`)}
                                         className="w-full py-3 bg-white text-[#0f592f] border-2 border-[#0f592f] rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-[#0f592f] hover:text-[#ffcc00] hover:border-transparent transition-all shadow-sm"
                                     >

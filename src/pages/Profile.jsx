@@ -338,7 +338,7 @@ const Profile = () => {
 
         {/* COLUMNA IZQUIERDA: Identidad e Info (4/12) */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 text-center relative group">
+          <div id="tour-perfil-header" className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 text-center relative group">
             {isOwnProfile && (
               <button
                 onClick={() => setShowModal(true)}
@@ -477,7 +477,7 @@ const Profile = () => {
           </div>
 
           {/* SECCIÓN LOGROS PROFESIONALES */}
-          <div className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 relative group/badges">
+          <div id="tour-perfil-insignias" className="bg-white p-8 rounded-[2rem] shadow-sm ring-1 ring-gray-900/5 relative group/badges">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <div className="flex items-center gap-3">
@@ -737,6 +737,7 @@ const Profile = () => {
             </button>
             {!isOwnProfile && user.role === 'MENTOR' && (
               <button 
+                id="tour-boton-pactar"
                 onClick={() => setShowMentorshipModal(true)}
                 className="px-8 py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg hover:shadow-xl hover:bg-[#0a4624] transition-all flex-[2] text-center border border-transparent hover:border-[#ffcc00]/30"
               >
@@ -756,7 +757,7 @@ const Profile = () => {
               <button onClick={() => setShowMentorshipModal(false)} className="text-gray-400 hover:text-red-500 text-3xl font-light">&times;</button>
             </div>
 
-            <form onSubmit={handlePactarTutoria} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <form id="tour-agendar-formulario" onSubmit={handlePactarTutoria} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div>
                 <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Materia Deseada</label>
                 <select 
@@ -860,7 +861,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <button type="submit" className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all">
+              <button id="tour-boton-enviar" type="submit" className="w-full py-5 bg-[#0f592f] text-[#ffcc00] rounded-[2rem] font-black text-xs uppercase tracking-[0.25em] shadow-xl hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all">
                 Enviar Solicitud
               </button>
             </form>

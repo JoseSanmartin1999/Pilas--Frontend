@@ -1,49 +1,89 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const STEPS = [
-    {
-        title: "¡Bienvenido a Pilas! 👋",
-        text: "Pilas! es la plataforma oficial de tutorías de la ESPE. Queremos darte un pequeño recorrido para que conozcas las herramientas principales y consolides tu aprendizaje de forma cooperativa.",
-        targetSelector: null,
-        redirectPath: "/"
-    },
-    {
-        title: "Encuentra un Tutor 🔍",
-        text: "¿Necesitas ayuda con alguna materia? Aquí puedes buscar y filtrar tutores destacados de tu misma carrera, revisar sus calificaciones e iniciar solicitudes de tutoría en segundos.",
-        targetSelector: "#tour-busca-tutor",
-        redirectPath: "/"
-    },
-    {
-        title: "Gestiona tus Tutorías 📂",
-        text: "En esta sección podrás dar seguimiento a tus tutorías activas (creadas o recibidas), acceder a las salas de chat individuales y conectarte a las videollamadas confirmadas.",
-        targetSelector: "#tour-mi-tutoria",
-        redirectPath: "/"
-    },
-    {
-        title: "Bandeja de Entrada 📬",
-        text: "Aquí recibirás las notificaciones de solicitudes aceptadas, propuestas de cambio de horario de tus tutores, enlaces de Zoom/Meet y comunicaciones oficiales de la comunidad.",
-        targetSelector: "#tour-mensajes",
-        redirectPath: "/"
-    },
-    {
-        title: "Tu Nivel y Logros ⭐",
-        text: "Este indicador muestra tu Nivel actual. Al participar en tutorías y realizar actividades acumularás puntos de experiencia (XP) para subir de nivel y obtener insignias de mérito.",
-        targetSelector: "#tour-nivel",
-        redirectPath: "/"
-    },
-    {
-        title: "ESPE-Coins y Tienda 🪙",
-        text: "¡Aquí ves tu saldo de ESPE-Coins! Completa tu perfil, inicia sesión a diario y participa en tutorías para acumular monedas y canjearlas en la sección de Recompensas por sorteos gamer y otros premios.",
-        targetSelector: "#tour-monedas",
-        redirectPath: "/"
-    }
-];
+const TOURS = {
+    welcome: [
+        {
+            title: "¡Bienvenido a Pilas! 👋",
+            text: "Pilas! es la plataforma oficial de tutorías de la ESPE. Queremos darte un pequeño recorrido para que conozcas las herramientas principales y consolides tu aprendizaje de forma cooperativa.",
+            targetSelector: null
+        },
+        {
+            title: "Encuentra un Tutor 🔍",
+            text: "¿Necesitas ayuda con alguna materia? Aquí puedes buscar y filtrar tutores destacados de tu misma carrera, revisar sus calificaciones e iniciar solicitudes de tutoría en segundos.",
+            targetSelector: "#tour-busca-tutor"
+        },
+        {
+            title: "Gestiona tus Tutorías 📂",
+            text: "En esta sección podrás dar seguimiento a tus tutorías activas (creadas o recibidas), acceder a las salas de chat individuales y conectarte a las videollamadas confirmadas.",
+            targetSelector: "#tour-mi-tutoria"
+        },
+        {
+            title: "Bandeja de Entrada 📬",
+            text: "Aquí recibirás las notificaciones de solicitudes aceptadas, propuestas de cambio de horario de tus tutores, enlaces de Zoom/Meet y comunicaciones oficiales de la comunidad.",
+            targetSelector: "#tour-mensajes"
+        },
+        {
+            title: "Tu Nivel y Logros ⭐",
+            text: "Este indicador muestra tu Nivel actual. Al participar en tutorías y realizar actividades acumularás puntos de experiencia (XP) para subir de nivel y obtener insignias de mérito.",
+            targetSelector: "#tour-nivel"
+        },
+        {
+            title: "ESPE-Coins y Tienda 🪙",
+            text: "¡Aquí ves tu saldo de ESPE-Coins! Completa tu perfil, inicia sesión a diario y participa en tutorías para acumular monedas y canjearlas en la sección de Recompensas por sorteos gamer y otros premios.",
+            targetSelector: "#tour-monedas"
+        }
+    ],
+    buscar: [
+        {
+            title: "Búsqueda Inteligente 🕵️‍♂️",
+            text: "Utiliza este panel de control lateral para buscar materias específicas, filtrar por semestres, ordenar de forma alfabética o ver los tutores con mejores calificaciones.",
+            targetSelector: "#tour-buscar-filtros"
+        },
+        {
+            title: "Tus Mentores Disponibles 👥",
+            text: "Aquí puedes ver a tus compañeros disponibles para dar tutorías. Se muestra su semestre actual, estrellas de reputación y las materias de especialidad.",
+            targetSelector: "#tour-buscar-tutores"
+        },
+        {
+            title: "Acceder a Detalles del Mentor 📄",
+            text: "Haz clic en 'Ver Perfil' del tutor para revisar su perfil académico completo, insignias destacadas, opiniones de otros alumnos y pactar una cita.",
+            targetSelector: "#tour-ver-perfil"
+        }
+    ],
+    solicitar: [
+        {
+            title: "Información del Tutor 👤",
+            text: "Este panel lateral te muestra los datos clave del mentor: semestre actual, carrera universitaria y las materias oficiales que imparte.",
+            targetSelector: "#tour-perfil-header"
+        },
+        {
+            title: "Logros y Aportes 🏅",
+            text: "Aquí verás las insignias de gamificación y la puntuación promedio del tutor. Te ayuda a conocer la calidad de su labor como tutor.",
+            targetSelector: "#tour-perfil-insignias"
+        },
+        {
+            title: "Pactar la Cita 📅",
+            text: "Presiona este botón de 'Pactar Tutoría' para abrir el formulario de agendamiento y proponer un encuentro al mentor.",
+            targetSelector: "#tour-boton-pactar"
+        },
+        {
+            title: "Formulario de Tutoría 📝",
+            text: "Elige la materia que deseas repasar, define la fecha y hora sugerida, selecciona modalidad (presencial u online) y describe tus temas de interés.",
+            targetSelector: "#tour-agendar-formulario"
+        },
+        {
+            title: "Enviar Solicitud 🚀",
+            text: "¡Presiona 'Enviar Solicitud' para proponer la tutoría! El mentor podrá aceptar tu horario, contraproponer otro cambio o rechazarla.",
+            targetSelector: "#tour-boton-enviar"
+        }
+    ]
+};
 
 const GuidedTour = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [isOpen, setIsOpen] = useState(false);
+    const [activeTour, setActiveTour] = useState(null); // 'welcome', 'buscar', 'solicitar'
     const [currentStep, setCurrentStep] = useState(0);
     const [targetRect, setTargetRect] = useState(null);
     const cardRef = useRef(null);
@@ -52,25 +92,61 @@ const GuidedTour = () => {
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
     const isAuthenticated = !!(localStorage.getItem('token') || sessionStorage.getItem('token'));
 
-    // Trigger automático si es primera vez
+    // Trigger automático según la página en la que se encuentre
     useEffect(() => {
-        if (isAuthenticated && currentUser.id && currentUser.role !== 'ADMIN') {
-            const isCompleted = localStorage.getItem(`pilas_tour_completed_${currentUser.id}`);
-            if (!isCompleted) {
-                // Pequeño delay para asegurar que el DOM cargue
+        if (!isAuthenticated || !currentUser.id || currentUser.role === 'ADMIN') {
+            setActiveTour(null);
+            return;
+        }
+
+        // 1. Welcome Tour (Página de inicio)
+        if (location.pathname === '/') {
+            const welcomeCompleted = localStorage.getItem(`pilas_tour_completed_${currentUser.id}`);
+            if (!welcomeCompleted) {
+                // Delay corto para asegurar carga
                 const timer = setTimeout(() => {
-                    setIsOpen(true);
+                    setActiveTour('welcome');
                     setCurrentStep(0);
                 }, 1500);
                 return () => clearTimeout(timer);
             }
         }
-    }, [isAuthenticated, currentUser.id, currentUser.role]);
+        // 2. Buscar Tour
+        else if (location.pathname === '/buscar') {
+            const buscarCompleted = localStorage.getItem(`pilas_buscar_tour_completed_${currentUser.id}`);
+            if (!buscarCompleted) {
+                const timer = setTimeout(() => {
+                    setActiveTour('buscar');
+                    setCurrentStep(0);
+                }, 1000);
+                return () => clearTimeout(timer);
+            }
+        }
+        // 3. Solicitar Tour (Perfil de otro mentor)
+        else if (location.pathname.startsWith('/profile')) {
+            const isOwn = location.pathname === '/profile' || location.pathname === `/profile/${currentUser.id}`;
+            if (!isOwn) {
+                const solicitarCompleted = localStorage.getItem(`pilas_solicitar_tour_completed_${currentUser.id}`);
+                if (!solicitarCompleted) {
+                    const timer = setTimeout(() => {
+                        setActiveTour('solicitar');
+                        setCurrentStep(0);
+                    }, 1000);
+                    return () => clearTimeout(timer);
+                }
+            }
+        }
+    }, [location.pathname, isAuthenticated, currentUser.id, currentUser.role]);
 
     // Escuchar el evento manual de reinicio del tour
     useEffect(() => {
         const handleStartTour = () => {
-            setIsOpen(true);
+            if (currentUser.id) {
+                localStorage.removeItem(`pilas_tour_completed_${currentUser.id}`);
+                localStorage.removeItem(`pilas_buscar_tour_completed_${currentUser.id}`);
+                localStorage.removeItem(`pilas_solicitar_tour_completed_${currentUser.id}`);
+            }
+            setActiveTour('welcome');
             setCurrentStep(0);
             if (location.pathname !== '/') {
                 navigate('/');
@@ -78,24 +154,32 @@ const GuidedTour = () => {
         };
         window.addEventListener('startGuidedTour', handleStartTour);
         return () => window.removeEventListener('startGuidedTour', handleStartTour);
-    }, [location.pathname, navigate]);
+    }, [location.pathname, navigate, currentUser.id]);
+
+    // Detectar si el modal se abre en el perfil para avanzar al paso del formulario
+    useEffect(() => {
+        if (activeTour === 'solicitar' && currentStep === 2) {
+            const checkModal = setInterval(() => {
+                const modal = document.querySelector('#tour-agendar-formulario');
+                if (modal) {
+                    setCurrentStep(3);
+                    clearInterval(checkModal);
+                }
+            }, 300);
+            return () => clearInterval(checkModal);
+        }
+    }, [activeTour, currentStep]);
 
     // Recalcular las coordenadas del spotlight cuando cambia el paso o se redimensiona la pantalla
     useEffect(() => {
-        if (!isOpen) {
+        if (!activeTour) {
             setTargetRect(null);
             return;
         }
 
-        const step = STEPS[currentStep];
-        
-        // Si el paso requiere redirección y no estamos ahí, redirigir
-        if (step.redirectPath && location.pathname !== step.redirectPath) {
-            navigate(step.redirectPath);
-            // Dar tiempo para la transición de página
-            const timer = setTimeout(() => updateSpotlight(step.targetSelector), 300);
-            return () => clearTimeout(timer);
-        }
+        const steps = TOURS[activeTour];
+        const step = steps[currentStep];
+        if (!step) return;
 
         updateSpotlight(step.targetSelector);
 
@@ -108,7 +192,7 @@ const GuidedTour = () => {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('scroll', handleResize);
         };
-    }, [isOpen, currentStep, location.pathname, navigate]);
+    }, [activeTour, currentStep]);
 
     const updateSpotlight = (selector) => {
         if (!selector) {
@@ -136,13 +220,25 @@ const GuidedTour = () => {
         }
     };
 
-    if (!isOpen) return null;
+    if (!activeTour) return null;
 
-    const step = STEPS[currentStep];
+    const steps = TOURS[activeTour];
+    const step = steps[currentStep];
+    if (!step) return null;
+
     const isFirstStep = currentStep === 0;
-    const isLastStep = currentStep === STEPS.length - 1;
+    const isLastStep = currentStep === steps.length - 1;
 
     const handleNext = () => {
+        if (activeTour === 'solicitar' && currentStep === 2) {
+            // Clic programático en el botón "Pactar Tutoría" para abrir modal y gatillar avance
+            const pactarBtn = document.querySelector('#tour-boton-pactar');
+            if (pactarBtn) {
+                pactarBtn.click();
+            }
+            return;
+        }
+
         if (isLastStep) {
             handleComplete();
         } else {
@@ -152,6 +248,12 @@ const GuidedTour = () => {
 
     const handlePrev = () => {
         if (!isFirstStep) {
+            // Prevenir regreso antes del formulario si ya está el modal abierto
+            if (activeTour === 'solicitar' && currentStep === 3) {
+                // Cerrar modal programáticamente si vuelve a step 2
+                const closeBtn = document.querySelector('#tour-agendar-formulario')?.parentElement?.querySelector('button');
+                if (closeBtn) closeBtn.click();
+            }
             setCurrentStep(prev => prev - 1);
         }
     };
@@ -161,10 +263,13 @@ const GuidedTour = () => {
     };
 
     const handleComplete = () => {
-        setIsOpen(false);
-        if (currentUser.id) {
-            localStorage.setItem(`pilas_tour_completed_${currentUser.id}`, 'true');
+        if (currentUser.id && activeTour) {
+            const key = activeTour === 'welcome' 
+                ? `pilas_tour_completed_${currentUser.id}` 
+                : `pilas_${activeTour}_tour_completed_${currentUser.id}`;
+            localStorage.setItem(key, 'true');
         }
+        setActiveTour(null);
     };
 
     // Calcular posición de la tarjeta popover para que nunca se desborde de la pantalla
@@ -183,7 +288,7 @@ const GuidedTour = () => {
         }
 
         // Posicionamiento adaptativo (arriba o abajo del elemento)
-        const cardHeight = 250; // altura aproximada
+        const cardHeight = 260; // altura aproximada
         const spaceBelow = window.innerHeight - targetRect.bottom;
         const placeBelow = spaceBelow > cardHeight || targetRect.top < cardHeight;
 
@@ -235,7 +340,6 @@ const GuidedTour = () => {
 
             {/* TARJETA DEL TOUR */}
             <div 
-                ref={cardRef}
                 style={getCardStyle()}
                 className="bg-white rounded-[2rem] border border-gray-100 shadow-2xl p-6 pointer-events-auto select-text animate-in zoom-in duration-300 flex flex-col justify-between"
             >
@@ -243,7 +347,7 @@ const GuidedTour = () => {
                     {/* Encabezado y Progreso */}
                     <div className="flex justify-between items-center mb-4">
                         <span className="bg-pilas-gold/10 text-pilas-gold text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                            Paso {currentStep + 1} de {STEPS.length}
+                            Paso {currentStep + 1} de {steps.length}
                         </span>
                         <button 
                             onClick={handleSkip}
@@ -285,7 +389,7 @@ const GuidedTour = () => {
                             onClick={handleNext}
                             className="px-5 py-2.5 bg-[#0f592f] hover:bg-[#0a4624] text-[#ffcc00] rounded-xl font-black text-[10px] uppercase tracking-wider cursor-pointer transition-all shadow-md hover:scale-[1.03]"
                         >
-                            {isLastStep ? "Finalizar" : "Siguiente"}
+                            {isLastStep ? "Finalizar" : activeTour === 'solicitar' && currentStep === 2 ? "Abrir Formulario" : "Siguiente"}
                         </button>
                     </div>
                 </div>
