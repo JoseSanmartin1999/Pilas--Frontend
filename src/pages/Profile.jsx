@@ -101,8 +101,11 @@ const Profile = () => {
 
     const fetchSubjects = async () => {
       try {
-        const careerName = user.career || user.carrera || '';
-        const subjRes = await axios.get(`${BACKEND_URL}/api/subjects?semester=${sem}&career_name=${encodeURIComponent(careerName)}`);
+        // Usar career_id directamente si está disponible (filtrado exacto), si no, fallback a career_name
+        const careerParam = user.career_id
+          ? `career_id=${user.career_id}`
+          : `career_name=${encodeURIComponent(user.career || user.carrera || '')}`;
+        const subjRes = await axios.get(`${BACKEND_URL}/api/subjects?semester=${sem}&${careerParam}`);
         setAllSubjects(subjRes.data);
       } catch (err) {
         console.error("Error al cargar materias para el semestre:", err);
@@ -110,6 +113,7 @@ const Profile = () => {
     };
     fetchSubjects();
   }, [editData.current_semester, user]);
+
 
   const handlePactarTutoria = async (e) => {
     e.preventDefault();

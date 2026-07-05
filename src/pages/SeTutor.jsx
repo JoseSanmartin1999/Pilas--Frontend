@@ -61,8 +61,13 @@ const SeTutor = () => {
                     return;
                 }
 
-                // 4. Cargar materias filtradas hasta ese semestre y por carrera
-                const res = await axios.get(`${BACKEND_URL}/api/subjects?semester=${semester}&career_name=${encodeURIComponent(careerName)}`);
+                // 4. Cargar materias filtradas hasta ese semestre y por carrera (usar career_id para filtrado exacto)
+                const careerId = profileRes.data.career_id;
+                const careerParam = careerId
+                    ? `career_id=${careerId}`
+                    : `career_name=${encodeURIComponent(careerName)}`;
+                const res = await axios.get(`${BACKEND_URL}/api/subjects?semester=${semester}&${careerParam}`);
+
                 setAllSubjects(res.data);
             } catch (err) {
                 console.error('Error al inicializar datos de tutor:', err);

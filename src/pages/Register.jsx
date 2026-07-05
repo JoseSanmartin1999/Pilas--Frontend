@@ -11,7 +11,7 @@ const Register = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         full_name: '', email: '', password: '', confirmPassword: '', role: 'APRENDIZ',
-        institution: 'ESPE', career: '', student_id: '', current_semester: 1, bio: ''
+        institution: 'ESPE', career: '', career_id: null, student_id: '', current_semester: 1, bio: ''
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +29,9 @@ const Register = () => {
                 const res = await axios.get(`${BACKEND_URL}/api/admin/careers`);
                 setCareers(res.data);
                 if (res.data.length > 0) {
-                    // Buscar "Ingeniería de Software" o pre-seleccionar la primera
+                    // Pre-seleccionar "Ingeniería de Software" o la primera
                     const defaultCareer = res.data.find(c => c.name.toLowerCase().includes('software')) || res.data[0];
-                    setFormData(prev => ({ ...prev, career: defaultCareer.name }));
+                    setFormData(prev => ({ ...prev, career: defaultCareer.name, career_id: defaultCareer.id }));
                 }
             } catch (err) {
                 console.error("Error cargando carreras:", err);
@@ -40,17 +40,17 @@ const Register = () => {
         fetchCareers();
     }, []);
 
-    // Cargar materias según el semestre y la carrera seleccionada
+    // Cargar materias según el semestre y la carrera seleccionada (usa career_id para filtrado exacto)
     useEffect(() => {
         const fetchSubjects = async () => {
-            if (!formData.career) return;
+            if (!formData.career_id) return;
             try {
-                const res = await axios.get(`${BACKEND_URL}/api/subjects?semester=${formData.current_semester}&career_name=${encodeURIComponent(formData.career)}`);
+                const res = await axios.get(`${BACKEND_URL}/api/subjects?semester=${formData.current_semester}&career_id=${formData.career_id}`);
                 setSubjects(res.data);
             } catch { console.error("Error cargando materias"); }
         };
         fetchSubjects();
-    }, [formData.current_semester, formData.career]);
+    }, [formData.current_semester, formData.career_id]);
 
     // Si cambia el semestre o el rol y el semestre es <= 3, forzar rol a APRENDIZ
     useEffect(() => {
@@ -235,7 +235,20 @@ const Register = () => {
 
                             <input name="student_id" onChange={handleInputChange} type="text" placeholder="ID Estudiante (L00...)" className="input-style" required />
 
-                            <select name="career" value={formData.career} onChange={handleInputChange} className="input-style" required>
+                            <select
+                                name="career"
+                                value={formData.career}
+                                onChange={(e) => {
+                                    const selectedCareer = careers.find(c => c.name === e.target.value);
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        career: e.target.value,
+                                        career_id: selectedCareer ? selectedCareer.id : null
+                                    }));
+                                }}
+                                className="input-style"
+                                required
+                            >
                                 <option value="">Selecciona tu Carrera</option>
                                 {careers.map(c => (
                                     <option key={c.id} value={c.name}>{c.name}</option>
