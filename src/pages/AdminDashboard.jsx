@@ -70,6 +70,7 @@ const AdminDashboard = () => {
     const [parsingMalla, setParsingMalla] = useState(false);
 
     // Estado para Mensaje Global (Broadcast)
+    const [globalMessageSubject, setGlobalMessageSubject] = useState('');
     const [globalMessageText, setGlobalMessageText] = useState('');
     const [sendingGlobalMessage, setSendingGlobalMessage] = useState(false);
 
@@ -586,14 +587,16 @@ const AdminDashboard = () => {
 
     const handleSendGlobalMessage = async (e) => {
         e.preventDefault();
-        if (!globalMessageText.trim()) return;
+        if (!globalMessageSubject.trim() || !globalMessageText.trim()) return;
 
         setSendingGlobalMessage(true);
         try {
             await axios.post(`${BACKEND_URL}/api/admin/broadcast-message`, {
+                subject: globalMessageSubject,
                 message: globalMessageText
             });
             showNotification("Mensaje global enviado con éxito a todos los usuarios activos.", "success");
+            setGlobalMessageSubject('');
             setGlobalMessageText('');
             logAction("[COMUNICADO] Mensaje global enviado a la comunidad.");
         } catch (err) {
@@ -1810,20 +1813,34 @@ const AdminDashboard = () => {
                             <form onSubmit={handleSendGlobalMessage} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-150/40 text-left space-y-6">
                                 <div className="space-y-2">
                                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">
-                                        Contenido del Comunicado
+                                        Asunto del Comunicado
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={globalMessageSubject}
+                                        onChange={(e) => setGlobalMessageSubject(e.target.value)}
+                                        placeholder="Ej: Mantenimiento programado / Comunicado Oficial"
+                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-250/50 rounded-2xl outline-none font-bold text-gray-700 text-sm focus:border-[#0f592f]/30"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">
+                                        Cuerpo del Comunicado
                                     </label>
                                     <textarea
                                         value={globalMessageText}
                                         onChange={(e) => setGlobalMessageText(e.target.value)}
-                                        placeholder="Escribe el comunicado para los usuarios..."
-                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-200/50 rounded-2xl outline-none font-medium text-gray-600 text-sm h-48 focus:border-[#0f592f]/30"
+                                        placeholder="Escribe el cuerpo del comunicado..."
+                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-250/50 rounded-2xl outline-none font-medium text-gray-700 text-sm h-48 focus:border-[#0f592f]/30"
                                         required
                                     ></textarea>
                                 </div>
 
                                 <button
                                     type="submit"
-                                    disabled={sendingGlobalMessage || !globalMessageText.trim()}
+                                    disabled={sendingGlobalMessage || !globalMessageSubject.trim() || !globalMessageText.trim()}
                                     className="w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] disabled:bg-gray-300 disabled:text-gray-500 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                                 >
                                     {sendingGlobalMessage ? (

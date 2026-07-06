@@ -21,6 +21,7 @@ const Mensajes = () => {
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
     const isSystemMessage = selectedMessage && selectedMessage.subject_name === 'Pilas! Comunidad';
     const isWelcome = selectedMessage && selectedMessage.objectives.includes('Bienvenido');
+    const isSurvey = selectedMessage && selectedMessage.objectives.includes('forms.gle');
 
     const fetchResponses = useCallback(async () => {
         try {
@@ -213,13 +214,17 @@ const Mensajes = () => {
                                             }}
                                             className="w-4 h-4 rounded text-[#0f592f] focus:ring-[#ffcc00] border-gray-300 cursor-pointer mr-1"
                                         />
-                                        <span className="font-bold text-[#0f592f] truncate max-w-[120px]">{r.mentor_name}</span>
+                                        <span className="font-bold text-[#0f592f] truncate max-w-[120px]">
+                                            {r.subject_name === 'Pilas! Comunidad' ? 'Pilas! Comunidad' : r.mentor_name}
+                                        </span>
                                         {r.apprentice_notified === 0 && <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>}
                                     </div>
                                     <span className="text-[9px] font-bold text-gray-400">{new Date(r.scheduled_date).toLocaleDateString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <div className="text-sm font-semibold text-gray-700">Respuesta: {r.subject_name}</div>
+                                    <div className="text-sm font-semibold text-gray-700">
+                                        {r.subject_name === 'Pilas! Comunidad' ? `Comunicado: ${r.meeting_place}` : `Respuesta: ${r.subject_name}`}
+                                    </div>
                                     <button 
                                         onClick={(e) => handleDeleteMessage(e, r.id)}
                                         className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors group-hover:opacity-100"
@@ -282,7 +287,7 @@ const Mensajes = () => {
                                                 </div>
                                                 <h3 className="text-2xl font-black text-[#0f592f]">¡Bienvenido a Pilas!</h3>
                                                 <p className="text-sm font-semibold text-gray-500 max-w-md">
-                                                    Estamos muy contentos de que te unas a nuestra comunidad de aprendizaje cooperativo en la ESPE.
+                                                    Estamos muy contentos de que te unes a nuestra comunidad de aprendizaje cooperativo en la ESPE.
                                                 </p>
                                             </div>
 
@@ -325,7 +330,7 @@ const Mensajes = () => {
                                                 </button>
                                             </div>
                                         </div>
-                                    ) : (
+                                    ) : isSurvey ? (
                                         <div className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 rounded-[2.5rem] p-8 border border-amber-500/20 shadow-sm space-y-6">
                                             <div className="flex flex-col items-center text-center space-y-4">
                                                 <div className="w-20 h-20 bg-gradient-to-tr from-amber-500 to-yellow-600 rounded-full flex items-center justify-center text-white text-4xl shadow-lg shadow-amber-500/10">
@@ -375,6 +380,20 @@ const Mensajes = () => {
                                                 >
                                                     🎁 Ir a la Tienda de Recompensas
                                                 </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-gradient-to-br from-[#0f592f]/5 to-[#0f592f]/10 rounded-[2.5rem] p-8 border border-[#0f592f]/20 shadow-sm space-y-6">
+                                            <div className="flex flex-col items-center text-center space-y-4">
+                                                <div className="w-20 h-20 bg-gradient-to-tr from-[#0f592f] to-emerald-600 rounded-full flex items-center justify-center text-white text-4xl shadow-lg shadow-[#0f592f]/10">
+                                                    📢
+                                                </div>
+                                                <h3 className="text-2xl font-black text-[#0f592f]">{selectedMessage.meeting_place}</h3>
+                                            </div>
+
+                                            <div className="bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm leading-relaxed text-gray-700 text-sm font-medium whitespace-pre-line">
+                                                <p className="mb-4">Hola <span className="font-bold text-[#0f592f]">{currentUser.full_name}</span>,</p>
+                                                {selectedMessage.objectives}
                                             </div>
                                         </div>
                                     )}
