@@ -66,6 +66,9 @@ const Register = () => {
         if (name === 'full_name') {
             const filteredValue = value.replace(/[^a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s]/g, '');
             setFormData({ ...formData, [name]: filteredValue });
+        } else if (name === 'student_id') {
+            const filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
+            setFormData({ ...formData, [name]: filteredValue });
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -186,7 +189,29 @@ const Register = () => {
             navigate('/verify-email', { state: { email: formData.email } });
         } catch (err) {
             console.error("Error en registro", err.response?.data || err.message);
-            const serverMsg = err.response?.data?.message || err.response?.data?.error?.message || err.message;
+            
+            let serverMsg = "";
+            const responseData = err.response?.data;
+            
+            if (responseData) {
+                if (typeof responseData.error === 'string') {
+                    serverMsg = responseData.error;
+                } else if (responseData.error?.message) {
+                    serverMsg = responseData.error.message;
+                } else if (responseData.message) {
+                    serverMsg = responseData.message;
+                }
+                
+                if (responseData.detalles && Array.isArray(responseData.detalles)) {
+                    const details = responseData.detalles.map(d => `${d.campo}: ${d.mensaje}`).join(', ');
+                    serverMsg = serverMsg ? `${serverMsg} (${details})` : details;
+                }
+            }
+            
+            if (!serverMsg) {
+                serverMsg = err.message;
+            }
+            
             showNotification("Error en registro: " + serverMsg, "error");
         }
     };
