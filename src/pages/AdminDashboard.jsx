@@ -69,6 +69,10 @@ const AdminDashboard = () => {
     const [savingSubject, setSavingSubject] = useState(false);
     const [parsingMalla, setParsingMalla] = useState(false);
 
+    // Estado para Mensaje Global (Broadcast)
+    const [globalMessageText, setGlobalMessageText] = useState('');
+    const [sendingGlobalMessage, setSendingGlobalMessage] = useState(false);
+
     const fetchCareers = async () => {
         try {
             const res = await axios.get(`${BACKEND_URL}/api/admin/careers`);
@@ -580,6 +584,26 @@ const AdminDashboard = () => {
         setSysLogs(prev => [`[${time}] ${msg}`, ...prev.slice(0, 19)]);
     };
 
+    const handleSendGlobalMessage = async (e) => {
+        e.preventDefault();
+        if (!globalMessageText.trim()) return;
+
+        setSendingGlobalMessage(true);
+        try {
+            await axios.post(`${BACKEND_URL}/api/admin/broadcast-message`, {
+                message: globalMessageText
+            });
+            showNotification("Mensaje global enviado con éxito a todos los usuarios activos.", "success");
+            setGlobalMessageText('');
+            logAction("[COMUNICADO] Mensaje global enviado a la comunidad.");
+        } catch (err) {
+            console.error("Error al enviar mensaje global:", err);
+            showNotification(err.response?.data?.error || "Error al enviar mensaje global.", "error");
+        } finally {
+            setSendingGlobalMessage(false);
+        }
+    };
+
     // Generador de reporte PDF del dashboard
     const handleDownloadReport = async () => {
         try {
@@ -747,7 +771,8 @@ const AdminDashboard = () => {
                         { id: 'badges', label: 'Insignias & Logros', icon: '🏆' },
                         { id: 'system', label: 'Administración', icon: '⚙️' },
                         { id: 'tickets', label: 'Tickets de Soporte', icon: '📨', badge: tickets.filter(t => t.status === 'OPEN').length },
-                        { id: 'espe_coins', label: 'ESPE-Coins', icon: '🪙' }
+                        { id: 'espe_coins', label: 'ESPE-Coins', icon: '🪙' },
+                        { id: 'global_message', label: 'Mensaje Global', icon: '📢' }
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -1771,6 +1796,49 @@ const AdminDashboard = () => {
                                     )}
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* SECCIÓN 9: MENSAJE GLOBAL */}
+                    {activeTab === 'global_message' && (
+                        <div className="space-y-6 animate-in fade-in duration-300">
+                            <header className="text-left space-y-1">
+                                <h2 className="text-3xl font-black text-[#0f592f] tracking-tight">Comunicado Global Directo</h2>
+                                <p className="text-gray-500 font-medium text-xs">Envía un mensaje de la administración directamente a la bandeja de entrada de todas las personas activas en el sistema.</p>
+                            </header>
+
+                            <form onSubmit={handleSendGlobalMessage} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-150/40 text-left space-y-6">
+                                <div className="space-y-2">
+                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">
+                                        Contenido del Comunicado
+                                    </label>
+                                    <textarea
+                                        value={globalMessageText}
+                                        onChange={(e) => setGlobalMessageText(e.target.value)}
+                                        placeholder="Escribe el comunicado para los usuarios..."
+                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-200/50 rounded-2xl outline-none font-medium text-gray-600 text-sm h-48 focus:border-[#0f592f]/30"
+                                        required
+                                    ></textarea>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={sendingGlobalMessage || !globalMessageText.trim()}
+                                    className="w-full py-4 bg-[#0f592f] text-[#ffcc00] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] disabled:bg-gray-300 disabled:text-gray-500 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                >
+                                    {sendingGlobalMessage ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-[#ffcc00] border-t-transparent rounded-full animate-spin"></div>
+                                            <span>Enviando...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>📢</span>
+                                            <span>Enviar Comunicado a Todos</span>
+                                        </>
+                                    )}
+                                </button>
+                            </form>
                         </div>
                     )}
 

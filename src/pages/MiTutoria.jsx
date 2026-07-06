@@ -68,8 +68,11 @@ const MiTutoria = () => {
         const fetchMentorships = async () => {
             try {
                 const { data } = await axios.get(`${BACKEND_URL}/api/mentorships/user/${currentUser.id}`);
-                // Las tutorías ACEPTADAS y COMPLETADAS son válidas para ingresar al espacio
-                const activeOrClosed = data.filter((m) => m.status === 'ACEPTADA' || m.status === 'COMPLETADA');
+                // Las tutorías ACEPTADAS y COMPLETADAS son válidas para ingresar al espacio (excluyendo mensajes del sistema)
+                const activeOrClosed = data.filter((m) => 
+                    (m.status === 'ACEPTADA' || m.status === 'COMPLETADA') && 
+                    m.subject_name !== 'Pilas! Comunidad'
+                );
                 setMentorships(activeOrClosed);
 
                 // Si solo hay una, entrar directo

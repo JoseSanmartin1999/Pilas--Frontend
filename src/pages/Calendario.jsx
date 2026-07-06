@@ -19,8 +19,8 @@ const Calendario = () => {
     const fetchMentorships = useCallback(async () => {
         try {
             const res = await axios.get(`${config.API_URL}/api/mentorships/user/${currentUser.id}`);
-            // Filtrar solo las aceptadas
-            const aceptadas = res.data.filter(m => m.status === 'ACEPTADA');
+            // Filtrar solo las aceptadas (excluyendo mensajes del sistema)
+            const aceptadas = res.data.filter(m => m.status === 'ACEPTADA' && m.subject_name !== 'Pilas! Comunidad');
             setMentorships(aceptadas);
         } catch (err) {
             console.error("Error al obtener tutorías:", err);
