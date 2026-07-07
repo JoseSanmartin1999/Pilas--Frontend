@@ -489,9 +489,9 @@ const Recompensas = () => {
     }
 
     return (
-        <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950 min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-950 min-h-screen py-10 px-4 sm:px-6 lg:px-8 text-white relative overflow-hidden">
             {/* Elementos ambientales de fondo */}
-            <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="max-w-7xl mx-auto relative z-10">
@@ -500,7 +500,7 @@ const Recompensas = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10 items-stretch">
                     
                     {/* Tarjeta de Nivel */}
-                    <div className="lg:col-span-2 bg-gradient-to-r from-blue-900/90 to-indigo-950/90 rounded-[2.5rem] p-8 text-white shadow-2xl border border-white/10 flex flex-col justify-between relative overflow-hidden backdrop-blur-md">
+                    <div className="lg:col-span-2 bg-gradient-to-r from-emerald-950/90 to-emerald-900/90 rounded-[2.5rem] p-8 text-white shadow-2xl border border-emerald-500/20 flex flex-col justify-between relative overflow-hidden backdrop-blur-md">
                         <div className="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
                         
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -531,13 +531,13 @@ const Recompensas = () => {
                             
                             <div className="bg-white/5 border border-white/10 px-4 py-2.5 rounded-2xl text-center self-start sm:self-center">
                                 <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">Experiencia Total</span>
-                                <span className="text-lg font-black text-blue-300">{xp} XP</span>
+                                <span className="text-lg font-black text-emerald-300">{xp} XP</span>
                             </div>
                         </div>
 
                         {/* Barra de progreso de XP */}
                         <div className="mt-8">
-                            <div className="flex justify-between text-xs font-black text-indigo-200 mb-2">
+                            <div className="flex justify-between text-xs font-black text-emerald-250 mb-2">
                                 <span className="uppercase tracking-wider">Progreso al nivel {level + 1}</span>
                                 <span>{xpInCurrentLevel} / {xpRequiredForNext} XP</span>
                             </div>
@@ -629,7 +629,7 @@ const Recompensas = () => {
                             const canAfford = espeCoins >= specialReward.cost;
 
                             return (
-                                <div className="bg-gradient-to-br from-[#0f592f]/20 via-indigo-950/30 to-slate-950 border border-[#0f592f]/40 rounded-[2rem] p-6 md:p-8 mb-8 text-left relative overflow-hidden shadow-xl">
+                                <div className="bg-gradient-to-br from-[#0f592f]/20 via-emerald-950/30 to-slate-950 border border-[#0f592f]/40 rounded-[2rem] p-6 md:p-8 mb-8 text-left relative overflow-hidden shadow-xl">
                                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#ffcc00]/5 rounded-bl-[6rem] pointer-events-none"></div>
                                     
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -770,7 +770,7 @@ const Recompensas = () => {
                                                     </div>
                                                     {/* Info */}
                                                     <div className="min-w-0 pl-1 text-left">
-                                                        <span className="text-[9px] bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                        <span className="text-[9px] bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                                                             {category}
                                                         </span>
                                                         <h4 className="font-extrabold text-white text-sm truncate mt-1.5 leading-tight group-hover/ticket:text-amber-400 transition-colors">
@@ -835,15 +835,15 @@ const Recompensas = () => {
                                     className={`p-5 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden group/item ${
                                         insignia.unlocked
                                             ? insignia.is_featured
-                                                ? 'bg-gradient-to-br from-indigo-950/70 to-amber-950/40 border-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.25)] hover:border-amber-300 hover:-translate-y-1'
-                                                : 'bg-gradient-to-br from-indigo-950/40 to-slate-900/40 border-indigo-500/20 shadow-lg shadow-indigo-950/20 hover:border-indigo-500/40 hover:-translate-y-1'
+                                                ? 'bg-gradient-to-br from-emerald-950/70 to-amber-950/40 border-amber-400 shadow-[0_0_18px_rgba(245,158,11,0.25)] hover:border-amber-300 hover:-translate-y-1'
+                                                : 'bg-gradient-to-br from-emerald-950/40 to-slate-900/40 border-emerald-500/20 shadow-lg shadow-emerald-950/20 hover:border-emerald-500/40 hover:-translate-y-1'
                                             : 'bg-black/20 border-white/5 opacity-50 filter grayscale hover:opacity-75 transition-opacity'
                                     }`}
                                 >
                                     {/* Icono de Insignia */}
                                     <div className={`w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center text-3xl shrink-0 ${
                                         insignia.unlocked
-                                            ? 'bg-indigo-950/80 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)] group-hover/item:scale-110 transition-transform duration-300'
+                                            ? 'bg-emerald-950/80 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.2)] group-hover/item:scale-110 transition-transform duration-300'
                                             : 'bg-slate-800 text-gray-500 border border-slate-700/50'
                                     }`}>
                                         {insignia.unlocked ? (
@@ -881,7 +881,7 @@ const Recompensas = () => {
                                             {insignia.criteriaDescription}
                                         </p>
                                         <div className="flex gap-2.5 mt-2.5">
-                                            <span className="text-[9px] font-black text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/25">
+                                            <span className="text-[9px] font-black text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/25">
                                                 +{insignia.xpReward} XP
                                             </span>
                                             <span className="text-[9px] font-black text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/25">
@@ -930,7 +930,7 @@ const Recompensas = () => {
                                                         <h4 className="font-extrabold text-white text-base truncate uppercase tracking-wider">
                                                             {subj.subject_name}
                                                         </h4>
-                                                        <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3.5 py-1.5 rounded-xl font-black shrink-0">
+                                                        <span className="text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-3.5 py-1.5 rounded-xl font-black shrink-0">
                                                             Total: {subj.total_hours} {subj.total_hours === 1 ? 'hora' : 'horas'}
                                                         </span>
                                                     </div>
@@ -1073,7 +1073,7 @@ const Recompensas = () => {
                             </button>
                             <button
                                 onClick={() => setShowCouponModal(false)}
-                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-indigo-600 hover:to-blue-600 text-white text-xs font-black py-3.5 rounded-2xl transition-all shadow-md shadow-indigo-600/15 cursor-pointer"
+                                className="bg-gradient-to-r from-[#0f592f] to-emerald-700 hover:from-[#0a4624] hover:to-emerald-800 text-[#ffcc00] text-xs font-black py-3.5 rounded-2xl transition-all shadow-md shadow-emerald-950/15 cursor-pointer"
                             >
                                 Listo
                             </button>
