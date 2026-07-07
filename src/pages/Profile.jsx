@@ -419,39 +419,51 @@ const Profile = () => {
             <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center mb-5">
               <span className="w-2 h-4 bg-gradient-to-b from-[#4ade80] to-green-600 rounded-full mr-3"></span> Próximas Tutorías
             </h4>
-            <div className="space-y-4">
+            <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
               {user.tutorias?.length > 0 ? (
                 user.tutorias.map((t, idx) => {
                   const dateObj = new Date(t.scheduled_date);
-                  const fecha = dateObj.toLocaleDateString();
                   const hora = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const dayStr = dateObj.getDate();
+                  const monthStr = dateObj.toLocaleString('es-ES', { month: 'short' }).replace('.', '').slice(0, 3).toUpperCase();
                   
                   return (
-                    <div key={idx} className="p-5 border-l-4 border-pilas-gold bg-gray-50 rounded-2xl flex flex-col space-y-3 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-center">
-                        <p className="text-xs font-black text-[#0f592f]">{fecha}</p>
-                        <p className="text-[10px] font-black text-gray-800 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-100">{hora}</p>
-                      </div>
-                      <div>
-                        <p className="text-[12px] font-black text-[#0f592f] uppercase truncate mb-1">{t.materia}</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
-                            {t.modality === 'Presencial' ? '📍 ' + (t.meeting_place || 'Lugar por definir') : '💻 ' + (t.platform || 'Online')}
-                          </span>
+                    <div key={idx} className="flex items-center justify-between p-3.5 bg-gray-50 rounded-2xl border-l-4 border-pilas-gold shadow-sm hover:shadow hover:bg-slate-100/50 transition-all gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Calendar Badge */}
+                        <div className="flex-shrink-0 w-11 h-11 bg-white rounded-xl border border-gray-200/60 flex flex-col items-center justify-center shadow-sm">
+                          <span className="text-[7px] font-black text-[#0f592f] uppercase tracking-wider">{monthStr}</span>
+                          <span className="text-xs font-black text-slate-800 leading-none mt-0.5">{dayStr}</span>
                         </div>
-                        {t.modality === 'Online' && (t.meeting_link || t.zoom_code) && (
-                          <div className="mt-2 pt-2 border-t border-gray-200/50">
-                            <a 
-                              href={t.meeting_link?.startsWith('http') ? t.meeting_link : `https://${t.meeting_link}`}
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-[9px] font-black text-pilas-gold hover:text-yellow-600 uppercase tracking-widest flex items-center gap-1"
-                            >
-                              🚀 Unirse a sesión
-                            </a>
+                        
+                        <div className="text-left min-w-0">
+                          <p className="text-[11px] font-black text-slate-800 uppercase truncate" title={t.materia}>
+                            {t.materia}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                            <span className="text-[9px] font-bold text-gray-500">{hora}</span>
+                            <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                            <span className="text-[9px] font-bold text-gray-400">
+                              {t.modality === 'Presencial' ? '📍 Presencial' : '💻 Online'}
+                            </span>
                           </div>
-                        )}
+                        </div>
                       </div>
+
+                      {t.modality === 'Online' && (t.meeting_link || t.zoom_code) ? (
+                        <a 
+                          href={t.meeting_link?.startsWith('http') ? t.meeting_link : `https://${t.meeting_link}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex-shrink-0 px-3 py-1.5 bg-[#0f592f] text-[#ffcc00] hover:bg-[#0f592f]/90 hover:scale-105 active:scale-95 rounded-xl text-[9px] font-black uppercase tracking-wider transition-all shadow-sm"
+                        >
+                          🚀 Unirse
+                        </a>
+                      ) : (
+                        <span className="flex-shrink-0 text-[8px] font-black uppercase text-gray-400 bg-white border border-gray-150 px-2.5 py-1 rounded-lg">
+                          Pendiente
+                        </span>
+                      )}
                     </div>
                   );
                 })
