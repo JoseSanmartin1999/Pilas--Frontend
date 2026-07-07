@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import logo from '../assets/logo.png';
 
@@ -12,6 +12,10 @@ const Login = ({ setAuth }) => {
     const [rememberMe, setRememberMe] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const queryParams = new URLSearchParams(location.search);
+    const isExpired = queryParams.get('expired') === 'true';
 
     const handleChange = ({ target: { name, value } }) => {
         setCredentials(prev => ({ ...prev, [name]: value }));
@@ -97,6 +101,12 @@ const Login = ({ setAuth }) => {
                             </button>
                         </div>
                     </div>
+
+                    {isExpired && !error && (
+                        <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-xs font-bold leading-relaxed text-center shadow-sm">
+                            ⚠️ Su sesión de administrador ha caducado tras 20 minutos de inactividad. Por favor, inicie sesión nuevamente.
+                        </div>
+                    )}
 
                     {error && <ErrorMessage message={error} />}
 

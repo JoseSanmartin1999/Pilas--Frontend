@@ -79,6 +79,31 @@ const AppContent = ({ auth, setAuth }) => {
     window.location.href = '/login';
   };
 
+  // Temporizador de inactividad de 20 minutos para administradores
+  useEffect(() => {
+    if (!auth.isLogged || auth.role !== 'ADMIN') return;
+
+    let inactivityTimeout;
+
+    const resetTimer = () => {
+      clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(() => {
+        console.warn("Sesión de administrador caducada por inactividad (20 min).");
+        handleLogout();
+      }, 20 * 60 * 1000);
+    };
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    resetTimer();
+
+    events.forEach(evt => window.addEventListener(evt, resetTimer));
+
+    return () => {
+      clearTimeout(inactivityTimeout);
+      events.forEach(evt => window.removeEventListener(evt, resetTimer));
+    };
+  }, [auth]);
+
   return (
     <div className={`flex flex-col ${isWorkspace ? 'h-screen overflow-hidden' : 'min-h-screen'}`}>
       {showInstallBanner && !isWorkspace && (

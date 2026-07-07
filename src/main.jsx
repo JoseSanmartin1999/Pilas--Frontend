@@ -23,6 +23,24 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Interceptor de respuesta para manejar expiración del token (401 Unauthorized)
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      console.warn("Sesión expirada o token inválido (401).");
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/registro') {
+        window.location.href = '/login?expired=true';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />

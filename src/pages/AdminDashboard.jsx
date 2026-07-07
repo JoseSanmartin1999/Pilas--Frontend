@@ -487,16 +487,16 @@ const AdminDashboard = () => {
     };
 
     // Acciones de usuarios
-    const handleToggleUserStatus = async (userId, currentStatus) => {
-        const nextStatus = currentStatus === 'ACTIVO' ? 'BLOQUEADO' : 'ACTIVO';
+    const handleUpdateUserStatus = async (userId, name, nextStatus) => {
         try {
             await axios.put(`${BACKEND_URL}/api/admin/users/${userId}/status`, { status: nextStatus });
-            showNotification(`Usuario ${nextStatus === 'BLOQUEADO' ? 'bloqueado' : 'activado'} correctamente.`, "success");
+            showNotification(`Estado de ${name} actualizado a ${nextStatus} correctamente.`, "success");
             
             // Agregar log
-            logAction(`[INFO] Usuario ID ${userId} cambiado a estado ${nextStatus}`);
+            logAction(`[INFO] Estado de usuario ${name} (ID ${userId}) cambiado a ${nextStatus}`);
             fetchUsers();
-        } catch {
+        } catch (err) {
+            console.error("Error al actualizar el estado del usuario:", err);
             showNotification("No se pudo cambiar el estado del usuario.", "error");
         }
     };
@@ -1043,16 +1043,31 @@ const AdminDashboard = () => {
                                                             {user.current_semester ? `${user.current_semester}°` : '-'}
                                                         </td>
                                                         <td className="px-6 py-5">
-                                                            <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${user.status === 'BLOQUEADO' ? 'bg-red-50 text-red-600 border border-red-150' : 'bg-green-50 text-green-600 border border-green-150'}`}>
-                                                                {user.status || 'ACTIVO'}
-                                                            </span>
+                                                            <select
+                                                                value={user.status || 'ACTIVO'}
+                                                                onChange={(e) => handleUpdateUserStatus(user.id, user.full_name, e.target.value)}
+                                                                disabled={user.id === currentUser.id}
+                                                                className={`px-2.5 py-1 rounded-lg text-[9px] font-black border uppercase tracking-wider cursor-pointer outline-none transition-all ${
+                                                                    user.status === 'BLOQUEADO'
+                                                                        ? 'bg-red-50 text-red-700 border-red-200'
+                                                                        : user.status === 'PENDIENTE'
+                                                                        ? 'bg-yellow-50 text-yellow-755 border-yellow-250'
+                                                                        : 'bg-green-50 text-green-700 border-green-200'
+                                                                } ${
+                                                                    user.id === currentUser.id ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105 active:scale-95'
+                                                                }`}
+                                                            >
+                                                                <option value="ACTIVO" className="bg-white text-green-700 font-bold text-left">ACTIVO</option>
+                                                                <option value="BLOQUEADO" className="bg-white text-red-650 font-bold text-left">BLOQUEADO</option>
+                                                                <option value="PENDIENTE" className="bg-white text-yellow-600 font-bold text-left">PENDIENTE</option>
+                                                            </select>
                                                         </td>
                                                         <td className="px-6 py-5">
                                                             <div className="flex justify-center gap-2">
                                                                 {user.role !== 'ADMIN' && (
                                                                     <>
                                                                         <button
-                                                                            onClick={() => handleToggleUserStatus(user.id, user.status || 'ACTIVO')}
+                                                                            onClick={() => handleUpdateUserStatus(user.id, user.full_name, user.status === 'BLOQUEADO' ? 'ACTIVO' : 'BLOQUEADO')}
                                                                             className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${user.status === 'BLOQUEADO' ? 'bg-white border-green-200 text-green-600 hover:bg-green-50' : 'bg-white border-yellow-250 text-yellow-600 hover:bg-yellow-50'}`}
                                                                         >
                                                                             {user.status === 'BLOQUEADO' ? 'Activar' : 'Bloquear'}
