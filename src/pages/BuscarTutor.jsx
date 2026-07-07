@@ -11,6 +11,8 @@ const BuscarTutor = () => {
     const [minRating, setMinRating] = useState(0);       // 0 = sin filtro de calificación
     const [sortBy, setSortBy] = useState('semester-asc');
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
     const navigate = useNavigate();
     const { showNotification } = useNotification();
 
@@ -71,6 +73,14 @@ const BuscarTutor = () => {
             }
             return 0;
         });
+
+    // Resetear a página 1 cuando cambia algún filtro
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter, selectedSemester, minRating, sortBy]);
+
+    const totalPages = Math.ceil(filteredAndSortedMentors.length / itemsPerPage);
+    const paginatedMentors = filteredAndSortedMentors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const hasActiveFilters = filter !== '' || selectedSemester !== 'all' || sortBy !== 'semester-asc' || minRating !== 0;
 
@@ -227,75 +237,131 @@ const BuscarTutor = () => {
                         )}
                     </div>
 
-                    {filteredAndSortedMentors.length > 0 ? (
-                        <div id="tour-buscar-tutores" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredAndSortedMentors.map((mentor, index) => (
-                                <div
-                                    key={mentor.id}
-                                    className="bg-white p-6 rounded-[2.5rem] shadow-md border border-gray-100 flex flex-col items-center hover:shadow-2xl hover:shadow-[#0f592f]/5 hover:border-[#ffcc00]/40 transition-all duration-300 transform hover:-translate-y-1 relative group"
-                                >
-                                    {/* Semestre Badge Flotante */}
-                                    <span className="absolute top-4 right-4 bg-amber-50 text-amber-700 border border-amber-200/40 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">
-                                        🎓 {mentor.current_semester || 1}° Nivel
-                                    </span>
+                    {paginatedMentors.length > 0 ? (
+                        <div>
+                            <div id="tour-buscar-tutores" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {paginatedMentors.map((mentor, index) => {
+                                    const globalIndex = (currentPage - 1) * itemsPerPage + index;
+                                    return (
+                                        <div
+                                            key={mentor.id}
+                                            className="bg-white p-6 rounded-[2.5rem] shadow-md border border-gray-100 flex flex-col items-center hover:shadow-2xl hover:shadow-[#0f592f]/5 hover:border-[#ffcc00]/40 transition-all duration-300 transform hover:-translate-y-1 relative group overflow-hidden"
+                                        >
+                                            {/* Línea de acento gradiente ESPE en hover */}
+                                            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0f592f] to-[#ffcc00] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                                    {/* Contenedor Foto de Perfil */}
-                                    <div className="relative mb-4 mt-2">
-                                        <img
-                                            src={mentor.profile_photo_url || defaultProfile}
-                                            className="w-28 h-28 rounded-3xl object-cover border-4 border-gray-50 shadow-md group-hover:scale-105 transition-transform duration-300"
-                                            alt={mentor.nombre}
-                                        />
-                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full flex items-center justify-center" title="Disponible"></div>
-                                    </div>
+                                            {/* Semestre Badge Flotante */}
+                                            <span className="absolute top-4 right-4 bg-amber-50 text-amber-700 border border-amber-200/40 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm">
+                                                🎓 {mentor.current_semester || 1}° Nivel
+                                            </span>
 
-                                    {/* Nombre */}
-                                    <h3 className="font-extrabold text-[#0f592f] text-center text-base group-hover:text-yellow-600 transition-colors">
-                                        {mentor.nombre}
-                                    </h3>
-                                    <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5 mb-2">
-                                        {mentor.career || 'Ingeniería'}
-                                    </p>
+                                            {/* Contenedor Foto de Perfil */}
+                                            <div className="relative mb-4 mt-2">
+                                                <img
+                                                    src={mentor.profile_photo_url || defaultProfile}
+                                                    className="w-28 h-28 rounded-3xl object-cover border-4 border-gray-50 shadow-md group-hover:scale-105 transition-transform duration-300"
+                                                    alt={mentor.nombre}
+                                                />
+                                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full flex items-center justify-center" title="Disponible"></div>
+                                            </div>
 
-                                    {/* Estrellas de Puntuación + Número */}
-                                    <div className="flex items-center gap-1.5 mb-4">
-                                        <div className="flex text-amber-400 text-xs gap-0.5" title={`${mentor.score || 0} estrellas`}>
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <span key={i}>{i < Math.round(mentor.score || 0) ? '★' : '☆'}</span>
-                                            ))}
-                                        </div>
-                                        <span className="text-[10px] font-black text-gray-400">
-                                            ({(mentor.score || 0).toFixed(1)})
-                                        </span>
-                                    </div>
+                                            {/* Nombre */}
+                                            <h3 className="font-extrabold text-[#0f592f] text-center text-base group-hover:text-yellow-600 transition-colors">
+                                                {mentor.nombre}
+                                            </h3>
+                                            <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5 mb-2">
+                                                {mentor.career || 'Ingeniería'}
+                                            </p>
 
-                                    {/* Materias */}
-                                    <div className="flex flex-wrap justify-center gap-1.5 mb-6 flex-grow">
-                                        {mentor.materias && mentor.materias.length > 0 ? (
-                                            mentor.materias.slice(0, 3).map((mat, i) => (
-                                                <span
-                                                    key={i}
-                                                    className="px-2.5 py-1 bg-gray-50 border border-gray-150 text-gray-600 rounded-lg text-[9px] font-black uppercase tracking-tight"
-                                                    title={mat}
-                                                >
-                                                    {mat}
+                                            {/* Estrellas de Puntuación + Número */}
+                                            <div className="flex items-center gap-1.5 mb-4">
+                                                <div className="flex text-amber-400 text-xs gap-0.5" title={`${mentor.score || 0} estrellas`}>
+                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                        <span key={i}>{i < Math.round(mentor.score || 0) ? '★' : '☆'}</span>
+                                                    ))}
+                                                </div>
+                                                <span className="text-[10px] font-black text-gray-400">
+                                                    ({(mentor.score || 0).toFixed(1)})
                                                 </span>
-                                            ))
-                                        ) : (
-                                            <span className="text-[10px] text-gray-400 italic">Sin materias</span>
-                                        )}
-                                    </div>
+                                            </div>
 
-                                    {/* Botón Ver Perfil */}
+                                            {/* Materias */}
+                                            <div className="flex flex-wrap justify-center gap-1.5 mb-6 flex-grow">
+                                                {mentor.materias && mentor.materias.length > 0 ? (
+                                                    mentor.materias.slice(0, 3).map((mat, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className="px-2.5 py-1 bg-gray-50 border border-gray-150 text-gray-600 rounded-lg text-[9px] font-black uppercase tracking-tight"
+                                                            title={mat}
+                                                        >
+                                                            {mat}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-[10px] text-gray-400 italic">Sin materias</span>
+                                                )}
+                                            </div>
+
+                                            {/* Botón Ver Perfil */}
+                                            <button
+                                                id={globalIndex === 0 ? "tour-ver-perfil" : undefined}
+                                                onClick={() => navigate(`/profile/${mentor.id}`)}
+                                                className="w-full py-3 bg-white text-[#0f592f] border-2 border-[#0f592f] rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-[#0f592f] hover:text-[#ffcc00] hover:border-transparent transition-all shadow-sm"
+                                            >
+                                                Ver Perfil
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Controles de Paginación */}
+                            {totalPages > 1 && (
+                                <div className="flex justify-center items-center gap-2 mt-12 py-4 bg-white rounded-3xl border border-gray-100 shadow-md">
                                     <button
-                                        id={index === 0 ? "tour-ver-perfil" : undefined}
-                                        onClick={() => navigate(`/profile/${mentor.id}`)}
-                                        className="w-full py-3 bg-white text-[#0f592f] border-2 border-[#0f592f] rounded-2xl font-black text-[9px] uppercase tracking-widest hover:bg-[#0f592f] hover:text-[#ffcc00] hover:border-transparent transition-all shadow-sm"
+                                        disabled={currentPage === 1}
+                                        onClick={() => {
+                                            setCurrentPage(prev => Math.max(prev - 1, 1));
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border border-gray-200 bg-white text-gray-600 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none active:scale-95"
                                     >
-                                        Ver Perfil
+                                        ‹ Anterior
+                                    </button>
+                                    <div className="flex gap-1.5">
+                                        {Array.from({ length: totalPages }).map((_, i) => {
+                                            const pageNum = i + 1;
+                                            const isActive = pageNum === currentPage;
+                                            return (
+                                                <button
+                                                    key={pageNum}
+                                                    onClick={() => {
+                                                        setCurrentPage(pageNum);
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className={`w-9 h-9 rounded-xl text-xs font-black transition-all border ${
+                                                        isActive 
+                                                            ? 'bg-[#0f592f] text-[#ffcc00] border-transparent shadow-md shadow-[#0f592f]/20 scale-105' 
+                                                            : 'bg-white text-gray-600 border-gray-200 hover:bg-slate-50'
+                                                    }`}
+                                                >
+                                                    {pageNum}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <button
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => {
+                                            setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border border-gray-200 bg-white text-gray-600 hover:bg-slate-50 disabled:opacity-50 disabled:pointer-events-none active:scale-95"
+                                    >
+                                        Siguiente ›
                                     </button>
                                 </div>
-                            ))}
+                            )}
                         </div>
                     ) : (
                         <div className="text-center py-24 bg-white rounded-[3rem] border border-dashed border-gray-200 shadow-sm">
