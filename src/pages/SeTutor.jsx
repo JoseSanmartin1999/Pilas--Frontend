@@ -323,13 +323,14 @@ const SeTutor = () => {
                                 rows="5"
                                 value={motivation}
                                 onChange={(e) => setMotivation(e.target.value)}
+                                maxLength={200}
                                 className="w-full px-5 py-3 bg-gray-50 border border-gray-150 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-xs resize-none placeholder-gray-400"
                                 placeholder="Ej: He aprobado estas materias con excelentes calificaciones y disfruto compartiendo técnicas de estudio con mis compañeros para resolver problemas complejos..."
                             />
-                            <div className="flex justify-between items-center mt-1">
-                                <span className="text-[8px] text-gray-400 font-bold uppercase">Mínimo 15 caracteres</span>
+                            <div className="flex justify-between items-center mt-1 font-medium">
+                                <span className="text-[8px] text-gray-400 font-bold uppercase">Mínimo 15 · Máximo 200 caracteres</span>
                                 <span className={`text-[9px] font-bold ${motivation.trim().length >= 15 ? 'text-emerald-500' : 'text-gray-400'}`}>
-                                    {motivation.trim().length} letras
+                                    {motivation.trim().length} / 200
                                 </span>
                             </div>
                         </div>

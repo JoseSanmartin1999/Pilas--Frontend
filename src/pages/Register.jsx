@@ -297,7 +297,12 @@ const Register = () => {
                                 </p>
                             </div>
 
-                            <textarea name="bio" onChange={handleInputChange} placeholder="Cuéntanos un poco sobre ti (Bio)" className="input-style md:col-span-2 h-24"></textarea>
+                            <div className="md:col-span-2 relative">
+                                <textarea name="bio" value={formData.bio} onChange={handleInputChange} maxLength={200} placeholder="Cuéntanos un poco sobre ti (Bio)" className="input-style w-full h-24 resize-none pr-16"></textarea>
+                                <span className="absolute bottom-3 right-3 text-[10px] text-gray-400 font-black">
+                                    {(formData.bio || '').length} / 200
+                                </span>
+                            </div>
 
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Seleccionar tu Rol</label>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
+import defaultProfile from '../assets/Default_profile.png';
 
 const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
 
@@ -353,7 +354,7 @@ const Profile = () => {
               </button>
             )}
             <img
-              src={user.profile_photo_url || '/default-avatar.png'}
+              src={user.profile_photo_url || defaultProfile}
               className="w-40 h-40 rounded-[2rem] mx-auto object-cover shadow-md mb-6 ring-4 ring-gray-50"
               alt="Perfil"
             />
@@ -885,7 +886,7 @@ const Profile = () => {
             <form onSubmit={handleUpdate} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="flex items-center space-x-6 bg-gray-50 p-4 rounded-3xl border border-gray-100">
                 <img
-                  src={previewFoto || user.profile_photo_url || '/default-avatar.png'}
+                  src={previewFoto || user.profile_photo_url || defaultProfile}
                   className="w-24 h-24 rounded-2xl object-cover border-4 border-white shadow-md"
                   alt="Previa"
                 />
@@ -909,9 +910,12 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div>
+              <div className="relative">
                 <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Biografía</label>
-                <textarea rows="3" value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-sm resize-none" placeholder="Describe tu experiencia..." />
+                <textarea rows="3" value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} maxLength={200} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-sm resize-none pr-16" placeholder="Describe tu experiencia..." />
+                <span className="absolute bottom-3 right-3 text-[10px] text-gray-400 font-black">
+                  {(editData.bio || '').length} / 200
+                </span>
               </div>
 
               {/* SECCIÓN MATERIAS DINÁMICAS (RF#007) */}

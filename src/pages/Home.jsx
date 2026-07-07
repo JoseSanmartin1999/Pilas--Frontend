@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import defaultProfile from '../assets/Default_profile.png';
 
 const Home = () => {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');
@@ -117,11 +118,7 @@ const Home = () => {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
             <div className="flex items-center gap-5">
               <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-2xl font-bold shadow-xl border border-white/20 relative">
-                {currentUser.profile_photo_url ? (
-                  <img src={currentUser.profile_photo_url} alt={currentUser.full_name} className="w-full h-full object-cover rounded-2xl" />
-                ) : (
-                  <span>{initials}</span>
-                )}
+                <img src={currentUser.profile_photo_url || defaultProfile} alt={currentUser.full_name} className="w-full h-full object-cover rounded-2xl" />
                 {userStats && (
                   <div className="absolute -bottom-2 -right-2 bg-pilas-gold text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full border border-[#0f592f] shadow-md">
                     LVL {userStats.level || 1}
@@ -248,11 +245,7 @@ const Home = () => {
                           {/* Avatar con insignia de ranking */}
                           <div className="relative">
                             <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center font-bold text-xs text-[#0f592f] shadow-inner">
-                              {tutor.profile_photo_url ? (
-                                <img src={tutor.profile_photo_url} alt={tutor.full_name} className="w-full h-full object-cover rounded-xl" />
-                              ) : (
-                                <span>{tutorInitials}</span>
-                              )}
+                              <img src={tutor.profile_photo_url || defaultProfile} alt={tutor.full_name} className="w-full h-full object-cover rounded-xl" />
                             </div>
                             <span className="absolute -top-2 -left-2 text-md">{medal}</span>
                           </div>

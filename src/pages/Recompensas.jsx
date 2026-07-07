@@ -4,6 +4,7 @@ import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import defaultProfile from '../assets/Default_profile.png';
 
 // Helper para interpretar el JSON de criteria (definido fuera del componente para evitar TDZ y recreación en render)
 const getCriteriaDescription = (criteriaStr) => {
@@ -506,15 +507,11 @@ const Recompensas = () => {
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                             <div className="flex items-center gap-5">
                                 <div className="w-20 h-20 rounded-2xl bg-white/10 flex items-center justify-center text-4xl shadow-2xl border border-white/20 relative group">
-                                    {currentUser.profile_photo_url ? (
-                                        <img
-                                            src={currentUser.profile_photo_url}
-                                            alt={currentUser.full_name}
-                                            className="w-full h-full object-cover rounded-2xl"
-                                        />
-                                    ) : (
-                                        "⚡"
-                                    )}
+                                    <img
+                                        src={currentUser.profile_photo_url || defaultProfile}
+                                        alt={currentUser.full_name}
+                                        className="w-full h-full object-cover rounded-2xl"
+                                    />
                                     <div className="absolute -bottom-2 -right-2 bg-[#ffcc00] text-slate-950 text-xs font-black px-2 py-0.5 rounded-full border border-slate-900 shadow-md">
                                         LVL {level}
                                     </div>

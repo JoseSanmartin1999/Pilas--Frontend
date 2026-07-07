@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
+import defaultProfile from '../assets/Default_profile.png';
 
 const BuscarTutor = () => {
     const [mentors, setMentors] = useState([]);
@@ -241,7 +242,7 @@ const BuscarTutor = () => {
                                     {/* Contenedor Foto de Perfil */}
                                     <div className="relative mb-4 mt-2">
                                         <img
-                                            src={mentor.profile_photo_url || '/default-avatar.png'}
+                                            src={mentor.profile_photo_url || defaultProfile}
                                             className="w-28 h-28 rounded-3xl object-cover border-4 border-gray-50 shadow-md group-hover:scale-105 transition-transform duration-300"
                                             alt={mentor.nombre}
                                         />
