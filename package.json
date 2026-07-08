@@ -7,6 +7,7 @@
     "dev": "vite",
     "test": "vitest run",
     "build": "vite build",
+    "postbuild": "find dist -type d -exec setfacl -m u:www-data:r-x {} + && find dist -type f -exec setfacl -m u:www-data:r-- {} +",
     "lint": "eslint .",
     "preview": "vite preview"
   },
