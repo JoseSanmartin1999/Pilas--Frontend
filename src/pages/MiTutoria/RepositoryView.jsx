@@ -77,6 +77,35 @@ const RepositoryView = ({ mentorship, currentUser }) => {
     const [replaceFile, setReplaceFile] = useState(null);
     const replaceInputRef = useRef(null);
 
+    const [downloadingId, setDownloadingId] = useState(null);
+
+    const handleDownload = async (materialId, fileName) => {
+        if (downloadingId) return;
+        setDownloadingId(materialId);
+        try {
+            showNotification('Preparando archivo para descarga...', 'info');
+            const res = await axios.get(`${BACKEND_URL}/api/repository/material/${materialId}/download`, {
+                responseType: 'blob'
+            });
+            
+            const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/octet-stream' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName || 'archivo-descargado');
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+            showNotification('Archivo descargado correctamente.', 'success');
+        } catch (err) {
+            console.error('Error al descargar archivo:', err);
+            showNotification('No se pudo descargar el archivo. Por favor inténtalo de nuevo.', 'error');
+        } finally {
+            setDownloadingId(null);
+        }
+    };
+
     // --- Data Fetching ---
     const fetchMaterials = useCallback(async () => {
         try {
@@ -1025,14 +1054,16 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                             {showPreview.file_name.split('.').pop()?.toUpperCase()} · {formatFileSize(showPreview.file_size)}
                                         </p>
                                     </div>
-                                    <a
-                                        href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}&token=${token}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20"
+                                    <button
+                                        onClick={() => handleDownload(showPreview.id, showPreview.file_name)}
+                                        disabled={downloadingId === showPreview.id}
+                                        className="flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-[#d4af37] disabled:bg-gray-400 disabled:text-gray-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20 cursor-pointer disabled:cursor-not-allowed"
                                     >
-                                        <span className="text-base">⬇️</span> Descargar Archivo
-                                    </a>
+                                        <span className="text-base">
+                                            {downloadingId === showPreview.id ? '⏳' : '⬇️'}
+                                        </span> 
+                                        {downloadingId === showPreview.id ? 'Descargando...' : 'Descargar Archivo'}
+                                    </button>
                                 </div>
                             )}
                         </div>
@@ -1048,14 +1079,14 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                 </div>
                             </div>
                             {(showPreview.file_type === 'image' || showPreview.file_type === 'video') && (
-                                <a
-                                    href={`${BACKEND_URL}/api/repository/material/${showPreview.id}/download?userId=${currentUser.id}&token=${token}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                                <button
+                                    onClick={() => handleDownload(showPreview.id, showPreview.file_name)}
+                                    disabled={downloadingId === showPreview.id}
+                                    className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all cursor-pointer disabled:cursor-not-allowed"
                                 >
-                                    <span>⬇️</span> Descargar
-                                </a>
+                                    <span>{downloadingId === showPreview.id ? '⏳' : '⬇️'}</span>
+                                    {downloadingId === showPreview.id ? 'Descargando...' : 'Descargar'}
+                                </button>
                             )}
                         </div>
                     </div>
