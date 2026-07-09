@@ -65,11 +65,11 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
     );
 
     return (
-        <div className="flex-shrink-0 h-16 bg-white border-b border-gray-100 flex items-center px-4 sm:px-6 gap-4 sm:gap-6 shadow-sm z-10 relative">
+        <div className="flex-shrink-0 h-16 bg-white border-b border-gray-100 flex items-center px-5 sm:px-6 gap-4 sm:gap-6 shadow-sm z-10 relative">
             {/* Botón menú móvil (hamburguesa) */}
             <button
                 onClick={onToggleLeftSidebar}
-                className="md:hidden flex items-center justify-center p-2 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-[#0f592f] transition-all flex-shrink-0"
+                className="md:hidden flex items-center justify-center p-2 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-[#0f592f] transition-all flex-shrink-0"
                 title="Abrir menú de navegación"
             >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,57 +80,57 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
             {/* IZQUIERDA — Materia y compañero */}
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 min-w-0">
                 <div className="flex flex-col min-w-0">
-                    <span className="text-[#0f592f] font-black text-xs sm:text-sm leading-tight tracking-tight flex items-center gap-1.5 truncate">
+                    <span className="text-[#0f592f] font-extrabold text-xs sm:text-sm leading-tight tracking-tight flex items-center gap-1.5 truncate">
                         {mentorship?.subject_name || 'Tutoría'}
                         {mentorship?.status === 'COMPLETADA' && (
-                            <span className="text-[7px] sm:text-[8px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest border border-red-200 animate-pulse flex-shrink-0">
+                            <span className="text-[7px] bg-red-50 text-red-500 px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-red-200 animate-pulse flex-shrink-0">
                                 Cerrada
                             </span>
                         )}
                     </span>
-                    <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[8px] sm:text-[9px] text-gray-400 font-semibold uppercase tracking-widest flex-shrink-0">
+                    <div className="flex items-center gap-1 min-w-0 mt-0.5">
+                        <span className="text-[8px] text-gray-400 font-bold uppercase tracking-wider flex-shrink-0">
                             con
                         </span>
-                        <span className="text-[9px] sm:text-[10px] text-gray-600 font-bold truncate">
+                        <span className="text-[9px] sm:text-[10px] text-gray-500 font-extrabold truncate">
                             {partnerName}
                         </span>
-                        <span className="text-[7px] sm:text-[8px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter flex-shrink-0">
+                        <span className="text-[7px] bg-gray-50 text-gray-400 px-1.5 py-0.5 rounded-md font-bold uppercase tracking-tight flex-shrink-0">
                             {partnerRole}
                         </span>
                     </div>
                 </div>
 
                 {/* Separador */}
-                <div className="w-px h-8 bg-gray-100 flex-shrink-0" />
+                <div className="w-px h-6 bg-gray-150 flex-shrink-0 hidden sm:block" />
             </div>
 
             {/* CENTRO — Progress Bar */}
-            <div className="flex-1 flex items-center gap-3 min-w-0 hidden sm:flex">
-                <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest flex-shrink-0 hidden md:block">
+            <div className="flex-1 flex items-center gap-3.5 min-w-0 hidden sm:flex">
+                <span className="text-[8px] text-gray-450 font-black uppercase tracking-widest flex-shrink-0 hidden md:block">
                     Progreso
                 </span>
-                <div className="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden max-w-xs">
+                <div className="flex-1 bg-gray-100 rounded-full h-1.5 overflow-hidden max-w-[200px]">
                     <div
-                        className="h-full rounded-full bg-gradient-to-r from-pilas-gold to-yellow-400 transition-all duration-700 ease-out shadow-[0_0_8px_rgba(212,175,55,0.4)]"
+                        className="h-full rounded-full bg-gradient-to-r from-pilas-gold to-amber-400 transition-all duration-700 ease-out"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
-                <span className="text-[10px] font-black text-pilas-gold flex-shrink-0">
+                <span className="text-[9px] font-extrabold text-pilas-gold flex-shrink-0">
                     {progress}%
                 </span>
-                <span className="text-[9px] text-gray-300 font-medium hidden lg:block flex-shrink-0">
+                <span className="text-[9px] text-gray-400 font-semibold hidden lg:block flex-shrink-0">
                     Semana 1 de 16
                 </span>
             </div>
 
             {/* DERECHA — Botones de acción */}
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2.5 flex-shrink-0">
                 {mentorship?.status === 'ACEPTADA' && (
                     <button
                         id="btn-marcar-hito"
                         onClick={handleHito}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#0f592f] text-pilas-gold rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#0a4624] hover:shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all duration-200"
+                        className="flex items-center gap-1.5 px-3 py-2 bg-emerald-50/50 hover:bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl font-extrabold text-[9px] uppercase tracking-wider transition-all duration-150 active:scale-95 cursor-pointer"
                     >
                         <span>🏆</span>
                         <span className="hidden sm:block">Marcar Hito</span>
@@ -145,7 +145,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
                             setCustomCancelReason('');
                             setShowConfirmClose(true);
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 border border-red-200 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200 shadow-sm"
+                        className="flex items-center gap-1.5 px-3 py-2 bg-red-50/55 hover:bg-red-50 text-red-650 border border-red-100 rounded-xl font-extrabold text-[9px] uppercase tracking-wider transition-all duration-150 active:scale-95 cursor-pointer"
                     >
                         <span>🔒</span>
                         <span className="hidden sm:block">Cerrar Tutoría</span>
@@ -155,53 +155,53 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
 
             {/* ===== MODAL DE CONFIRMACIÓN DE CIERRE CON RAZÓN ===== */}
             {showConfirmClose && (
-                <div className="fixed inset-0 bg-[#0f1f3d]/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in animate-duration-200" style={{ margin: 0 }}>
-                    <div className="bg-white rounded-[2.2rem] border border-gray-100 shadow-2xl p-8 max-w-md w-full mx-4 space-y-5 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
-                        <div className="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-inner border border-red-100 flex-shrink-0">
+                <div className="fixed inset-0 bg-[#0c1811]/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in" style={{ margin: 0 }}>
+                    <div className="bg-white rounded-[2rem] border border-gray-100 shadow-2xl p-7 max-w-md w-full mx-4 space-y-4 transform scale-95 transition-all duration-200 max-h-[90vh] overflow-y-auto">
+                        <div className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto border border-red-100/50 flex-shrink-0">
                             🔒
                         </div>
                         
                         <div className="text-center space-y-1">
-                            <h3 className="text-base font-black text-[#0f592f] tracking-tight">
+                            <h3 className="text-base font-extrabold text-[#0f592f] tracking-tight">
                                 ¿Cerrar esta Tutoría?
                             </h3>
-                            <p className="text-[11px] text-gray-400 font-medium">
+                            <p className="text-[10px] text-gray-450 font-medium">
                                 Por favor selecciona la razón del cierre de esta tutoría.
                             </p>
                         </div>
 
                         {/* Opciones tipo Tarjeta */}
                         <div className="space-y-2.5">
-                            <label className={`flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${closeType === 'finalizada' ? 'border-[#0f592f] bg-blue-50/10' : 'border-gray-100 hover:bg-gray-50'}`}>
+                            <label className={`flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${closeType === 'finalizada' ? 'border-[#0f592f] bg-emerald-50/5' : 'border-gray-150 hover:bg-gray-50'}`}>
                                 <input
                                     type="radio"
                                     name="closeReason"
                                     value="finalizada"
                                     checked={closeType === 'finalizada'}
                                     onChange={() => setCloseType('finalizada')}
-                                    className="mt-1 text-[#0f592f] focus:ring-[#0f592f]"
+                                    className="mt-1 text-[#0f592f] focus:ring-[#0f592f] border-gray-300"
                                 />
                                 <div className="space-y-0.5">
                                     <p className="text-xs font-black text-[#0f592f] uppercase tracking-wide">Tutoría Finalizada</p>
-                                    <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
-                                        El aula pasará a estado inactivo (solo lectura) durante **2 días** para consulta y luego se eliminará.
+                                    <p className="text-[9px] text-gray-400 font-medium leading-relaxed">
+                                        El aula pasará a modo solo lectura durante **2 días** para consulta y luego se eliminará.
                                     </p>
                                 </div>
                             </label>
 
-                            <label className={`flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${closeType === 'cancelada' ? 'border-red-500 bg-red-50/5' : 'border-gray-100 hover:bg-gray-50'}`}>
+                            <label className={`flex items-start gap-3 p-3 rounded-2xl border-2 cursor-pointer transition-all ${closeType === 'cancelada' ? 'border-red-500 bg-red-50/5' : 'border-gray-150 hover:bg-gray-50'}`}>
                                 <input
                                     type="radio"
                                     name="closeReason"
                                     value="cancelada"
                                     checked={closeType === 'cancelada'}
                                     onChange={() => setCloseType('cancelada')}
-                                    className="mt-1 text-red-500 focus:ring-red-500"
+                                    className="mt-1 text-red-500 focus:ring-red-500 border-gray-300"
                                 />
                                 <div className="space-y-0.5">
-                                    <p className="text-xs font-black text-red-600 uppercase tracking-wide">Tutoría Cancelada</p>
-                                    <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
-                                        La tutoría ha sido interrumpida. El aula y sus accesos se **eliminarán de forma inmediata**.
+                                    <p className="text-xs font-black text-red-650 uppercase tracking-wide">Tutoría Cancelada</p>
+                                    <p className="text-[9px] text-gray-400 font-medium leading-relaxed">
+                                        La tutoría ha sido interrumpida. El aula y sus accesos se **eliminarán inmediatamente**.
                                     </p>
                                 </div>
                             </label>
@@ -210,13 +210,13 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
                         {/* MOTIVO DE CANCELACIÓN (Solo si selecciona cancelada) */}
                         {closeType === 'cancelada' && (
                             <div className="space-y-2.5 text-left border-t border-gray-100 pt-4 animate-in slide-in-from-top-2 duration-200">
-                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">
+                                <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest block">
                                     Motivo de Cancelación *
                                 </label>
                                 <select
                                     value={cancelReasonOpt}
                                     onChange={(e) => setCancelReasonOpt(e.target.value)}
-                                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-[#0f592f] font-bold focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 cursor-pointer"
+                                    className="w-full px-3 py-2 bg-white border border-gray-250 rounded-xl text-xs text-[#0f592f] font-bold focus:outline-none focus:border-red-550 cursor-pointer"
                                 >
                                     <option value="Nunca se presentó a la tutoría">Nunca se presentó a la tutoría</option>
                                     <option value="No pudimos reprogramar">No pudimos reprogramar</option>
@@ -230,7 +230,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
                                         onChange={(e) => setCustomCancelReason(e.target.value)}
                                         placeholder="Por favor explica el motivo detallado de la cancelación..."
                                         rows={2}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 resize-none animate-in slide-in-from-top-1 duration-150"
+                                        className="w-full px-3 py-2 border border-gray-255 rounded-xl text-xs text-gray-650 focus:outline-none focus:border-red-550 resize-none animate-in slide-in-from-top-1 duration-150"
                                         maxLength={250}
                                         required
                                     />
@@ -242,7 +242,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
                             <button
                                 onClick={() => setShowConfirmClose(false)}
                                 disabled={isClosing}
-                                className="flex-1 py-3 border border-gray-200 text-gray-500 rounded-2xl font-bold text-[10px] uppercase tracking-wider hover:bg-gray-50 transition-all disabled:opacity-40"
+                                className="flex-1 py-2.5 border border-gray-200 text-gray-400 rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-gray-50 transition-all disabled:opacity-40"
                             >
                                 Cancelar
                             </button>
@@ -250,7 +250,7 @@ const TopBar = ({ mentorship, currentUser, onCloseMentorship, onToggleLeftSideba
                                 id="btn-confirmar-cierre-tutoria"
                                 onClick={handleCloseTutoria}
                                 disabled={isConfirmDisabled}
-                                className={`flex-1 py-3 text-white rounded-2xl font-black text-[10px] uppercase tracking-wider transition-all disabled:opacity-40 active:scale-95 hover:shadow-lg ${closeType === 'cancelada' ? 'bg-red-600 hover:bg-red-700 hover:shadow-red-600/20' : 'bg-[#0f592f] hover:bg-[#0a4624] hover:shadow-[#0f592f]/20'}`}
+                                className={`flex-1 py-2.5 text-white rounded-xl font-extrabold text-[10px] uppercase tracking-wider transition-all disabled:opacity-40 active:scale-95 hover:shadow-md ${closeType === 'cancelada' ? 'bg-red-650 hover:bg-red-700 hover:shadow-red-600/10' : 'bg-[#0f592f] hover:bg-[#0a4624] hover:shadow-[#0f592f]/10'}`}
                             >
                                 {isClosing ? 'Procesando...' : closeType === 'cancelada' ? 'Cancelar Aula' : 'Finalizar Aula'}
                             </button>

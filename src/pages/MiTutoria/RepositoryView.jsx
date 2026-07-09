@@ -407,16 +407,16 @@ const RepositoryView = ({ mentorship, currentUser }) => {
     }
 
     return (
-        <div className="flex-1 h-full overflow-y-auto bg-gray-50/30">
-            <div className="max-w-6xl mx-auto px-6 py-6">
+        <div className="flex-1 h-full overflow-y-auto bg-gray-50/20">
+            <div className="max-w-6xl mx-auto px-5 sm:px-6 py-6 select-none">
 
                 {/* === HEADER === */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
-                        <h2 className="text-xl font-black text-[#0f592f] tracking-tight flex items-center gap-2">
+                        <h2 className="text-xl font-extrabold text-[#0f592f] tracking-tight flex items-center gap-2">
                             📚 Repositorio de Materiales
                         </h2>
-                        <p className="text-xs text-gray-400 font-medium mt-0.5">
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wide mt-0.5">
                             {isMentor
                                 ? 'Sube y gestiona el material de apoyo para tu aprendiz'
                                 : 'Material de apoyo compartido por tu mentor'}
@@ -428,84 +428,86 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                         <button
                             id="btn-upload-material"
                             onClick={() => setShowUploadModal(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-[#0f592f] text-[#d4af37] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-[#0a4624] hover:shadow-lg hover:shadow-[#0f592f]/20 hover:scale-[1.02] transition-all duration-200 self-start sm:self-auto"
+                            className="flex items-center gap-1.5 px-4.5 py-2.5 bg-[#0f592f] text-pilas-gold rounded-xl font-extrabold text-[9px] uppercase tracking-wider hover:bg-[#0a4624] hover:shadow-md hover:shadow-[#0f592f]/10 hover:scale-[1.02] transition-all duration-150 self-start sm:self-auto cursor-pointer"
                         >
-                            <span className="text-base">+</span> Subir Material
+                            <span className="text-sm leading-none">+</span> Subir Material
                         </button>
                     )}
                 </div>
 
                 {/* === STORAGE BAR === */}
                 {storageInfo && (
-                    <div className="mb-6 bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm">💾</span>
-                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                    Almacenamiento
+                    <div className="mb-6 bg-white rounded-2xl border border-gray-150 p-4 shadow-[0_4px_16px_rgba(0,0,0,0.015)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-xs">💾</span>
+                                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider">
+                                        Almacenamiento del Aula
+                                    </span>
+                                </div>
+                                <span className="text-[10px] font-extrabold text-gray-600">
+                                    {formatFileSize(storageInfo.used_bytes)} / {formatFileSize(storageInfo.limit_bytes)}
                                 </span>
                             </div>
-                            <span className="text-xs font-bold text-gray-600">
-                                {formatFileSize(storageInfo.used_bytes)} / {formatFileSize(storageInfo.limit_bytes)}
-                            </span>
+                            <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full bg-gradient-to-r ${getStorageBarColor()} transition-all duration-700 ease-out`}
+                                    style={{ width: `${Math.min(storageInfo.percentage, 100)}%` }}
+                                />
+                            </div>
                         </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                            <div
-                                className={`h-full rounded-full bg-gradient-to-r ${getStorageBarColor()} transition-all duration-700 ease-out`}
-                                style={{ width: `${Math.min(storageInfo.percentage, 100)}%` }}
-                            />
-                        </div>
-                        <div className="flex items-center justify-between mt-1.5">
-                            <span className="text-[9px] text-gray-400 font-medium">
-                                {storageInfo.total_files} {storageInfo.total_files === 1 ? 'archivo' : 'archivos'}
-                            </span>
+                        <div className="flex items-center justify-between sm:justify-end gap-5 text-[8px] text-gray-400 font-bold uppercase tracking-wider sm:border-l sm:border-gray-150 sm:pl-5 flex-shrink-0">
+                            <div>
+                                <span className="text-gray-500 font-extrabold">{storageInfo.total_files}</span> {storageInfo.total_files === 1 ? 'Archivo' : 'Archivos'}
+                            </div>
                             {storageInfo.percentage > 80 && (
-                                <span className="text-[9px] font-bold text-red-500 flex items-center gap-1">
-                                    ⚠️ Espacio casi lleno
+                                <span className="text-red-500 flex items-center gap-1 animate-pulse">
+                                    ⚠️ Casi Lleno
                                 </span>
                             )}
-                            <span className="text-[9px] text-gray-400 font-medium">
-                                {formatFileSize(storageInfo.remaining_bytes)} disponibles
-                            </span>
+                            <div>
+                                <span className="text-gray-500 font-extrabold">{formatFileSize(storageInfo.remaining_bytes)}</span> Libres
+                            </div>
                         </div>
                     </div>
                 )}
 
                 {/* === FILTERS BAR === */}
                 {materials.length > 0 && (
-                    <div className="flex flex-col sm:flex-row gap-3 mb-5">
+                    <div className="flex flex-col sm:flex-row gap-3 mb-6">
                         {/* Search */}
                         <div className="relative flex-1">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span>
                             <input
                                 id="repo-search"
                                 type="text"
                                 placeholder="Buscar por título..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:border-[#d4af37]/50 focus:ring-2 focus:ring-[#d4af37]/10 transition-all"
+                                className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-xs text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#0f592f] focus:ring-1 focus:ring-[#0f592f]/20 transition-all shadow-[0_2px_8px_rgba(0,0,0,0.01)]"
                             />
                         </div>
                         {/* Filter by type */}
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                             {[
                                 { key: 'all', label: 'Todos', icon: '📋' },
                                 { key: 'image', label: 'Imágenes', icon: '🖼️' },
                                 { key: 'video', label: 'Videos', icon: '🎬' },
-                                { key: 'document', label: 'Docs', icon: '📄' },
+                                { key: 'document', label: 'Documentos', icon: '📄' },
                             ].map((f) => (
                                 <button
                                     key={f.key}
                                     id={`filter-${f.key}`}
                                     onClick={() => setFilterType(f.key)}
-                                    className={`px-3 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center gap-1 ${
+                                    className={`px-3 py-2 rounded-full text-[9px] font-bold uppercase tracking-wider transition-all duration-150 flex items-center gap-1.5 flex-shrink-0 cursor-pointer ${
                                         filterType === f.key
-                                            ? 'bg-[#0f592f] text-[#d4af37] shadow-md'
+                                            ? 'bg-[#0f592f] text-pilas-gold shadow-md shadow-[#0f592f]/10'
                                             : 'bg-white text-gray-500 border border-gray-200 hover:bg-gray-50'
                                     }`}
                                 >
                                     <span>{f.icon}</span>
-                                    <span className="hidden sm:inline">{f.label}</span>
+                                    <span>{f.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -514,38 +516,38 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                             id="repo-sort"
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-xs text-gray-600 font-medium focus:outline-none focus:border-[#d4af37]/50 cursor-pointer"
+                            className="px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-[10px] text-gray-600 font-bold uppercase tracking-wide focus:outline-none focus:border-[#0f592f] cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.01)]"
                         >
-                            <option value="date">Más recientes</option>
+                            <option value="date">Más Recientes</option>
                             <option value="name">Nombre A-Z</option>
-                            <option value="size">Mayor tamaño</option>
+                            <option value="size">Mayor Tamaño</option>
                         </select>
                     </div>
                 )}
 
                 {/* === EMPTY STATE === */}
                 {materials.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-gray-150 p-8 shadow-[0_4px_20px_rgba(0,0,0,0.01)]">
                         <div className="relative mb-6">
-                            <div className="absolute inset-0 bg-[#d4af37]/10 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
-                            <div className="relative w-24 h-24 bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl flex items-center justify-center text-5xl shadow-inner border border-gray-200">
+                            <div className="absolute inset-0 bg-amber-500/10 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+                            <div className="relative w-20 h-20 bg-gradient-to-br from-gray-55/30 to-gray-50 rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-gray-200">
                                 📚
                             </div>
                         </div>
-                        <h3 className="text-lg font-black text-[#0f592f] mb-2">
+                        <h3 className="text-base font-extrabold text-[#0f592f] mb-1.5">
                             {isMentor ? 'Tu repositorio está vacío' : 'Sin materiales aún'}
                         </h3>
-                        <p className="text-sm text-gray-400 font-medium max-w-xs mb-4">
+                        <p className="text-xs text-gray-400 font-medium max-w-xs leading-relaxed mb-6">
                             {isMentor
                                 ? 'Sube PDFs, videos, imágenes o cualquier recurso que ayude a tu aprendiz.'
-                                : 'Tu mentor aún no ha subido materiales. Aparecerán aquí cuando lo haga.'}
+                                : 'Tu mentor aún no ha compartido materiales. Aparecerán aquí de inmediato.'}
                         </p>
                         {isMentor && mentorship?.status !== 'COMPLETADA' && (
                             <button
                                 onClick={() => setShowUploadModal(true)}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#0f592f] text-[#d4af37] rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#0a4624] hover:scale-[1.02] transition-all shadow-lg shadow-[#0f592f]/20"
+                                className="flex items-center gap-1.5 px-5 py-3 bg-[#0f592f] text-pilas-gold rounded-2xl font-extrabold text-[10px] uppercase tracking-wider hover:bg-[#0a4624] hover:scale-[1.02] hover:shadow-lg hover:shadow-[#0f592f]/10 transition-all cursor-pointer"
                             >
-                                <span>+</span> Subir primer material
+                                <span>+</span> Subir Primer Material
                             </button>
                         )}
                     </div>
@@ -553,18 +555,18 @@ const RepositoryView = ({ mentorship, currentUser }) => {
 
                 {/* === MATERIALS GRID === */}
                 {filteredMaterials.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         {filteredMaterials.map((mat, index) => {
                             const typeConfig = FILE_TYPE_COLORS[mat.file_type] || FILE_TYPE_COLORS.document;
                             return (
                                 <div
                                     key={mat.id}
-                                    className="group bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg hover:shadow-gray-100/50 transition-all duration-300 overflow-hidden cursor-pointer"
-                                    style={{ animation: `fadeSlideIn 0.3s ease-out ${index * 0.05}s both` }}
+                                    className="group bg-white rounded-2xl border border-gray-150 hover:border-gray-200 hover:shadow-md hover:shadow-gray-200/20 transition-all duration-300 overflow-hidden cursor-pointer flex flex-col"
+                                    style={{ animation: `fadeSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.04}s both` }}
                                     onClick={() => setShowPreview(mat)}
                                 >
                                     {/* Preview thumbnail area */}
-                                    <div className={`h-32 ${typeConfig.bg} flex items-center justify-center relative overflow-hidden`}>
+                                    <div className={`h-32 ${typeConfig.bg} flex items-center justify-center relative overflow-hidden border-b border-gray-100 flex-shrink-0`}>
                                         {mat.file_type === 'image' ? (
                                             <img
                                                 src={mat.file_url}
@@ -574,50 +576,50 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                             />
                                         ) : mat.file_type === 'video' ? (
                                             <div className="flex flex-col items-center gap-2">
-                                                <div className="w-14 h-14 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                    <span className="text-2xl ml-1">▶</span>
+                                                <div className="w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                                                    <span className="text-[#0f592f] text-sm ml-0.5">▶</span>
                                                 </div>
-                                                <span className="text-[9px] font-bold text-purple-400 uppercase tracking-widest">Video</span>
+                                                <span className="text-[8px] font-black text-purple-400 uppercase tracking-widest">Video</span>
                                             </div>
                                         ) : (
-                                            <div className="flex flex-col items-center gap-2">
-                                                <span className="text-4xl group-hover:scale-110 transition-transform">
+                                            <div className="flex flex-col items-center gap-1.5">
+                                                <span className="text-3.5xl group-hover:scale-115 transition-transform duration-300">
                                                     {FILE_TYPE_ICONS[mat.file_type]}
                                                 </span>
-                                                <span className={`text-[9px] font-bold ${typeConfig.text} uppercase tracking-widest`}>
+                                                <span className={`text-[8px] font-black ${typeConfig.text} uppercase tracking-widest`}>
                                                     {mat.file_name.split('.').pop()?.toUpperCase()}
                                                 </span>
                                             </div>
                                         )}
 
                                         {/* Type badge */}
-                                        <div className={`absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg ${typeConfig.bg} ${typeConfig.border} border backdrop-blur-sm`}>
-                                            <span className="text-xs">{FILE_TYPE_ICONS[mat.file_type]}</span>
-                                            <span className={`text-[8px] font-black uppercase tracking-wider ${typeConfig.text}`}>
+                                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/95 border border-gray-150 shadow-sm backdrop-blur-sm">
+                                            <span className="text-[10px]">{FILE_TYPE_ICONS[mat.file_type]}</span>
+                                            <span className={`text-[7px] font-extrabold uppercase tracking-wider ${typeConfig.text}`}>
                                                 {FILE_TYPE_LABELS[mat.file_type]}
                                             </span>
                                         </div>
 
                                         {/* Mentor actions */}
                                         {isMentor && mentorship?.status !== 'COMPLETADA' && (
-                                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <div className="absolute top-2.5 right-2.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); openEditModal(mat); }}
-                                                    className="w-7 h-7 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center text-xs shadow-sm hover:bg-white hover:scale-110 transition-all"
+                                                    className="w-6.5 h-6.5 bg-white/95 border border-gray-150 rounded-lg flex items-center justify-center text-[10px] shadow-sm hover:scale-105 active:scale-95 transition-all"
                                                     title="Editar"
                                                 >
                                                     ✏️
                                                 </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); setShowReplaceModal(mat); }}
-                                                    className="w-7 h-7 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center text-xs shadow-sm hover:bg-white hover:scale-110 transition-all"
+                                                    className="w-6.5 h-6.5 bg-white/95 border border-gray-150 rounded-lg flex items-center justify-center text-[10px] shadow-sm hover:scale-105 active:scale-95 transition-all"
                                                     title="Cambiar archivo"
                                                 >
                                                     🔄
                                                 </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(mat); }}
-                                                    className="w-7 h-7 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center text-xs shadow-sm hover:bg-red-50 hover:scale-110 transition-all"
+                                                    className="w-6.5 h-6.5 bg-white/95 border border-gray-150 rounded-lg flex items-center justify-center text-[10px] shadow-sm hover:bg-red-50 hover:border-red-200 hover:scale-105 active:scale-95 transition-all text-red-550"
                                                     title="Eliminar"
                                                 >
                                                     🗑️
@@ -627,18 +629,22 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                     </div>
 
                                     {/* Info */}
-                                    <div className="p-4">
-                                        <h4 className="font-bold text-sm text-gray-800 truncate mb-1 group-hover:text-[#0f592f] transition-colors">
-                                            {mat.title}
-                                        </h4>
-                                        {mat.description && (
-                                            <p className="text-[11px] text-gray-400 line-clamp-2 mb-2 leading-relaxed">
-                                                {mat.description}
-                                            </p>
-                                        )}
-                                        <div className="flex items-center justify-between text-[9px] text-gray-400 font-medium">
+                                    <div className="p-4 flex-1 flex flex-col justify-between min-w-0">
+                                        <div className="min-w-0">
+                                            <h4 className="font-bold text-xs sm:text-sm text-gray-850 truncate mb-1 group-hover:text-[#0f592f] transition-colors leading-snug">
+                                                {mat.title}
+                                            </h4>
+                                            {mat.description ? (
+                                                <p className="text-[10px] text-gray-400 line-clamp-2 mb-3 leading-relaxed">
+                                                    {mat.description}
+                                                </p>
+                                            ) : (
+                                                <p className="text-[10px] text-gray-350 italic mb-3">Sin descripción.</p>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-between text-[8px] text-gray-400 font-bold uppercase tracking-wider mt-auto border-t border-gray-50 pt-2 flex-shrink-0">
                                             <span>{formatDate(mat.created_at)}</span>
-                                            <span className="font-bold">{formatFileSize(mat.file_size)}</span>
+                                            <span className="text-gray-450">{formatFileSize(mat.file_size)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -649,10 +655,10 @@ const RepositoryView = ({ mentorship, currentUser }) => {
 
                 {/* No results for filter */}
                 {materials.length > 0 && filteredMaterials.length === 0 && (
-                    <div className="text-center py-12">
-                        <span className="text-4xl mb-3 block">🔍</span>
-                        <p className="text-sm text-gray-400 font-medium">
-                            No se encontraron materiales con esos filtros.
+                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-150 shadow-[0_2px_12px_rgba(0,0,0,0.008)]">
+                        <span className="text-3xl mb-2.5 block">🔍</span>
+                        <p className="text-xs text-gray-400 font-bold uppercase tracking-wide">
+                            No se encontraron materiales coincidentes.
                         </p>
                     </div>
                 )}

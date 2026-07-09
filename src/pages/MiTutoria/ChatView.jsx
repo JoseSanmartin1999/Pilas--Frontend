@@ -161,43 +161,43 @@ const ChatView = ({ mentorship, currentUser }) => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-gray-50/50">
+        <div className="flex flex-col h-full bg-[#f8faf9]/70">
 
             {/* === CABECERA DEL CHAT === */}
-            <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 bg-white border-b border-gray-100 shadow-sm">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <span className="text-xl sm:text-2xl flex-shrink-0">💬</span>
+            <div className="flex-shrink-0 flex items-center justify-between px-5 sm:px-6 py-3.5 bg-white border-b border-gray-100/70 shadow-sm">
+                <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-xl flex-shrink-0">💬</span>
                     <div className="min-w-0">
-                        <p className="font-black text-[#0f592f] text-sm truncate">Canal Directo</p>
-                        <p className="text-[9px] text-gray-400 font-semibold truncate">
-                            Chat en tiempo real · {mentorship?.subject_name}
+                        <p className="font-extrabold text-[#0f592f] text-xs sm:text-sm tracking-tight">Canal Directo</p>
+                        <p className="text-[8px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
+                            Chat en Tiempo Real · {mentorship?.subject_name}
                         </p>
                     </div>
                 </div>
 
                 {/* Indicador de conexión */}
-                <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-50 rounded-full border border-gray-100 flex-shrink-0">
-                    <div className={`w-2 h-2 rounded-full transition-colors ${isConnected ? 'bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.6)]' : 'bg-red-400'}`} />
-                    <span className={`text-[9px] font-black uppercase tracking-widest ${isConnected ? 'text-emerald-600' : 'text-red-500'} hidden sm:inline`}>
-                        {isConnected ? 'Conectado' : 'Sin conexión'}
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-gray-50/80 rounded-full border border-gray-150 flex-shrink-0">
+                    <div className={`w-1.5 h-1.5 rounded-full transition-colors ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+                    <span className={`text-[8px] font-black uppercase tracking-wider ${isConnected ? 'text-emerald-700' : 'text-red-500'} hidden sm:inline`}>
+                        {isConnected ? 'En Línea' : 'Sin Conexión'}
                     </span>
                 </div>
             </div>
 
             {/* === ÁREA DE MENSAJES === */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-1">
+            <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 space-y-1">
                 {isLoadingHistory ? (
                     <div className="flex flex-col items-center justify-center h-full gap-3 opacity-40">
-                        <div className="w-8 h-8 border-2 border-[#0f592f] border-t-transparent rounded-full animate-spin" />
-                        <p className="text-xs font-bold text-gray-400">Cargando historial...</p>
+                        <div className="w-6 h-6 border-2 border-[#0f592f] border-t-transparent rounded-full animate-spin" />
+                        <p className="text-[10px] font-bold text-gray-400 tracking-wider uppercase">Cargando Chat...</p>
                     </div>
                 ) : groupedMessages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full gap-4 opacity-50 select-none">
-                        <div className="text-6xl">👋</div>
-                        <div className="text-center">
-                            <p className="font-black text-gray-400 text-sm">¡Empieza la conversación!</p>
-                            <p className="text-xs text-gray-300 mt-1">
-                                Estás en el canal directo con {mentorship?.mentor_name || mentorship?.apprentice_name}
+                    <div className="flex flex-col items-center justify-center h-full gap-4 opacity-40 select-none">
+                        <div className="text-5xl animate-bounce">👋</div>
+                        <div className="text-center space-y-1 max-w-xs">
+                            <p className="font-black text-[#0f592f] text-sm">¡Saluda a tu compañero!</p>
+                            <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+                                Este es el canal directo con {mentorship?.mentor_name || mentorship?.apprentice_name}.
                             </p>
                         </div>
                     </div>
@@ -206,42 +206,48 @@ const ChatView = ({ mentorship, currentUser }) => {
                         const isOwn = msg.sender_id === currentUser?.id;
                         const senderName = getSenderName(msg.sender_id);
                         const showDate = needsDateSeparator(msg, index);
+                        const isNextGrouped = messages[index + 1] && messages[index + 1].sender_id === msg.sender_id;
+
+                        // Determinar los bordes redondeados según emisor y si está agrupado
+                        const bubbleRadius = isOwn
+                            ? `rounded-[1.25rem] rounded-tr-sm ${msg.isGrouped ? 'rounded-tr-[1.25rem]' : ''} ${isNextGrouped ? 'rounded-br-sm' : ''}`
+                            : `rounded-[1.25rem] rounded-tl-sm ${msg.isGrouped ? 'rounded-tl-[1.25rem]' : ''} ${isNextGrouped ? 'rounded-bl-sm' : ''}`;
 
                         return (
                             <Fragment key={msg._id || `msg-${index}`}>
                                 {/* Separador de fecha */}
                                 {showDate && (
-                                    <div className="flex items-center gap-3 py-3">
-                                        <div className="flex-1 h-px bg-gray-200" />
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-3 py-1 bg-white rounded-full border border-gray-100 shadow-sm flex-shrink-0">
+                                    <div className="flex items-center gap-3 py-4 select-none">
+                                        <div className="flex-1 h-px bg-gray-150/70" />
+                                        <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-3 py-1 bg-white rounded-full border border-gray-150 shadow-sm flex-shrink-0">
                                             {formatDate(msg.createdAt)}
                                         </span>
-                                        <div className="flex-1 h-px bg-gray-200" />
+                                        <div className="flex-1 h-px bg-gray-150/70" />
                                     </div>
                                 )}
 
                                 {/* Burbuja de mensaje */}
                                 <div
                                     className={`
-                                        flex items-end gap-2
+                                        flex items-end gap-2.5
                                         ${isOwn ? 'flex-row-reverse' : 'flex-row'}
-                                        ${msg.isGrouped ? 'mt-0.5' : 'mt-3'}
+                                        ${msg.isGrouped ? 'mt-0.5' : 'mt-3.5'}
                                     `}
                                 >
                                     {/* Avatar — solo si no está agrupado y no es propio */}
                                     {!isOwn && (
-                                        <div className={`flex-shrink-0 ${msg.isGrouped ? 'w-8 opacity-0' : 'w-8'}`}>
-                                            <div className="w-8 h-8 bg-[#0f592f] rounded-xl flex items-center justify-center text-white text-xs font-black shadow-sm">
+                                        <div className={`flex-shrink-0 ${msg.isGrouped ? 'w-8 opacity-0 pointer-events-none' : 'w-8'}`}>
+                                            <div className="w-8 h-8 bg-emerald-550/10 border border-emerald-500/25 rounded-xl flex items-center justify-center text-[#0f592f] text-xs font-black shadow-sm">
                                                 {senderName?.[0] || '?'}
                                             </div>
                                         </div>
                                     )}
 
                                     {/* Contenido */}
-                                    <div className={`flex flex-col gap-1 max-w-[85%] sm:max-w-[70%] md:max-w-[65%] ${isOwn ? 'items-end' : 'items-start'}`}>
+                                    <div className={`flex flex-col gap-0.5 max-w-[80%] sm:max-w-[70%] md:max-w-[60%] ${isOwn ? 'items-end' : 'items-start'}`}>
                                         {/* Nombre — solo si no está agrupado */}
                                         {!msg.isGrouped && !isOwn && (
-                                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-1">
+                                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest px-1.5 mb-0.5">
                                                 {senderName}
                                             </span>
                                         )}
@@ -249,22 +255,25 @@ const ChatView = ({ mentorship, currentUser }) => {
                                         {/* Burbuja */}
                                         <div
                                             className={`
-                                                px-4 py-2.5 shadow-sm
+                                                px-4 py-2.5 shadow-[0_2px_4px_rgba(0,0,0,0.01)] transition-all duration-150
                                                 ${isOwn
-                                                    ? 'bg-[#0f592f] text-white rounded-2xl rounded-br-sm'
-                                                    : 'bg-white text-gray-800 rounded-2xl rounded-bl-sm border border-gray-100'
+                                                    ? 'bg-[#0f592f] text-white'
+                                                    : 'bg-white text-gray-800 border border-gray-150'
                                                 }
+                                                ${bubbleRadius}
                                             `}
                                         >
-                                            <p className="text-sm leading-relaxed break-words whitespace-pre-wrap font-medium">
+                                            <p className="text-xs leading-relaxed break-words whitespace-pre-wrap font-medium">
                                                 {msg.message}
                                             </p>
                                         </div>
 
                                         {/* Timestamp */}
-                                        <span className={`text-[8px] text-gray-300 px-1 font-medium ${isOwn ? 'text-right' : 'text-left'}`}>
-                                            {formatTime(msg.createdAt)}
-                                        </span>
+                                        {!isNextGrouped && (
+                                            <span className={`text-[7px] text-gray-350 px-1.5 font-bold uppercase tracking-wide mt-1 block ${isOwn ? 'text-right' : 'text-left'}`}>
+                                                {formatTime(msg.createdAt)}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </Fragment>
@@ -274,15 +283,15 @@ const ChatView = ({ mentorship, currentUser }) => {
 
                 {/* Indicador de "está escribiendo" */}
                 {Object.keys(typingUsers).length > 0 && (
-                    <div className="flex items-end gap-2 mt-3">
-                        <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center text-[#0f592f] text-xs font-black flex-shrink-0">
+                    <div className="flex items-end gap-2.5 mt-3.5">
+                        <div className="w-8 h-8 bg-emerald-550/10 border border-emerald-500/25 rounded-xl flex items-center justify-center text-[#0f592f] text-xs font-black flex-shrink-0 shadow-sm animate-pulse">
                             {Object.values(typingUsers)[0]?.[0] || '?'}
                         </div>
-                        <div className="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm">
+                        <div className="bg-white border border-gray-150 px-3.5 py-2.5 rounded-[1.25rem] rounded-bl-sm shadow-sm flex items-center">
                             <div className="flex items-center gap-1">
-                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                <div className="w-1.5 h-1.5 bg-[#0f592f]/40 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <div className="w-1.5 h-1.5 bg-[#0f592f]/40 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <div className="w-1.5 h-1.5 bg-[#0f592f]/40 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                             </div>
                         </div>
                     </div>
@@ -293,8 +302,8 @@ const ChatView = ({ mentorship, currentUser }) => {
             </div>
 
             {/* === INPUT DE MENSAJE === */}
-            <div className="flex-shrink-0 p-3 sm:p-4 bg-white border-t border-gray-100">
-                <div className="flex items-end gap-2 sm:gap-3 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-[#0f592f] focus-within:shadow-[0_0_0_3px_rgba(30,58,138,0.08)] transition-all p-1 pl-3 sm:pl-4">
+            <div className="flex-shrink-0 p-4 bg-white/70 backdrop-blur-md border-t border-gray-100/60">
+                <div className="flex items-end gap-2.5 bg-gray-50/80 border border-gray-200 focus-within:border-[#0f592f] focus-within:bg-white focus-within:shadow-[0_4px_16px_rgba(15,89,47,0.04)] transition-all duration-200 p-1.5 pl-4 rounded-[1.6rem]">
                     <textarea
                         ref={inputRef}
                         id="chat-input"
@@ -309,8 +318,8 @@ const ChatView = ({ mentorship, currentUser }) => {
                         onKeyDown={handleKeyDown}
                         placeholder={mentorship?.status === 'COMPLETADA' ? 'La tutoría está cerrada. No se pueden enviar más mensajes.' : isConnected ? 'Escribe un mensaje...' : 'Conectando...'}
                         disabled={!isConnected || isLoadingHistory || mentorship?.status === 'COMPLETADA'}
-                        className="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none resize-none py-2.5 min-h-[40px] max-h-[120px] font-medium leading-relaxed disabled:opacity-40"
-                        style={{ height: '40px' }}
+                        className="flex-1 bg-transparent text-xs text-gray-850 placeholder-gray-400 focus:outline-none resize-none py-2 min-h-[36px] max-h-[120px] font-medium leading-relaxed disabled:opacity-40"
+                        style={{ height: '36px' }}
                     />
 
                     {/* Botón enviar */}
@@ -318,10 +327,10 @@ const ChatView = ({ mentorship, currentUser }) => {
                         id="btn-send-message"
                         onClick={sendMessage}
                         disabled={!inputText.trim() || !isConnected || mentorship?.status === 'COMPLETADA'}
-                        className="flex-shrink-0 w-10 h-10 bg-[#0f592f] text-pilas-gold rounded-xl flex items-center justify-center hover:bg-[#0a4624] hover:scale-105 active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 shadow-md shadow-[#0f592f]/20 m-0.5"
+                        className="flex-shrink-0 w-9 h-9 bg-[#0f592f] text-pilas-gold rounded-xl flex items-center justify-center hover:bg-[#0a4624] hover:scale-105 active:scale-95 transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 shadow-md shadow-[#0f592f]/10 m-0.5"
                         title="Enviar (Enter)"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
                             <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
                         </svg>
                     </button>
@@ -329,11 +338,11 @@ const ChatView = ({ mentorship, currentUser }) => {
 
                 {/* Ayuda del teclado o aviso de solo lectura */}
                 {mentorship?.status === 'COMPLETADA' ? (
-                    <p className="text-[8px] text-red-500 text-center mt-2 font-black uppercase tracking-widest animate-pulse">
+                    <p className="text-[7px] text-red-500 text-center mt-2 font-black uppercase tracking-widest animate-pulse">
                         El chat se encuentra en modo de solo lectura.
                     </p>
                 ) : (
-                    <p className="text-[8px] text-gray-300 text-center mt-2 font-medium">
+                    <p className="text-[7px] text-gray-350 text-center mt-2 font-bold uppercase tracking-wider">
                         Enter para enviar · Shift+Enter para nueva línea
                     </p>
                 )}

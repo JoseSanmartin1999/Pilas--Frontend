@@ -162,29 +162,29 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
 
                 {/* Banner de Expiración (Solo si la tutoría está COMPLETADA) */}
                 {mentorship?.status === 'COMPLETADA' && (
-                    <div className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2.5 flex items-center justify-between gap-4 backdrop-blur-md animate-fade-in z-20">
+                    <div className="bg-amber-500/5 border-b border-amber-500/10 px-5 py-2.5 flex items-center justify-between gap-4 backdrop-blur-md animate-fade-in z-20 select-none">
                         <div className="flex items-center gap-2.5 min-w-0">
-                            <span className="text-base flex-shrink-0 animate-bounce">⚠️</span>
-                            <p className="text-[11px] font-black text-amber-800 tracking-tight leading-snug truncate">
+                            <span className="text-sm flex-shrink-0 animate-bounce">⚠️</span>
+                            <p className="text-[10px] font-black text-amber-800 tracking-tight leading-snug truncate">
                                 ESTA TUTORÍA HA SIDO CERRADA (SÓLO LECTURA)
                             </p>
-                            <span className="hidden md:inline text-[10px] text-amber-700/60 font-semibold">|</span>
-                            <p className="hidden md:inline text-[10px] text-amber-700 font-medium truncate">
+                            <span className="hidden md:inline text-[10px] text-amber-700/30 font-semibold">|</span>
+                            <p className="hidden md:inline text-[9px] text-amber-700/80 font-medium truncate">
                                 Ya no se admiten nuevos mensajes de chat ni cargas de material.
                             </p>
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-2.5 flex-shrink-0">
                             {currentUser.id === mentorship.apprentice_id && !mentorship.is_rated && !showSurveyModal && (
                                 <button
                                     onClick={() => setShowSurveyModal(true)}
-                                    className="bg-[#ffcc00] hover:bg-[#e6b800] text-[#0f592f] px-3.5 py-1.5 rounded-full font-black text-[9px] uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5"
+                                    className="bg-pilas-gold hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg font-bold text-[9px] uppercase tracking-wider transition-all hover:scale-105 active:scale-95 shadow-sm flex items-center gap-1.5 cursor-pointer"
                                 >
                                     <span>⭐</span> Calificar Tutoría
                                 </button>
                             )}
-                            <div className="flex items-center gap-2 bg-amber-500/15 px-3 py-1 rounded-full border border-amber-500/20 shadow-sm shadow-amber-500/5">
-                                <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
-                                <span className="text-[9px] font-black text-amber-800 uppercase tracking-widest">
+                            <div className="flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/15">
+                                <span className="w-1 h-1 bg-amber-500 rounded-full animate-pulse" />
+                                <span className="text-[8px] font-black text-amber-850 uppercase tracking-widest">
                                     Expira en: {timeLeft || 'Calculando...'}
                                 </span>
                             </div>
@@ -214,18 +214,18 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
 
             {/* ===== MODAL DE ENCUESTA (SÓLO SI EL ROL ES APRENDIZ, ESTÁ COMPLETADA Y NO CALIFICADA Y EL MODAL ESTÁ ACTIVO) ===== */}
             {mentorship?.status === 'COMPLETADA' && !mentorship.is_rated && currentUser.id === mentorship.apprentice_id && showSurveyModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f592f]/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white w-full max-w-md rounded-[3rem] shadow-2xl overflow-hidden border border-gray-150 animate-in zoom-in duration-200 p-8 flex flex-col items-center">
-                        <div className="w-16 h-16 bg-yellow-50 rounded-2xl flex items-center justify-center text-4xl shadow-inner mb-4 border border-yellow-100">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0c1811]/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-gray-100 p-6 flex flex-col items-center select-none">
+                        <div className="w-12 h-12 bg-yellow-50/70 border border-yellow-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner mb-3 flex-shrink-0">
                             🎓
                         </div>
-                        <h2 className="text-xl font-black text-[#0f592f] text-center tracking-tight mb-2">¡Tutoría Finalizada!</h2>
-                        <p className="text-xs text-gray-500 text-center font-medium leading-relaxed mb-6">
+                        <h2 className="text-lg font-extrabold text-[#0f592f] text-center tracking-tight mb-1">¡Tutoría Finalizada!</h2>
+                        <p className="text-[10px] text-gray-400 text-center font-semibold leading-relaxed mb-5">
                             Tu tutor ha cerrado esta sesión de aprendizaje. Por favor, califica la ayuda recibida para seguir mejorando la comunidad.
                         </p>
                         
                         {/* ESTRELLAS DE CALIFICACIÓN */}
-                        <div className="flex gap-2.5 mb-6">
+                        <div className="flex gap-2 mb-5">
                             {[1, 2, 3, 4, 5].map((i) => (
                                 <button
                                     key={i}
@@ -233,10 +233,10 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                                     onClick={() => setRating(i)}
                                     onMouseEnter={() => setHoveredRating(i)}
                                     onMouseLeave={() => setHoveredRating(0)}
-                                    className="focus:outline-none"
+                                    className="focus:outline-none cursor-pointer"
                                 >
                                     <svg 
-                                        className={`w-10 h-10 transition-all transform duration-150 ${
+                                        className={`w-9 h-9 transition-all transform duration-150 ${
                                             i <= (hoveredRating || rating) 
                                                 ? 'text-[#ffcc00] scale-110 drop-shadow-sm' 
                                                 : 'text-gray-200 hover:scale-105'
@@ -251,26 +251,26 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                         </div>
 
                         {/* COMENTARIO */}
-                        <div className="w-full mb-6 text-left">
-                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Comentario / Opinión (Opcional)</label>
+                        <div className="w-full mb-5 text-left">
+                            <label className="block text-[8px] font-black text-gray-450 uppercase tracking-widest mb-1.5">Comentario / Opinión (Opcional)</label>
                             <textarea
                                 rows="3"
                                 value={ratingComment}
                                 onChange={(e) => setRatingComment(e.target.value)}
-                                className="w-full px-5 py-3 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-xs resize-none placeholder-gray-400"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-150 rounded-2xl focus:ring-1 focus:ring-[#0f592f]/20 focus:border-[#0f592f] focus:bg-white outline-none font-semibold text-gray-655 text-xs resize-none placeholder-gray-400"
                                 placeholder="Cuéntanos qué tal fue la sesión..."
                             />
                         </div>
 
                         {/* ACCIONES */}
-                        <div className="w-full flex flex-col gap-3">
+                        <div className="w-full flex flex-col gap-2">
                             <button
                                 type="button"
                                 disabled={isSubmitting || rating === 0}
                                 onClick={handleSubmitSurvey}
-                                className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${
+                                className={`w-full py-3 rounded-2xl font-extrabold text-[9px] uppercase tracking-wider transition-all cursor-pointer ${
                                     rating > 0 
-                                        ? 'bg-[#0f592f] text-[#ffcc00] hover:bg-[#0a4624] hover:scale-[1.02] shadow-md shadow-[#0f592f]/10' 
+                                        ? 'bg-[#0f592f] text-white hover:bg-[#0a4624] hover:scale-[1.01] hover:shadow-md' 
                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                 }`}
                             >
@@ -280,7 +280,7 @@ const WorkspaceLayout = ({ mentorship, currentUser, onCloseMentorship, onRateMen
                                 type="button"
                                 disabled={isSubmitting}
                                 onClick={() => setShowSurveyModal(false)}
-                                className="w-full py-3.5 bg-white border border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all text-center"
+                                className="w-full py-2.5 bg-white border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-2xl font-bold text-[9px] uppercase tracking-wider transition-all text-center cursor-pointer"
                             >
                                 Calificar más tarde
                             </button>
