@@ -2,6 +2,35 @@
 
 Este documento registra las mejoras y cambios realizados en el sistema de tutorías para optimizar la coordinación entre mentores y alumnos.
 
+## [2026-07-09] - PWA, Sistema de Gamificación con ESPE-Coins, Guided Tours, Filtros por Carrera y Hardening de Seguridad
+
+### Frontend (Interacciones, Gamificación y PWA)
+- **PWA y Banner de Instalación (`vite.config.js` [MODIFY], `index.html` [MODIFY], `App.jsx` [MODIFY])**:
+    - **[AGREGADO]** Configuración de Progressive Web App mediante service workers para permitir el almacenamiento en caché y la instalación como aplicación nativa en dispositivos.
+    - **[AGREGADO]** Banner interactivo que solicita y guía al usuario para la instalación de la PWA.
+- **Guías Interactivas y Contextuales (`GuidedTour.jsx` [NEW], `Navbar.jsx` [MODIFY], `BuscarTutor.jsx` [MODIFY], `Profile.jsx` [MODIFY])**:
+    - **[AGREGADO]** Componente global `GuidedTour` para guiar paso a paso al usuario en su primer inicio de sesión con focos brillantes (`spotlights`) en la barra de navegación.
+    - **[AGREGADO]** Guías contextuales integradas para la búsqueda de tutores y programación/agendamiento de tutorías.
+    - **[CORREGIDO]** Alineación adaptativa de la tarjeta de guía al costado de los elementos en desktop para no bloquear la visualización del contenido.
+- **Recompensas y Tienda Virtual (`Recompensas.jsx` [MODIFY], `AdminDashboard.jsx` [MODIFY], `Mensajes.jsx` [MODIFY])**:
+    - **[AGREGADO]** Tablero interactivo para que el usuario visualice su saldo de ESPE-Coins, canjee cupones y consulte su lista de verificación de la tienda.
+    - **[AGREGADO]** Módulo en el Panel de Administrador para gestionar el historial de reclamaciones de beneficios y modificar ESPE-Coins de forma directa.
+    - **[AGREGADO]** Rediseño estético de la bandeja de notificaciones de sistema para renderizar las recompensas con tarjetas personalizadas y elegantes.
+- **Filtros Inteligentes por Carrera (`Register.jsx` [MODIFY], `Profile.jsx` [MODIFY], `SeTutor.jsx` [MODIFY])**:
+    - **[AGREGADO]** Inyección del parámetro `career_id` obtenido del registro para filtrar y listar de manera exclusiva las asignaturas correspondientes a la carrera del estudiante en su perfil y en la postulación a mentor.
+- **Gestión y Seguridad de Sesión de Administrador (`AdminDashboard.jsx` [MODIFY], `Login.jsx` [MODIFY], `App.jsx` [MODIFY], `main.jsx` [MODIFY])**:
+    - **[AGREGADO]** Dropdown interactivo para alternar el estado del usuario en el panel.
+    - **[AGREGADO]** Temporizador de auto-cierre de sesión tras 20 minutos de inactividad exclusivamente para roles de administrador para robustecer la seguridad en estaciones compartidas.
+- **Mensajería de Difusión y Filtros (`AdminDashboard.jsx` [MODIFY], `Mensajes.jsx` [MODIFY], `MiTutoria.jsx` [MODIFY], `Calendario.jsx` [MODIFY])**:
+    - **[AGREGADO]** Interfaz gráfica para que el administrador envíe mensajes de difusión generales a todos los usuarios, con soporte para renderizar el asunto y el cuerpo del mensaje en el inbox del alumno.
+    - **[CORREGIDO]** Filtrado reactivo de las notificaciones globales del sistema para que no interfieran en el chat interno del espacio de trabajo ni en los calendarios de tutorías aceptadas.
+- **Optimización de UI/UX y Refactorización Premium (`Profile.jsx` [MODIFY], `BuscarTutor.jsx` [MODIFY], `src/pages/MiTutoria/*` [MODIFY])**:
+    - **[ACTUALIZADO]** Rediseño ultra-compacto de la sección "Próximas Tutorías" en el perfil del usuario.
+    - **[AGREGADO]** Paginación y animaciones de transición premium en la visualización del listado de mentores en `BuscarTutor.jsx`.
+    - **[CORREGIDO]** Correcciones de interfaz, alineaciones y remoción absoluta de ruido visual en todo el espacio de trabajo de tutorías (`ChatView.jsx`, `LeftSidebar.jsx`, `RepositoryView.jsx`, `RightSidebar.jsx`, `TopBar.jsx`, `WorkspaceLayout.jsx`), logrando una estética limpia y profesional.
+
+---
+
 ## [2026-06-21] - Selección de Insignias, Notificación de Logros y Corrección de Recordatorios con Zona Horaria
 
 ### Frontend (Personalización e Insignias)
@@ -19,6 +48,18 @@ Este documento registra las mejoras y cambios realizados en el sistema de tutor�
     - **[AGREGADO]** Interceptor global de peticiones en Axios (`main.jsx`) para inyectar de manera transparente la cabecera `Authorization: Bearer <TOKEN>` con el token JWT si está disponible.
     - **[ACTUALIZADO]** Modificación de la pantalla de inicio de sesión (`Login.jsx`) para recibir y guardar de forma persistente el token JWT en `localStorage` o `sessionStorage`.
     - **[ACTUALIZADO]** Actualización del logout del sistema (`App.jsx`) para limpiar de forma segura el token JWT al cerrar sesión, mitigando riesgos de fugas.
+- **Diseño e Inicio (`Home.jsx` [MODIFY], Navbar.jsx [MODIFY], Footer.jsx [MODIFY])**:
+    - **[AGREGADO]** Rediseño completo de la Landing Page (`Home.jsx`) con mockup del dashboard interactivo y UI/UX premium.
+    - **[AGREGADO]** Reubicación de la pestaña "Soporte": se eliminó de la barra de navegación principal para mantener la consistencia estética, integrándola en el dropdown de perfil y en el pie de página (footer).
+    - **[CORREGIDO]** Ajuste de ubicación del logo `espepilas` en el navbar y en el footer respetando las pautas de UI/UX.
+- **Buscar Tutor (`BuscarTutor.jsx` [MODIFY])**:
+    - **[AGREGADO]** Filtro de búsqueda por estrellas e inyección del filtro de calificación mínima.
+    - **[ACTUALIZADO]** Exclusión de los primeros 3 semestres de los filtros principales del buscador.
+- **Recompensas y Logros (`Recompensas.jsx` [MODIFY])**:
+    - **[AGREGADO]** Logros por logins consecutivos y calificaciones perfectas acumuladas.
+    - **[AGREGADO]** Cierre temporal de la tienda ESPE-Coins con un mensaje "Próximamente" mientras se mantiene activo el acumulador de monedas.
+- **Repositorio (`RepositoryView.jsx` [MODIFY])**:
+    - **[AGREGADO]** Anexión de token JWT en los enlaces de descarga directa para posibilitar descargas seguras sin pasar por cabeceras de autorización de Axios.
 
 ### Backend (Recordatorios y Zona Horaria)
 - **Cálculo de Fechas Localizadas (`dateUtils.js` [NEW])**:
