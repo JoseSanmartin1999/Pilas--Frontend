@@ -150,8 +150,9 @@ const Solicitudes = () => {
                                     <div className="mt-8 pt-8 border-t border-dashed border-gray-200 animate-in slide-in-from-top duration-300 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nueva Fecha</label>
+                                                <label htmlFor={"reprogram-date-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nueva Fecha</label>
                                                 <input 
+                                                    id={"reprogram-date-" + m.id}
                                                     type="date" 
                                                     min={new Date().toLocaleDateString('sv-SE')}
                                                     className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
@@ -159,8 +160,9 @@ const Solicitudes = () => {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nueva Hora</label>
+                                                <label htmlFor={"reprogram-time-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nueva Hora</label>
                                                 <input 
+                                                    id={"reprogram-time-" + m.id}
                                                     type="time" 
                                                     className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                     onChange={(e) => setNewTime(e.target.value)}
@@ -169,8 +171,9 @@ const Solicitudes = () => {
                                         </div>
                                         
                                         <div>
-                                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Motivo de la Reprogramación</label>
+                                            <label htmlFor={"reprogram-reason-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Motivo de la Reprogramación</label>
                                             <textarea 
+                                                id={"reprogram-reason-" + m.id}
                                                 className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-sm border border-gray-100 resize-none"
                                                 rows="3"
                                                 placeholder="Explica brevemente por qué necesitas cambiar la fecha..."
@@ -210,8 +213,9 @@ const Solicitudes = () => {
                                                 </h4>
                                                 {(m.platform === 'Meet' || m.platform === 'Teams') && (
                                                     <div>
-                                                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Link de la Tutoría</label>
+                                                        <label htmlFor={"reprogram-meeting-link-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Link de la Tutoría</label>
                                                         <input 
+                                                            id={"reprogram-meeting-link-" + m.id}
                                                             type="url" 
                                                             placeholder="https://meet.google.com/..."
                                                             className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
@@ -223,8 +227,9 @@ const Solicitudes = () => {
                                                 {m.platform === 'Zoom' && (
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div>
-                                                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código Zoom</label>
+                                                            <label htmlFor={"reprogram-zoom-code-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código Zoom</label>
                                                             <input 
+                                                                id={"reprogram-zoom-code-" + m.id}
                                                                 type="text" 
                                                                 className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                                 value={meetingData.zoom_code}
@@ -232,8 +237,9 @@ const Solicitudes = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Clave Zoom</label>
+                                                            <label htmlFor={"reprogram-zoom-password-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Clave Zoom</label>
                                                             <input 
+                                                                id={"reprogram-zoom-password-" + m.id}
                                                                 type="text" 
                                                                 className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
                                                                 value={meetingData.zoom_password}
@@ -253,8 +259,9 @@ const Solicitudes = () => {
                                         <div className="space-y-4">
                                             {(m.platform === 'Meet' || m.platform === 'Teams') && (
                                                 <div>
-                                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Link de la Tutoría</label>
+                                                    <label htmlFor={"accept-meeting-link-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Link de la Tutoría</label>
                                                     <input 
+                                                        id={"accept-meeting-link-" + m.id}
                                                         type="url" 
                                                         placeholder="https://meet.google.com/..."
                                                         className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
@@ -267,8 +274,9 @@ const Solicitudes = () => {
                                             {m.platform === 'Zoom' && (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
-                                                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código de la Reunión</label>
+                                                        <label htmlFor={"accept-zoom-code-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código de la Reunión</label>
                                                         <input 
+                                                            id={"accept-zoom-code-" + m.id}
                                                             type="text" 
                                                             placeholder="ID de la reunión"
                                                             className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"
@@ -277,8 +285,9 @@ const Solicitudes = () => {
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Contraseña (Opcional)</label>
+                                                        <label htmlFor={"accept-zoom-password-" + m.id} className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Contraseña (Opcional)</label>
                                                         <input 
+                                                            id={"accept-zoom-password-" + m.id}
                                                             type="text" 
                                                             placeholder="Clave de acceso"
                                                             className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] border border-gray-100"

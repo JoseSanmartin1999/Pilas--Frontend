@@ -734,7 +734,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
 
                             {/* Title */}
                             <div>
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
+                                <label htmlFor="upload-title" className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
                                     Título *
                                 </label>
                                 <input
@@ -750,7 +750,7 @@ const RepositoryView = ({ mentorship, currentUser }) => {
 
                             {/* Description */}
                             <div>
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
+                                <label htmlFor="upload-description" className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
                                     Descripción <span className="text-gray-300 font-normal">(opcional)</span>
                                 </label>
                                 <textarea
@@ -825,10 +825,11 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
+                                <label htmlFor="edit-title" className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
                                     Título *
                                 </label>
                                 <input
+                                    id="edit-title"
                                     type="text"
                                     value={editTitle}
                                     onChange={(e) => setEditTitle(e.target.value)}
@@ -837,10 +838,11 @@ const RepositoryView = ({ mentorship, currentUser }) => {
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
+                                <label htmlFor="edit-description" className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 block">
                                     Descripción
                                 </label>
                                 <textarea
+                                    id="edit-description"
                                     value={editDescription}
                                     onChange={(e) => setEditDescription(e.target.value)}
                                     rows={3}

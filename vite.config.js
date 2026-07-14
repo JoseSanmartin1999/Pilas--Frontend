@@ -41,7 +41,21 @@ export default defineConfig({
     })
   ],
   test: {
-    globals: true, 
+    globals: true,
     environment: 'jsdom',
+    setupFiles: [],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        'src/main.jsx',
+        'vite.config.js',
+        'eslint.config.js',
+        'src/assets/**',
+        'src/config/**',
+      ],
+    },
   },
 })

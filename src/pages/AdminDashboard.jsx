@@ -174,7 +174,7 @@ const AdminDashboard = () => {
         try {
             const payload = {
                 name: subjectData.name,
-                semester: parseInt(subjectData.semester, 10),
+                semester: Number.parseInt(subjectData.semester, 10),
                 code: subjectData.code || null,
                 career_id: selectedCareer.id
             };
@@ -333,14 +333,14 @@ const AdminDashboard = () => {
         e.preventDefault();
         setSavingBadge(true);
         try {
-            const criteria = { type: badgeData.type, value: parseInt(badgeData.value, 10) };
+            const criteria = { type: badgeData.type, value: Number.parseInt(badgeData.value, 10) };
             
             const formData = new FormData();
             formData.append('name', badgeData.name);
             formData.append('image_url', badgeData.image_url);
             formData.append('criteria', JSON.stringify(criteria));
-            formData.append('xp_reward', parseInt(badgeData.xp_reward, 10) || 0);
-            formData.append('coins_reward', parseInt(badgeData.coins_reward, 10) || 0);
+            formData.append('xp_reward', Number.parseInt(badgeData.xp_reward, 10) || 0);
+            formData.append('coins_reward', Number.parseInt(badgeData.coins_reward, 10) || 0);
             
             if (badgeFile) {
                 formData.append('badge_image', badgeFile);
@@ -383,9 +383,9 @@ const AdminDashboard = () => {
             const payload = {
                 title: rewardData.title,
                 description: rewardData.description,
-                cost: parseInt(rewardData.cost, 10),
-                is_active: parseInt(rewardData.is_active, 10),
-                is_special: parseInt(rewardData.is_special, 10)
+                cost: Number.parseInt(rewardData.cost, 10),
+                is_active: Number.parseInt(rewardData.is_active, 10),
+                is_special: Number.parseInt(rewardData.is_special, 10)
             };
 
             if (rewardData.id) {
@@ -1107,8 +1107,9 @@ const AdminDashboard = () => {
                                     
                                     <div className="space-y-4">
                                         <div>
-                                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Límite repositorio por Mentoria (MB)</label>
+                                            <label htmlFor="sys-storage-limit" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Límite repositorio por Mentoria (MB)</label>
                                             <input 
+                                                id="sys-storage-limit"
                                                 type="number"
                                                 value={sysSettings.storageLimit}
                                                 onChange={(e) => setSysSettings({...sysSettings, storageLimit: e.target.value})}
@@ -1117,8 +1118,9 @@ const AdminDashboard = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Multiplicador ESPE-Coins por Hora</label>
+                                            <label htmlFor="sys-coin-multiplier" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Multiplicador ESPE-Coins por Hora</label>
                                             <input 
+                                                id="sys-coin-multiplier"
                                                 type="number" 
                                                 step="0.1"
                                                 value={sysSettings.coinMultiplier}
@@ -1827,31 +1829,33 @@ const AdminDashboard = () => {
 
                             <form onSubmit={handleSendGlobalMessage} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-150/40 text-left space-y-6">
                                 <div className="space-y-2">
-                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">
-                                        Asunto del Comunicado
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={globalMessageSubject}
-                                        onChange={(e) => setGlobalMessageSubject(e.target.value)}
-                                        placeholder="Ej: Mantenimiento programado / Comunicado Oficial"
-                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-250/50 rounded-2xl outline-none font-bold text-gray-700 text-sm focus:border-[#0f592f]/30"
-                                        required
-                                    />
-                                </div>
+                                            <label htmlFor="global-msg-subject" className="block text-xs font-black text-gray-400 uppercase tracking-widest">
+                                                Asunto del Comunicado
+                                            </label>
+                                            <input
+                                                id="global-msg-subject"
+                                                type="text"
+                                                value={globalMessageSubject}
+                                                onChange={(e) => setGlobalMessageSubject(e.target.value)}
+                                                placeholder="Ej: Mantenimiento programado / Comunicado Oficial"
+                                                className="w-full px-5 py-4 bg-gray-50 border border-gray-250/50 rounded-2xl outline-none font-bold text-gray-700 text-sm focus:border-[#0f592f]/30"
+                                                required
+                                            />
+                                        </div>
 
-                                <div className="space-y-2">
-                                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">
-                                        Cuerpo del Comunicado
-                                    </label>
-                                    <textarea
-                                        value={globalMessageText}
-                                        onChange={(e) => setGlobalMessageText(e.target.value)}
-                                        placeholder="Escribe el cuerpo del comunicado..."
-                                        className="w-full px-5 py-4 bg-gray-50 border border-gray-250/50 rounded-2xl outline-none font-medium text-gray-700 text-sm h-48 focus:border-[#0f592f]/30"
-                                        required
-                                    ></textarea>
-                                </div>
+                                        <div className="space-y-2">
+                                            <label htmlFor="global-msg-body" className="block text-xs font-black text-gray-400 uppercase tracking-widest">
+                                                Cuerpo del Comunicado
+                                            </label>
+                                            <textarea
+                                                id="global-msg-body"
+                                                value={globalMessageText}
+                                                onChange={(e) => setGlobalMessageText(e.target.value)}
+                                                placeholder="Escribe el cuerpo del comunicado..."
+                                                className="w-full px-5 py-4 bg-gray-50 border border-gray-250/50 rounded-2xl outline-none font-medium text-gray-700 text-sm h-48 focus:border-[#0f592f]/30"
+                                                required
+                                            ></textarea>
+                                        </div>
 
                                 <button
                                     type="submit"
@@ -1896,8 +1900,9 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Respuesta formal de Soporte</label>
+                                <label htmlFor="ticket-reply-text" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Respuesta formal de Soporte</label>
                                 <textarea 
+                                    id="ticket-reply-text"
                                     required
                                     rows="5" 
                                     value={replyText} 
@@ -1935,8 +1940,9 @@ const AdminDashboard = () => {
 
                         <form onSubmit={handleSaveBadge} className="p-8 space-y-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de Insignia</label>
+                                <label htmlFor="badge-name" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de Insignia</label>
                                 <input 
+                                    id="badge-name"
                                     type="text" 
                                     required 
                                     value={badgeData.name} 
@@ -1947,8 +1953,9 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">URL del Ícono (Opcional si subes un archivo)</label>
+                                <label htmlFor="badge-image-url" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">URL del Ícono (Opcional si subes un archivo)</label>
                                 <input 
+                                    id="badge-image-url"
                                     type="text" 
                                     value={badgeData.image_url} 
                                     onChange={(e) => setBadgeData({ ...badgeData, image_url: e.target.value })} 
@@ -1958,8 +1965,9 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Subir Ícono Personalizado (Opcional - Firebase Storage)</label>
+                                <label htmlFor="badge-file-upload" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Subir Ícono Personalizado (Opcional - Firebase Storage)</label>
                                 <input 
+                                    id="badge-file-upload"
                                     type="file" 
                                     accept="image/*"
                                     onChange={handleBadgeFileChange}
@@ -1972,8 +1980,9 @@ const AdminDashboard = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Recompensa XP</label>
+                                    <label htmlFor="badge-xp-reward" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Recompensa XP</label>
                                     <input 
+                                        id="badge-xp-reward"
                                         type="number" 
                                         value={badgeData.xp_reward} 
                                         onChange={(e) => setBadgeData({ ...badgeData, xp_reward: e.target.value })} 
@@ -1982,8 +1991,9 @@ const AdminDashboard = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Recompensa Coins 🪙</label>
+                                    <label htmlFor="badge-coins-reward" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Recompensa Coins 🪙</label>
                                     <input 
+                                        id="badge-coins-reward"
                                         type="number" 
                                         value={badgeData.coins_reward} 
                                         onChange={(e) => setBadgeData({ ...badgeData, coins_reward: e.target.value })} 
@@ -1997,8 +2007,9 @@ const AdminDashboard = () => {
                                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">Regla de Criterio de Logro</span>
                                 
                                 <div>
-                                    <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Tipo de Evento</label>
+                                    <label htmlFor="badge-event-type" className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Tipo de Evento</label>
                                     <select
+                                        id="badge-event-type"
                                         value={badgeData.type}
                                         onChange={(e) => setBadgeData({ ...badgeData, type: e.target.value })}
                                         className="w-full px-4 py-2.5 bg-white border border-gray-150/60 rounded-xl outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
@@ -2016,8 +2027,9 @@ const AdminDashboard = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Cantidad Requerida (Meta)</label>
+                                    <label htmlFor="badge-required-value" className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Cantidad Requerida (Meta)</label>
                                     <input 
+                                        id="badge-required-value"
                                         type="number" 
                                         required
                                         value={badgeData.value} 
@@ -2056,8 +2068,9 @@ const AdminDashboard = () => {
 
                         <form onSubmit={handleSaveCareer} className="p-8 space-y-5">
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Carrera</label>
+                                <label htmlFor="career-name" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Carrera</label>
                                 <input 
+                                    id="career-name"
                                     type="text" 
                                     required 
                                     value={careerData.name} 
@@ -2068,8 +2081,9 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción (Opcional)</label>
+                                <label htmlFor="career-description" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción (Opcional)</label>
                                 <textarea 
+                                    id="career-description"
                                     rows="4"
                                     value={careerData.description || ''} 
                                     onChange={(e) => setCareerData({ ...careerData, description: e.target.value })} 
@@ -2106,8 +2120,9 @@ const AdminDashboard = () => {
 
                         <form onSubmit={handleSaveSubject} className="p-8 space-y-5">
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Materia</label>
+                                <label htmlFor="subject-name" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Nombre de la Materia</label>
                                 <input 
+                                    id="subject-name"
                                     type="text" 
                                     required 
                                     value={subjectData.name} 
@@ -2119,10 +2134,11 @@ const AdminDashboard = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Semestre (Nivel)</label>
+                                    <label htmlFor="subject-semester" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Semestre (Nivel)</label>
                                     <select
+                                        id="subject-semester"
                                         value={subjectData.semester}
-                                        onChange={(e) => setSubjectData({ ...subjectData, semester: parseInt(e.target.value, 10) })}
+                                        onChange={(e) => setSubjectData({ ...subjectData, semester: Number.parseInt(e.target.value, 10) })}
                                         className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
                                     >
                                         {[1, 2, 3, 4, 5, 6, 7, 8].map(sem => (
@@ -2131,8 +2147,9 @@ const AdminDashboard = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código (Opcional)</label>
+                                    <label htmlFor="subject-code" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Código (Opcional)</label>
                                     <input 
+                                        id="subject-code"
                                         type="text" 
                                         value={subjectData.code || ''} 
                                         onChange={(e) => setSubjectData({ ...subjectData, code: e.target.value })} 
@@ -2169,8 +2186,9 @@ const AdminDashboard = () => {
 
                         <form onSubmit={handleSaveReward} className="p-8 space-y-5">
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Título de la Recompensa</label>
+                                <label htmlFor="reward-title" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Título de la Recompensa</label>
                                 <input 
+                                    id="reward-title"
                                     type="text" 
                                     required 
                                     value={rewardData.title} 
@@ -2181,8 +2199,9 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción</label>
+                                <label htmlFor="reward-description" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Descripción</label>
                                 <textarea 
+                                    id="reward-description"
                                     required 
                                     rows="3"
                                     value={rewardData.description} 
@@ -2194,22 +2213,24 @@ const AdminDashboard = () => {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Costo (ESPE-Coins)</label>
+                                    <label htmlFor="reward-cost" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Costo (ESPE-Coins)</label>
                                     <input 
+                                        id="reward-cost"
                                         type="number" 
                                         required
                                         min="0"
                                         value={rewardData.cost} 
-                                        onChange={(e) => setRewardData({ ...rewardData, cost: parseInt(e.target.value, 10) || 0 })} 
+                                        onChange={(e) => setRewardData({ ...rewardData, cost: Number.parseInt(e.target.value, 10) || 0 })} 
                                         className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs" 
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Tipo de Recompensa</label>
+                                    <label htmlFor="reward-is-special" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Tipo de Recompensa</label>
                                     <select
+                                        id="reward-is-special"
                                         value={rewardData.is_special}
-                                        onChange={(e) => setRewardData({ ...rewardData, is_special: parseInt(e.target.value, 10) })}
+                                        onChange={(e) => setRewardData({ ...rewardData, is_special: Number.parseInt(e.target.value, 10) })}
                                         className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
                                     >
                                         <option value={0}>Catálogo Regular</option>
@@ -2219,10 +2240,11 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado</label>
+                                <label htmlFor="reward-is-active" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado</label>
                                 <select
+                                    id="reward-is-active"
                                     value={rewardData.is_active}
-                                    onChange={(e) => setRewardData({ ...rewardData, is_active: parseInt(e.target.value, 10) })}
+                                    onChange={(e) => setRewardData({ ...rewardData, is_active: Number.parseInt(e.target.value, 10) })}
                                     className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f] text-xs cursor-pointer"
                                 >
                                     <option value={1}>Activo</option>
