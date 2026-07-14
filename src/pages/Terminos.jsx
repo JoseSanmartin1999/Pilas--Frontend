@@ -182,8 +182,8 @@ const Terminos = () => {
                                 </p>
 
                                 <ul className="space-y-3 pl-2">
-                                    {sec.bullets.map((b, idx) => (
-                                        <li key={idx} className="flex gap-3 text-xs text-slate-450 leading-relaxed">
+                                    {sec.bullets.map((b) => (
+                                        <li key={b} className="flex gap-3 text-xs text-slate-450 leading-relaxed">
                                             <span className="text-pilas-gold font-bold select-none">•</span>
                                             <span>{b}</span>
                                         </li>
