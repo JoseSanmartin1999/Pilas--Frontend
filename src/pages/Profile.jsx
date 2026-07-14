@@ -776,8 +776,9 @@ const Profile = () => {
 
             <form id="tour-agendar-formulario" onSubmit={handlePactarTutoria} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div>
-                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Materia Deseada</label>
+                <label htmlFor="mentorship-subject" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Materia Deseada</label>
                 <select 
+                  id="mentorship-subject"
                   required
                   value={mentorshipData.subject_id} 
                   onChange={(e) => setMentorshipData({ ...mentorshipData, subject_id: e.target.value })} 
@@ -794,18 +795,19 @@ const Profile = () => {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Fecha</label>
-                  <input type="date" required min={new Date().toLocaleDateString('sv-SE')} value={mentorshipData.date} onChange={(e) => setMentorshipData({ ...mentorshipData, date: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
+                  <label htmlFor="mentorship-date" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Fecha</label>
+                  <input id="mentorship-date" type="date" required min={new Date().toLocaleDateString('sv-SE')} value={mentorshipData.date} onChange={(e) => setMentorshipData({ ...mentorshipData, date: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Hora</label>
-                  <input type="time" required value={mentorshipData.time} onChange={(e) => setMentorshipData({ ...mentorshipData, time: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
+                  <label htmlFor="mentorship-time" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Hora</label>
+                  <input id="mentorship-time" type="time" required value={mentorshipData.time} onChange={(e) => setMentorshipData({ ...mentorshipData, time: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Temas a Tratar (Línea por Línea)</label>
+                <label htmlFor="mentorship-objectives" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Temas a Tratar (Línea por Línea)</label>
                 <textarea 
+                  id="mentorship-objectives"
                   required
                   rows="4" 
                   value={mentorshipData.objectives} 
@@ -816,7 +818,7 @@ const Profile = () => {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest">¿Modalidad de Tutoría?</label>
+                <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest">¿Modalidad de Tutoría?</span>
                 <div className="flex gap-4">
                   <label className={`flex-1 flex items-center justify-center gap-2 p-4 rounded-2xl border-2 transition-all cursor-pointer font-bold text-xs ${mentorshipData.modality === 'Presencial' ? 'border-[#ffcc00] bg-yellow-50 text-[#0f592f]' : 'border-gray-100 bg-gray-50 text-gray-400'}`}>
                     <input type="radio" name="modality" value="Presencial" checked={mentorshipData.modality === 'Presencial'} onChange={(e) => setMentorshipData({ ...mentorshipData, modality: e.target.value })} className="hidden" />
@@ -830,8 +832,9 @@ const Profile = () => {
 
                 {mentorshipData.modality === 'Presencial' && (
                   <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Lugar de Reunión</label>
+                    <label htmlFor="mentorship-meeting-place" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Lugar de Reunión</label>
                     <input 
+                      id="mentorship-meeting-place"
                       type="text" 
                       required
                       placeholder="Ej: Biblioteca central, Cubículo 5..."
@@ -903,8 +906,8 @@ const Profile = () => {
                   alt="Previa"
                 />
                 <div className="flex-1">
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Foto de Perfil</label>
-                  <input type="file" onChange={handleImageChange} className="text-[10px] file:bg-[#0f592f] file:text-white file:border-0 file:px-4 file:py-2 file:rounded-xl file:mr-3 file:font-bold cursor-pointer" accept="image/*" />
+                  <label htmlFor="edit-profile-photo" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Foto de Perfil</label>
+                  <input id="edit-profile-photo" type="file" onChange={handleImageChange} className="text-[10px] file:bg-[#0f592f] file:text-white file:border-0 file:px-4 file:py-2 file:rounded-xl file:mr-3 file:font-bold cursor-pointer" accept="image/*" />
                   <p className="text-[9px] text-gray-400 mt-1.5 leading-normal">
                     Tamaño máx: <strong>2 MB</strong> · Mín: <strong>200x200 px</strong>, Máx: <strong>2000x2000 px</strong>.
                   </p>
@@ -913,18 +916,18 @@ const Profile = () => {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Semestre</label>
-                  <input type="number" min="1" max="8" value={editData.current_semester} onChange={(e) => setEditData({ ...editData, current_semester: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
+                  <label htmlFor="edit-current-semester" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Semestre</label>
+                  <input id="edit-current-semester" type="number" min="1" max="8" value={editData.current_semester} onChange={(e) => setEditData({ ...editData, current_semester: e.target.value })} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-bold text-[#0f592f]" />
                 </div>
                 <div>
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado Académico</label>
+                  <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Estado Académico</span>
                   <div className="px-5 py-3 bg-gray-100 rounded-2xl font-bold text-gray-400 text-xs">ACTIVO</div>
                 </div>
               </div>
 
               <div className="relative">
-                <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Biografía</label>
-                <textarea rows="3" value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} maxLength={200} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-sm resize-none pr-16" placeholder="Describe tu experiencia..." />
+                <label htmlFor="edit-bio" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Biografía</label>
+                <textarea id="edit-bio" rows="3" value={editData.bio} onChange={(e) => setEditData({ ...editData, bio: e.target.value })} maxLength={200} className="w-full px-5 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-[#ffcc00] outline-none font-medium text-gray-600 text-sm resize-none pr-16" placeholder="Describe tu experiencia..." />
                 <span className="absolute bottom-3 right-3 text-[10px] text-gray-400 font-black">
                   {(editData.bio || '').length} / 200
                 </span>
@@ -933,7 +936,7 @@ const Profile = () => {
               {/* SECCIÓN MATERIAS DINÁMICAS (RF#007) */}
               {user.role === 'MENTOR' && (
                 <div>
-                  <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Materias que Impartes</label>
+                  <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Materias que Impartes</span>
                   {allSubjects.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-4 bg-gray-50 rounded-3xl border border-gray-100">
                       {allSubjects.map(sub => {
@@ -1032,10 +1035,11 @@ const Profile = () => {
                     };
 
                     return (
-                      <div
+                      <button
                         key={b.id}
+                        type="button"
                         onClick={() => handleToggleFeaturedBadge(b.id)}
-                        className={`p-4 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-300 ${
+                        className={`p-4 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-300 text-left outline-none ${
                           isSelected 
                             ? 'border-amber-400 bg-amber-50/30 text-[#0f592f] shadow-sm ring-1 ring-amber-400/20' 
                             : 'border-gray-100 hover:border-gray-200 hover:shadow-sm bg-gray-50/50'
@@ -1061,7 +1065,7 @@ const Profile = () => {
                         }`}>
                           {isSelected && "✓"}
                         </div>
-                      </div>
+                      </button>
                     );
                   })
                 ) : (

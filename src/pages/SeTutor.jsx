@@ -21,6 +21,7 @@ const SeTutor = () => {
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
+
     // Redirigir si no está logueado o ya es Mentor
     useEffect(() => {
         if (!currentUser?.id) {
@@ -31,7 +32,7 @@ const SeTutor = () => {
             navigate('/profile');
             showNotification('Ya tienes el perfil de Tutor/Mentor.', 'info');
         }
-    }, [currentUser, navigate, showNotification]);
+    }, [currentUser?.id, currentUser?.role, navigate, showNotification]);
 
     // Cargar materias disponibles y verificar postulaciones pendientes
     useEffect(() => {
@@ -284,7 +285,7 @@ const SeTutor = () => {
                         
                         {/* SECCIÓN MATERIAS */}
                         <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Materias que dominas y deseas Impartir</label>
+                            <span className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Materias que dominas y deseas Impartir</span>
                             {allSubjects.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-56 overflow-y-auto p-4 bg-gray-50 rounded-3xl border border-gray-150/50">
                                         {allSubjects.map(sub => {
@@ -295,7 +296,7 @@ const SeTutor = () => {
                                                     className={`flex items-center space-x-3 p-3 bg-white rounded-2xl border transition-all cursor-pointer ${
                                                         isSelected 
                                                             ? 'border-[#ffcc00] bg-yellow-50/20 shadow-sm ring-1 ring-[#ffcc00]/20' 
-                                                            : 'border-gray-100 hover:border-gray-250 hover:shadow-sm'
+                                                            : 'border-gray-100 hover:border-gray-255 hover:shadow-sm'
                                                     }`}
                                                 >
                                                     <input
@@ -309,16 +310,17 @@ const SeTutor = () => {
                                             );
                                         })}
                                     </div>
-                            ) : (
-                                <p className="text-gray-400 text-xs italic">No hay materias disponibles en el sistema.</p>
-                            )}
-                            <p className="text-[9px] text-gray-400 mt-2 font-medium">Puedes seleccionar varias materias simultáneamente.</p>
+                             ) : (
+                                 <p className="text-gray-400 text-xs italic">No hay materias disponibles en el sistema.</p>
+                             )}
+                             <p className="text-[9px] text-gray-400 mt-2 font-medium">Puedes seleccionar varias materias simultáneamente.</p>
                         </div>
 
                         {/* MOTIVACIÓN */}
                         <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Cuéntanos sobre ti y tu motivación</label>
+                            <label htmlFor="tutor-motivation" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Cuéntanos sobre ti y tu motivación</label>
                             <textarea
+                                id="tutor-motivation"
                                 required
                                 rows="5"
                                 value={motivation}
@@ -337,7 +339,7 @@ const SeTutor = () => {
 
                         {/* REPORTE ACADÉMICO (PDF) - OBLIGATORIO */}
                         <div>
-                            <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">
+                            <label htmlFor="academic-record-input" className="block text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">
                                 Reporte Académico (PDF) — Obligatorio
                             </label>
                             <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${

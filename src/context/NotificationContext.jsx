@@ -39,7 +39,9 @@ export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
 
     const showNotification = useCallback((message, type = 'info', badgeInfo = null) => {
-        const id = Date.now() + Math.random().toString(36).substr(2, 9);
+        const array = new Uint32Array(1);
+        (window.crypto || self.crypto).getRandomValues(array);
+        const id = Date.now() + '-' + array[0].toString(36);
         setNotifications((prev) => [...prev, { id, message, type, badgeInfo }]);
         
         // Auto-remove after 6 seconds for badge notifications, 4 seconds for others
@@ -60,10 +62,10 @@ export const NotificationProvider = ({ children }) => {
                 {notifications.map((n) => {
                     if (n.type === 'badge' && n.badgeInfo) {
                         return (
-                            <div
+                            <button
                                 key={n.id}
                                 onClick={() => removeNotification(n.id)}
-                                className="pointer-events-auto flex items-start gap-4 p-5 rounded-[2rem] border border-amber-400 bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-slate-950/95 text-white shadow-[0_0_25px_rgba(245,158,11,0.35)] backdrop-blur-md transition-all duration-300 transform translate-y-0 scale-100 animate-slide-in cursor-pointer hover:scale-102 flex-row"
+                                className="pointer-events-auto flex items-start gap-4 p-5 rounded-[2rem] border border-amber-400 bg-gradient-to-br from-slate-900/95 via-indigo-950/95 to-slate-950/95 text-white shadow-[0_0_25px_rgba(245,158,11,0.35)] backdrop-blur-md transition-all duration-300 transform translate-y-0 scale-100 animate-slide-in cursor-pointer hover:scale-102 flex-row outline-none text-left"
                             >
                                 <div className="w-14 h-14 bg-gradient-to-br from-[#ffcc00]/20 to-amber-500/10 rounded-2xl flex items-center justify-center text-4xl shadow-md border border-[#ffcc00]/30 shrink-0 animate-bounce">
                                     {n.badgeInfo.icon && n.badgeInfo.icon.startsWith('http') ? (
@@ -83,20 +85,20 @@ export const NotificationProvider = ({ children }) => {
                                         {n.message}
                                     </p>
                                 </div>
-                                <button className="text-amber-400/60 hover:text-amber-400 transition-colors shrink-0 self-start mt-0.5">
+                                <div className="text-amber-400/60 hover:text-amber-400 transition-colors shrink-0 self-start mt-0.5">
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
-                                </button>
-                            </div>
+                                </div>
+                            </button>
                         );
                     }
 
                     return (
-                        <div
+                        <button
                             key={n.id}
                             onClick={() => removeNotification(n.id)}
-                            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all duration-300 transform translate-y-0 scale-100 animate-slide-in cursor-pointer hover:scale-102 ${
+                            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl shadow-xl border backdrop-blur-md transition-all duration-300 transform translate-y-0 scale-100 animate-slide-in cursor-pointer hover:scale-102 outline-none text-left ${
                                 n.type === 'success'
                                     ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-200'
                                     : n.type === 'error'
@@ -136,12 +138,12 @@ export const NotificationProvider = ({ children }) => {
                             </div>
 
                             {/* Close button */}
-                            <button className="text-slate-400 hover:text-slate-200 transition-colors shrink-0">
+                            <div className="text-slate-400 hover:text-slate-200 transition-colors shrink-0">
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                            </button>
-                        </div>
+                            </div>
+                        </button>
                     );
                 })}
             </div>

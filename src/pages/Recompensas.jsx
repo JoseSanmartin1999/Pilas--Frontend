@@ -282,7 +282,7 @@ const Recompensas = () => {
 
     // Nuevas funciones para manejo de canje y encuestas
     const handleSurveyClick = async () => {
-        window.open('https://forms.gle/1pB1RJS9B9b6ASMD7', '_blank');
+        window.open('https://forms.gle/1pB1RJS9B9b6ASMD7', '_blank', 'noopener,noreferrer');
         try {
             const res = await axios.post('https://pilas-backend.onrender.com/api/rewards/complete-survey');
             if (res.data) {
@@ -311,8 +311,10 @@ const Recompensas = () => {
                 savedStorage.setItem('user', JSON.stringify(userObj));
 
                 window.dispatchEvent(new Event('gamificationStatsUpdated'));
-                
-                setActiveCouponCode('ESPE-COIN-' + Math.random().toString(36).substring(2, 8).toUpperCase());
+
+                const array = new Uint32Array(1);
+                (window.crypto || self.crypto).getRandomValues(array);
+                setActiveCouponCode('ESPE-COIN-' + array[0].toString(36).substring(0, 6).toUpperCase());
                 setActiveCouponTitle(reward.title);
                 setShowCouponModal(true);
 
