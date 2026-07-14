@@ -197,7 +197,7 @@ const Beneficios = () => {
                                         min="0" 
                                         max="20" 
                                         value={tutoriasDadas}
-                                        onChange={(e) => setTutoriasDadas(parseInt(e.target.value))}
+                                        onChange={(e) => setTutoriasDadas(Number.parseInt(e.target.value, 10))}
                                         className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-pilas-gold" 
                                     />
                                     <div className="flex justify-between text-[10px] text-slate-500">
@@ -217,7 +217,7 @@ const Beneficios = () => {
                                         min="0" 
                                         max="20" 
                                         value={tutoriasRecibidas}
-                                        onChange={(e) => setTutoriasRecibidas(parseInt(e.target.value))}
+                                        onChange={(e) => setTutoriasRecibidas(Number.parseInt(e.target.value, 10))}
                                         className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2ecc71]" 
                                     />
                                     <div className="flex justify-between text-[10px] text-slate-500">
@@ -239,7 +239,7 @@ const Beneficios = () => {
                                             max="5.0" 
                                             step="0.1"
                                             value={calificacionMentor}
-                                            onChange={(e) => setCalificacionMentor(parseFloat(e.target.value))}
+                                            onChange={(e) => setCalificacionMentor(Number.parseFloat(e.target.value))}
                                             className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-400" 
                                         />
                                         <div className="flex justify-between text-[10px] text-slate-500">
@@ -293,10 +293,10 @@ const Beneficios = () => {
                                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Premio Recomendado:</span>
                                 {affordableRewards.length > 0 ? (
                                     <div className="flex items-center gap-3">
-                                        <span className="text-3xl">{affordableRewards[affordableRewards.length - 1].icon}</span>
+                                        <span className="text-3xl">{affordableRewards.at(-1).icon}</span>
                                         <div>
-                                            <p className="text-xs font-black text-white">{affordableRewards[affordableRewards.length - 1].title}</p>
-                                            <p className="text-[10px] text-slate-500 font-medium">Costo: {affordableRewards[affordableRewards.length - 1].cost} Coins</p>
+                                            <p className="text-xs font-black text-white">{affordableRewards.at(-1).title}</p>
+                                            <p className="text-[10px] text-slate-500 font-medium">Costo: {affordableRewards.at(-1).cost} Coins</p>
                                         </div>
                                     </div>
                                 ) : (
