@@ -42,7 +42,7 @@ describe('FAQChatbot Component Tests', () => {
 
         // Enviar un mensaje de prueba para llenar el chat
         const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
-        const submitBtn = screen.getByRole('button', { name: '' }); // submit button
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i }); // submit button
 
         fireEvent.change(input, { target: { value: 'registro' } });
         fireEvent.click(submitBtn);
@@ -60,7 +60,7 @@ describe('FAQChatbot Component Tests', () => {
         fireEvent.click(floatingBtn);
 
         const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
-        const submitBtn = screen.getByRole('button', { name: '' });
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
 
         // Enviar consulta 'zoom'
         fireEvent.change(input, { target: { value: 'zoom' } });
@@ -83,7 +83,7 @@ describe('FAQChatbot Component Tests', () => {
         fireEvent.click(floatingBtn);
 
         const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
-        const submitBtn = screen.getByRole('button', { name: '' });
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
 
         // Enviar consulta 'tutoria' (debería coincidir con múltiples faqs)
         fireEvent.change(input, { target: { value: 'tutoria' } });
@@ -93,7 +93,7 @@ describe('FAQChatbot Component Tests', () => {
             vi.runAllTimers();
         });
 
-        expect(screen.getByText(/Encontré las siguientes preguntas relacionadas con tu búsqueda:/i)).toBeInTheDocument();
+        expect(screen.getByText(/Encontré las siguientes preguntas relacionadas con tu búsqueda/i)).toBeInTheDocument();
     });
 
     it('responde con mensaje de disculpas cuando no encuentra coincidencias', () => {
@@ -102,7 +102,7 @@ describe('FAQChatbot Component Tests', () => {
         fireEvent.click(floatingBtn);
 
         const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
-        const submitBtn = screen.getByRole('button', { name: '' });
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
 
         // Enviar consulta que no existe
         fireEvent.change(input, { target: { value: 'palabranoregistradaenlabasededatos' } });
@@ -121,7 +121,7 @@ describe('FAQChatbot Component Tests', () => {
         fireEvent.click(floatingBtn);
 
         // Clic en la categoría rápida "🔑 Registro y Cuenta"
-        const categoryBtn = screen.getByRole('button', { name: /🔑 Registro y Cuenta/i });
+        const categoryBtn = screen.getAllByRole('button', { name: /🔑 Registro y Cuenta/i })[0];
         fireEvent.click(categoryBtn);
 
         expect(screen.getByText(/Quiero saber sobre: 🔑 Registro y Cuenta/i)).toBeInTheDocument();
@@ -131,5 +131,94 @@ describe('FAQChatbot Component Tests', () => {
         });
 
         expect(screen.getByText(/Aquí tienes las preguntas frecuentes sobre/i)).toBeInTheDocument();
+    });
+
+    it('responde amigablemente ante saludos', () => {
+        renderChatbot();
+        const floatingBtn = screen.getByRole('button', { name: /Pili Chatbot/i });
+        fireEvent.click(floatingBtn);
+
+        const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
+
+        fireEvent.change(input, { target: { value: 'Hola bot' } });
+        fireEvent.click(submitBtn);
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        expect(screen.getByText(/¡Hola! 😊 ¿Cómo estás\? Soy Pili 🤖/i)).toBeInTheDocument();
+    });
+
+    it('responde sobre agendar mentorias', () => {
+        renderChatbot();
+        const floatingBtn = screen.getByRole('button', { name: /Pili Chatbot/i });
+        fireEvent.click(floatingBtn);
+
+        const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
+
+        fireEvent.change(input, { target: { value: 'como agendo una mentoria' } });
+        fireEvent.click(submitBtn);
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        expect(screen.getByText(/¿Cómo agendo o pacto una tutoría\/mentoría\?/i)).toBeInTheDocument();
+        expect(screen.getByText(/Ve a la sección "Buscar Tutor"/i)).toBeInTheDocument();
+    });
+
+    it('responde sobre ganancias de ESPE-Coins y XP por tutoria', () => {
+        renderChatbot();
+        const floatingBtn = screen.getByRole('button', { name: /Pili Chatbot/i });
+        fireEvent.click(floatingBtn);
+
+        const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
+
+        fireEvent.change(input, { target: { value: 'cuantos espe coins y exp gano por completar una tutoria' } });
+        fireEvent.click(submitBtn);
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        // Debe encontrar múltiples sugerencias porque coincide con "espe-coins" general y con el específico
+        expect(screen.getByText(/Encontré las siguientes preguntas relacionadas con tu búsqueda/i)).toBeInTheDocument();
+
+        // Clic en la opción específica
+        const optionBtn = screen.getByRole('button', { name: /¿Cuántos ESPE-Coins y puntos de experiencia \(XP\) gano por completar una tutoría\?/i });
+        fireEvent.click(optionBtn);
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        expect(screen.getByText(/Aprendiz \(Estudiante\)/i)).toBeInTheDocument();
+        expect(screen.getByText(/15 ESPE-Coins/i)).toBeInTheDocument();
+        expect(screen.getByText(/Tutor \(Mentor\)/i)).toBeInTheDocument();
+        expect(screen.getByText(/35 ESPE-Coins/i)).toBeInTheDocument();
+    });
+
+    it('responde sobre actualizacion de Leaderboards', () => {
+        renderChatbot();
+        const floatingBtn = screen.getByRole('button', { name: /Pili Chatbot/i });
+        fireEvent.click(floatingBtn);
+
+        const input = screen.getByPlaceholderText('Hazme una pregunta sobre Pilas!...');
+        const submitBtn = screen.getByRole('button', { name: /Enviar/i });
+
+        fireEvent.change(input, { target: { value: 'cada cuanto se actualizan lo leaderboars' } });
+        fireEvent.click(submitBtn);
+
+        act(() => {
+            vi.runAllTimers();
+        });
+
+        expect(screen.getByText(/¿Cada cuánto se actualiza la tabla de posiciones o Leaderboard\?/i)).toBeInTheDocument();
+        expect(screen.getByText(/se calcula y actualiza/i)).toBeInTheDocument();
+        expect(screen.getByText(/en tiempo real/i)).toBeInTheDocument();
     });
 });
