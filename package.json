@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "build": "vite build",
     "postbuild": "find dist -type d -exec setfacl -m u:www-data:r-x {} + && find dist -type f -exec setfacl -m u:www-data:r-- {} +",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sonar": "npx @sonar/scan"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
@@ -35,6 +37,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",

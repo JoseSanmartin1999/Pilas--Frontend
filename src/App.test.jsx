@@ -11,7 +11,7 @@ describe("Aplicación Pilas", () => {
         render(<App />);
 
         expect(
-            screen.getByText(/¡Ponte las Pilas!/i)
+            screen.getByText(/Ponte las Pilas!/i)
         ).toBeInTheDocument();
 
     });
@@ -21,17 +21,17 @@ describe("Aplicación Pilas", () => {
         render(<App />);
 
         expect(
-            screen.getByText(/Busca tu Tutor/i)
+            screen.getByText(/Buscar un Tutor/i)
         ).toBeInTheDocument();
 
     });
 
-    it("muestra la sección Gana Insignias", () => {
+    it("muestra la opción de Ser Mentor", () => {
 
         render(<App />);
 
         expect(
-            screen.getByText(/Gana Insignias/i)
+            screen.getByText(/Ser Mentor \/ Tutor/i)
         ).toBeInTheDocument();
 
     });

@@ -54,7 +54,7 @@ const Register = () => {
 
     // Si cambia el semestre o el rol y el semestre es <= 3, forzar rol a APRENDIZ
     useEffect(() => {
-        const sem = parseInt(formData.current_semester, 10);
+        const sem = Number.parseInt(formData.current_semester, 10);
         if (sem <= 3 && formData.role === 'MENTOR') {
             setFormData(prev => ({ ...prev, role: 'APRENDIZ' }));
             showNotification("Los estudiantes de primer a tercer semestre solo pueden registrarse como Aprendices.", "info");
@@ -145,7 +145,7 @@ const Register = () => {
             return;
         }
 
-        if (parseInt(formData.current_semester, 10) <= 3 && formData.role === 'MENTOR') {
+        if (Number.parseInt(formData.current_semester, 10) <= 3 && formData.role === 'MENTOR') {
             showNotification("Los estudiantes de primer a tercer semestre solo pueden registrarse como Aprendices.", "warning");
             return;
         }
@@ -308,8 +308,8 @@ const Register = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Seleccionar tu Rol</label>
                                 <select name="role" value={formData.role} onChange={handleInputChange} className="input-style font-bold text-pilas-blue w-full">
                                     <option value="APRENDIZ">Soy Aprendiz</option>
-                                    <option value="MENTOR" disabled={parseInt(formData.current_semester, 10) <= 3}>
-                                        Soy Mentor {parseInt(formData.current_semester, 10) <= 3 && " (Disponible desde 4° Semestre)"}
+                                    <option value="MENTOR" disabled={Number.parseInt(formData.current_semester, 10) <= 3}>
+                                        Soy Mentor {Number.parseInt(formData.current_semester, 10) <= 3 && " (Disponible desde 4° Semestre)"}
                                     </option>
                                 </select>
                             </div>
