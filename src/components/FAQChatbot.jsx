@@ -23,9 +23,9 @@ const FAQ_DATABASE = [
   },
   // CATEGORÍA: TUTORÍAS
   {
-    keywords: ['solicitar', 'pactar', 'pedir tutoria', 'agendar tutoria', 'agendar'],
-    question: '¿Cómo puedo solicitar o pactar una tutoría?',
-    answer: 'Ve a la sección "Buscar Tutor", filtra por materia o nivel, y entra al perfil del tutor que prefieras. Haz clic en el botón "Pactar Tutoría", selecciona la fecha, hora, duración (de 45 min a 2 horas) y la modalidad.',
+    keywords: ['solicitar', 'pactar', 'pedir tutoria', 'agendar tutoria', 'agendar', 'como agendo', 'agendo mentoria', 'como agendo una mentoria', 'agendar una mentoria'],
+    question: '¿Cómo agendo o pacto una tutoría/mentoría?',
+    answer: 'Ve a la sección "Buscar Tutor", filtra por materia o nivel, y entra al perfil del tutor de tu preferencia. Haz clic en el botón "Pactar Tutoría", selecciona la fecha, hora, duración (de 45 min a 2 horas) y la modalidad (presencial u online). ¡Listo! El tutor recibirá tu propuesta y podrá aceptarla o reprogramarla.',
     category: 'tutorias'
   },
   {
@@ -76,6 +76,18 @@ const FAQ_DATABASE = [
     keywords: ['xp', 'nivel', 'subir de nivel', 'experiencia'],
     question: '¿Cómo gano puntos de experiencia (XP) y subo de nivel?',
     answer: 'Mentor y aprendiz ganan 100 XP base automáticamente al finalizar y marcar como completada una tutoría. A medida que acumulas XP, tu nivel se actualiza dinámicamente en tu perfil mostrando tu rango académico.',
+    category: 'gamificacion'
+  },
+  {
+    keywords: ['cuantos espe coins', 'cuanto exp gano', 'gano por completar', 'completar una tutoria', 'espe coins por tutoria', 'xp por tutoria', 'ganancia tutoria', 'espe coins y exp', 'recompensas tutoria', 'coins y exp'],
+    question: '¿Cuántos ESPE-Coins y puntos de experiencia (XP) gano por completar una tutoría?',
+    answer: '¡Al finalizar una tutoría con éxito, ambos participantes ganan!\n\n• **Aprendiz (Estudiante)**: Gana **100 XP** base y **15 ESPE-Coins** al calificar y cerrar la tutoría.\n• **Tutor (Mentor)**: Gana **100 XP** base y **35 ESPE-Coins**.\n\n*Nota*: Si el aprendiz califica al tutor con 4.5 estrellas o más (★), el tutor recibe un **bono extra de 100 XP y 50 ESPE-Coins** adicionales.',
+    category: 'gamificacion'
+  },
+  {
+    keywords: ['leaderboard', 'leaderboards', 'ranking', 'tabla de posiciones', 'actualizar ranking', 'cuando se actualiza', 'cada cuanto se actualiza', 'tiempo real'],
+    question: '¿Cada cuánto se actualiza la tabla de posiciones o Leaderboard?',
+    answer: 'El ranking de tutores (Leaderboard) se calcula y actualiza **en tiempo real**. Tan pronto como una tutoría finaliza y se registran los puntos de experiencia (XP) en el perfil del tutor, su posición en el ranking se refresca de forma inmediata.',
     category: 'gamificacion'
   },
   {
@@ -138,7 +150,8 @@ export default function FAQChatbot() {
           id: 'guide',
           sender: 'bot',
           text: 'Puedes seleccionar una de las siguientes categorías de ayuda o escribirme tu pregunta directamente en el chat a continuación.',
-          time: new Date()
+          time: new Date(),
+          options: CATEGORIES.map(c => ({ text: c.label, value: 'category_' + c.id }))
         }
       ]);
     }
@@ -151,12 +164,13 @@ export default function FAQChatbot() {
     }
   }, [messages, isOpen]);
 
-  const addMessage = (sender, text) => {
+  const addMessage = (sender, text, options = null) => {
     const newMessage = {
-      id: Date.now().toString(),
+      id: `${Date.now()}-${Math.random()}`,
       sender,
       text,
-      time: new Date()
+      time: new Date(),
+      options
     };
     setMessages(prev => [...prev, newMessage]);
   };
@@ -177,6 +191,23 @@ export default function FAQChatbot() {
 
   const processUserQuery = (query) => {
     const cleanedQuery = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // remover acentos
+    
+    // Detector de saludos y consultas sencillas de cortesía
+    const greetings = ['hola', 'buen dia', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey', 'hello', 'hi', 'pili', 'que tal', 'como estas', 'saludos'];
+    const isGreeting = greetings.some(g => {
+      const cleanedG = g.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return cleanedQuery === cleanedG || 
+             cleanedQuery.startsWith(cleanedG + ' ') || 
+             cleanedQuery.endsWith(' ' + cleanedG) ||
+             (cleanedQuery.includes(cleanedG) && cleanedQuery.length <= cleanedG.length + 8);
+    });
+
+    if (isGreeting) {
+      addMessage('bot', '¡Hola! 😊 ¿Cómo estás? Soy Pili 🤖, tu asistente virtual de **Ponte las Pilas!**.\n\nEstoy aquí para responder a tus dudas sobre la plataforma. ¿En qué te puedo colaborar hoy? Puedes consultarme sobre tutorías, cómo ganar ESPE-Coins, el funcionamiento de los rankings, o cómo crear un ticket de soporte técnico.', 
+        CATEGORIES.map(c => ({ text: c.label, value: 'category_' + c.id }))
+      );
+      return;
+    }
     
     const matchesList = [];
 
@@ -203,38 +234,79 @@ export default function FAQChatbot() {
       
       if (matchesList.length === 1) {
         const best = matchesList[0].faq;
-        addMessage('bot', `**Pregunta:** ${best.question}\n\n${best.answer}`);
+        addMessage('bot', `**Pregunta:** ${best.question}\n\n${best.answer}`, [
+          { text: '🔙 Ver otras preguntas de esta categoría', value: 'back_to_category_' + best.category },
+          { text: '🏠 Menú Principal', value: 'back_to_menu' }
+        ]);
       } else {
         const topMatches = matchesList.slice(0, 3);
-        let replyText = `Encontré las siguientes preguntas relacionadas con tu búsqueda:\n\n`;
-        topMatches.forEach(({ faq }) => {
-          replyText += `• **${faq.question}**\n${faq.answer}\n\n`;
-        });
-        addMessage('bot', replyText.trim());
+        addMessage('bot', `Encontré las siguientes preguntas relacionadas con tu búsqueda. Selecciona una para ver su respuesta:`, 
+          topMatches.map(({ faq }) => ({ text: faq.question, value: faq.keywords[0] }))
+        );
       }
     } else {
-      addMessage('bot', 'Lo siento, no encontré una respuesta exacta a tu pregunta. 😅\n\nPrueba utilizando palabras clave más cortas (como "monedas", "tutor", "zoom", "chat", "workspace") o selecciona una de las categorías temáticas en los botones de arriba.');
+      addMessage('bot', 'Lo siento, no encontré una respuesta exacta a tu pregunta. 😅\n\nPrueba utilizando palabras clave más cortas (como "monedas", "tutor", "zoom", "chat", "workspace") o selecciona una de las categorías temáticas.', [
+        { text: '🏠 Ir al Menú Principal', value: 'back_to_menu' }
+      ]);
     }
+  };
+
+  const showCategoryQuestions = (categoryId) => {
+    const category = CATEGORIES.find(c => c.id === categoryId);
+    const filteredFaqs = FAQ_DATABASE.filter(faq => faq.category === categoryId);
+    
+    addMessage('bot', `Aquí tienes las preguntas frecuentes sobre **${category.label}**. Selecciona una para ver su respuesta:`, 
+      filteredFaqs.map(faq => ({
+        text: faq.question,
+        value: faq.keywords[0]
+      }))
+    );
   };
 
   const handleSelectCategory = (categoryId) => {
     const category = CATEGORIES.find(c => c.id === categoryId);
     setSelectedCategoryId(categoryId);
-    
-    // Imprimir mensaje del usuario simulado
     addMessage('user', `Quiero saber sobre: ${category.label}`);
 
     setTimeout(() => {
-      // Filtrar preguntas de la categoría
-      const filteredFaqs = FAQ_DATABASE.filter(faq => faq.category === categoryId);
-      
-      let replyText = `Aquí tienes las preguntas frecuentes sobre **${category.label}**:\n\n`;
-      filteredFaqs.forEach((faq, index) => {
-        replyText += `• **${faq.question}**\n${faq.answer}\n\n`;
-      });
-
-      addMessage('bot', replyText);
+      showCategoryQuestions(categoryId);
     }, 600);
+  };
+
+  const handleOptionClick = (opt) => {
+    if (opt.value === 'back_to_menu') {
+      addMessage('user', 'Volver al Menú Principal 🏠');
+      setTimeout(() => {
+        addMessage('bot', 'Elige una categoría de ayuda para ver sus preguntas frecuentes:', 
+          CATEGORIES.map(c => ({ text: c.label, value: 'category_' + c.id }))
+        );
+      }, 600);
+    } else if (opt.value.startsWith('category_')) {
+      const catId = opt.value.replace('category_', '');
+      handleSelectCategory(catId);
+    } else if (opt.value.startsWith('back_to_category_')) {
+      const catId = opt.value.replace('back_to_category_', '');
+      addMessage('user', 'Ver otras preguntas 🔙');
+      setTimeout(() => {
+        showCategoryQuestions(catId);
+      }, 600);
+    } else {
+      // Es una pregunta frecuente específica.
+      addMessage('user', opt.text);
+      setTimeout(() => {
+        const faq = FAQ_DATABASE.find(f => f.question === opt.text || f.keywords.includes(opt.value));
+        if (faq) {
+          addMessage('bot', `**Pregunta:** ${faq.question}\n\n${faq.answer}`, [
+            { text: '🔙 Ver otras preguntas de esta categoría', value: 'back_to_category_' + faq.category },
+            { text: '🏠 Menú Principal', value: 'back_to_menu' }
+          ]);
+        } else {
+          addMessage('bot', 'Lo siento, no encontré la respuesta detallada. 😅', [
+            { text: '🏠 Volver al menú principal', value: 'back_to_menu' }
+          ]);
+        }
+      }, 600);
+    }
   };
 
   const handleResetChat = () => {
@@ -243,7 +315,8 @@ export default function FAQChatbot() {
         id: 'welcome-' + Date.now(),
         sender: 'bot',
         text: '¡Conversación reiniciada! ¿En qué otra cosa te puedo ayudar hoy? 🤖',
-        time: new Date()
+        time: new Date(),
+        options: CATEGORIES.map(c => ({ text: c.label, value: 'category_' + c.id }))
       }
     ]);
   };
@@ -305,37 +378,51 @@ export default function FAQChatbot() {
           {/* Historial de Mensajes */}
           <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/50">
             {messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} items-start space-x-2`}
-              >
-                {msg.sender === 'bot' && (
-                  <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
-                    <img src={chatbotIcon} alt="Bot" className="w-full h-full object-cover scale-[1.6]" />
+              <div key={msg.id} className="space-y-2">
+                <div className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} items-start space-x-2`}>
+                  {msg.sender === 'bot' && (
+                    <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0 mt-0.5">
+                      <img src={chatbotIcon} alt="Bot" className="w-full h-full object-cover scale-[1.6]" />
+                    </div>
+                  )}
+                  <div 
+                    className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl shadow-sm text-sm leading-relaxed whitespace-pre-line
+                      ${msg.sender === 'user' 
+                        ? 'bg-gradient-to-br from-[#0f592f] to-[#156b3b] text-white rounded-tr-none' 
+                        : 'bg-white text-gray-800 border border-gray-150 rounded-tl-none'
+                      }`}
+                  >
+                    {/* Renderizado básico de Markdown simple para negritas */}
+                    {msg.text.split('**').map((chunk, i) => i % 2 === 1 ? <strong key={i} className="font-extrabold text-[#0f592f] dark:text-white">{chunk}</strong> : chunk)}
+                    
+                    {/* Timestamp discreto */}
+                    <span className={`block text-[9px] mt-1.5 text-right ${msg.sender === 'user' ? 'text-white/60' : 'text-gray-400'}`}>
+                      {msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Opciones del Mensaje */}
+                {msg.options && msg.options.length > 0 && (
+                  <div className="flex flex-col space-y-1.5 pl-10 pr-4 items-start">
+                    {msg.options.map((opt, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleOptionClick(opt)}
+                        className="text-left px-3 py-1.5 rounded-2xl text-xs font-semibold bg-emerald-50 text-[#0f592f] border border-emerald-100 hover:bg-[#0f592f] hover:text-white hover:border-[#0f592f] transition-all duration-200 shadow-sm active:scale-95 cursor-pointer max-w-[90%]"
+                      >
+                        {opt.text}
+                      </button>
+                    ))}
                   </div>
                 )}
-                <div 
-                  className={`max-w-[78%] px-3.5 py-2.5 rounded-2xl shadow-sm text-sm leading-relaxed whitespace-pre-line
-                    ${msg.sender === 'user' 
-                      ? 'bg-gradient-to-br from-[#0f592f] to-[#156b3b] text-white rounded-tr-none' 
-                      : 'bg-white text-gray-800 border border-gray-150 rounded-tl-none'
-                    }`}
-                >
-                  {/* Renderizado básico de Markdown simple para negritas */}
-                  {msg.text.split('**').map((chunk, i) => i % 2 === 1 ? <strong key={i} className="font-extrabold text-[#0f592f] dark:text-white">{chunk}</strong> : chunk)}
-                  
-                  {/* Timestamp discreto */}
-                  <span className={`block text-[9px] mt-1.5 text-right ${msg.sender === 'user' ? 'text-white/60' : 'text-gray-400'}`}>
-                    {msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
               </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Botones de Categorías Rápidas */}
-          <div className="p-3 border-t border-gray-200 bg-white/65 flex overflow-x-auto space-x-2 scrollbar-none">
+          <div className="p-3 border-t border-gray-200 bg-white/65 flex overflow-x-auto space-x-2 scrollbar-none flex-shrink-0">
             {CATEGORIES.map(category => (
               <button
                 key={category.id}
@@ -350,7 +437,7 @@ export default function FAQChatbot() {
           {/* Input de Texto */}
           <form 
             onSubmit={handleSendMessage} 
-            className="p-3 bg-white border-t border-gray-200 flex items-center space-x-2"
+            className="p-3 bg-white border-t border-gray-200 flex items-center space-x-2 flex-shrink-0"
           >
             <input
               type="text"
@@ -361,6 +448,7 @@ export default function FAQChatbot() {
             />
             <button
               type="submit"
+              aria-label="Enviar"
               disabled={!inputText.trim()}
               className="w-9 h-9 rounded-full bg-[#0f592f] disabled:bg-gray-300 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all duration-200"
             >

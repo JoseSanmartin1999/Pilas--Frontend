@@ -237,4 +237,73 @@ describe('Calendario Page Tests', () => {
         });
         expect(writeTextMock).toHaveBeenCalledWith('pass');
     });
+
+    it('permite filtrar tutorías por un rango de fechas y mostrarlas cronológicamente', async () => {
+        renderCalendario();
+
+        await waitFor(() => {
+            expect(screen.getByText('Calendario de Tutorías')).toBeInTheDocument();
+        });
+
+        const startInput = screen.getByLabelText('Fecha de inicio');
+        const endInput = screen.getByLabelText('Fecha de fin');
+
+        // Formatear hoy y mañana en formato YYYY-MM-DD
+        const today = new Date();
+        const formatDate = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
+        const todayStr = formatDate(today);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = formatDate(tomorrow);
+
+        // Cambiar valores de rango
+        fireEvent.change(startInput, { target: { value: todayStr } });
+        fireEvent.change(endInput, { target: { value: tomorrowStr } });
+
+        // Debe cambiar el título del panel
+        expect(screen.getByText('Tutorías en Rango')).toBeInTheDocument();
+
+        // Debe listar ambas tutorías aceptadas (Cálculo Vectorial hoy y Álgebra Lineal mañana)
+        expect(screen.getByText('Cálculo Vectorial')).toBeInTheDocument();
+        expect(screen.getByText('Álgebra Lineal')).toBeInTheDocument();
+    });
+
+    it('permite limpiar el filtro de rango de fechas para volver a la vista diaria', async () => {
+        renderCalendario();
+
+        await waitFor(() => {
+            expect(screen.getByText('Calendario de Tutorías')).toBeInTheDocument();
+        });
+
+        const startInput = screen.getByLabelText('Fecha de inicio');
+        const endInput = screen.getByLabelText('Fecha de fin');
+
+        const today = new Date();
+        const formatDate = (date) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
+        fireEvent.change(startInput, { target: { value: formatDate(today) } });
+        fireEvent.change(endInput, { target: { value: formatDate(today) } });
+
+        expect(screen.getByText('Tutorías en Rango')).toBeInTheDocument();
+
+        // Limpiar el filtro
+        const clearBtn = screen.getByRole('button', { name: /Limpiar Filtro/i });
+        fireEvent.click(clearBtn);
+
+        // Debe regresar al título original
+        expect(screen.getByText('Detalle de Planificación')).toBeInTheDocument();
+        expect(startInput.value).toBe('');
+        expect(endInput.value).toBe('');
+    });
 });

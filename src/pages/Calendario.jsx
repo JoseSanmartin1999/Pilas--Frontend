@@ -3,12 +3,18 @@ import axios from 'axios';
 import { useNotification } from '../context/NotificationContext';
 import config from '../config/constants.json';
 
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://pilas-backend.onrender.com';
+
 const Calendario = () => {
     const { showNotification } = useNotification();
     const [mentorships, setMentorships] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
+    
+    // Estados para filtro por rango de fechas
+    const [startDateStr, setStartDateStr] = useState('');
+    const [endDateStr, setEndDateStr] = useState('');
 
     const currentUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
@@ -16,9 +22,44 @@ const Calendario = () => {
     const MESES = config.MONTHS;
     const DIAS_SEMANA = config.WEEKDAYS;
 
+    // Utilidad para parsear fecha local sin desfases horários
+    const parseLocalDate = (dateStr) => {
+        if (!dateStr) return null;
+        const [y, m, d] = dateStr.split('-').map(Number);
+        return new Date(y, m - 1, d);
+    };
+
+    // Helper para verificar si un día del calendario entra en el rango
+    const isDateWithinRange = (date) => {
+        if (!startDateStr || !endDateStr) return false;
+        const start = parseLocalDate(startDateStr);
+        const end = parseLocalDate(endDateStr);
+        const check = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        return check >= start && check <= end;
+    };
+
+    // Obtener tutorías en el rango ordenadas cronológicamente
+    const getMentorshipsInRange = () => {
+        if (!startDateStr || !endDateStr) return [];
+        const start = parseLocalDate(startDateStr);
+        const end = parseLocalDate(endDateStr);
+        return mentorships.filter(m => {
+            const mDate = new Date(m.scheduled_date);
+            const check = new Date(mDate.getFullYear(), mDate.getMonth(), mDate.getDate());
+            return check >= start && check <= end;
+        }).sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+    };
+
+    const isRangeActive = !!(startDateStr && endDateStr);
+
+    const handleClearRangeFilter = () => {
+        setStartDateStr('');
+        setEndDateStr('');
+    };
+
     const fetchMentorships = useCallback(async () => {
         try {
-            const res = await axios.get(`${config.API_URL}/api/mentorships/user/${currentUser.id}`);
+            const res = await axios.get(`${BACKEND_URL}/api/mentorships/user/${currentUser.id}`);
             // Filtrar solo las aceptadas (excluyendo mensajes del sistema)
             const aceptadas = res.data.filter(m => m.status === 'ACEPTADA' && m.subject_name !== 'Pilas! Comunidad');
             setMentorships(aceptadas);
@@ -198,6 +239,47 @@ const Calendario = () => {
                     </button>
                 </div>
 
+                {/* Panel de Filtro por Rango de Fechas */}
+                <div className="bg-white rounded-[2rem] p-6 mb-8 border border-gray-100 shadow-xl shadow-slate-100/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <span className="text-2xl">🔍</span>
+                        <div>
+                            <h3 className="font-bold text-slate-800 text-sm">Consultar por Rango de Fechas</h3>
+                            <p className="text-xs text-gray-400">Selecciona un rango para organizar y ver todas tus tutorías en ese intervalo.</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-semibold text-gray-500">Desde:</label>
+                            <input 
+                                type="date" 
+                                aria-label="Fecha de inicio"
+                                value={startDateStr} 
+                                onChange={e => setStartDateStr(e.target.value)}
+                                className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-pilas-blue focus:border-transparent bg-slate-50"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs font-semibold text-gray-500">Hasta:</label>
+                            <input 
+                                type="date" 
+                                aria-label="Fecha de fin"
+                                value={endDateStr} 
+                                onChange={e => setEndDateStr(e.target.value)}
+                                className="px-3 py-2 border border-gray-200 rounded-xl text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-pilas-blue focus:border-transparent bg-slate-50"
+                            />
+                        </div>
+                        {isRangeActive && (
+                            <button
+                                onClick={handleClearRangeFilter}
+                                className="px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 font-bold rounded-xl text-xs hover:bg-rose-100 transition-colors"
+                            >
+                                Limpiar Filtro
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 {/* Grid del Calendario y Detalle */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     
@@ -219,6 +301,7 @@ const Calendario = () => {
                                 const hasTutorias = dayTutorias.length > 0;
                                 const isSelected = isSameDay(cell.date, selectedDate);
                                 const isToday = isSameDay(cell.date, today);
+                                const inRange = isDateWithinRange(cell.date);
 
                                 return (
                                     <button
@@ -229,6 +312,8 @@ const Calendario = () => {
                                                 ? 'text-gray-300 border-transparent hover:bg-slate-50/50'
                                                 : isSelected
                                                 ? 'bg-pilas-blue text-white border-pilas-blue shadow-lg shadow-[#0f592f]/10 font-bold scale-[1.03]'
+                                                : inRange
+                                                ? 'bg-emerald-50 text-[#0f592f] border-emerald-250 font-bold shadow-sm hover:bg-emerald-100/80'
                                                 : isToday
                                                 ? 'border-pilas-blue text-pilas-blue bg-[#0f592f]/5 font-bold'
                                                 : 'bg-white text-slate-700 border-gray-100 hover:border-gray-300 hover:bg-slate-50'
@@ -269,131 +354,265 @@ const Calendario = () => {
                     <div className="lg:col-span-4 bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-100/50 border border-gray-100/80 min-h-[400px] flex flex-col">
                         <div className="border-b border-gray-100 pb-4 mb-4">
                             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                <span>📋</span> Detalle de Planificación
+                                <span>📋</span> {isRangeActive ? 'Tutorías en Rango' : 'Detalle de Planificación'}
                             </h2>
                             <p className="text-gray-400 text-xs mt-1 font-medium">
-                                {selectedDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                {isRangeActive 
+                                    ? `Desde el ${new Date(startDateStr + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} hasta el ${new Date(endDateStr + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                                    : selectedDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                                }
                             </p>
                         </div>
 
-                        {selectedDayMentorships.length === 0 ? (
-                            <div className="flex-grow flex flex-col justify-center items-center text-center p-8">
-                                <div className="text-5xl mb-4 grayscale opacity-60">🏖️</div>
-                                <h3 className="font-bold text-slate-700 text-base">Día Libre</h3>
-                                <p className="text-gray-400 text-xs mt-1.5 max-w-[240px]">
-                                    No tienes tutorías aceptadas programadas para este día. ¡Buen momento para descansar!
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="flex-grow flex flex-col gap-4 overflow-y-auto max-h-[500px] pr-1">
-                                {selectedDayMentorships.map((tutoria) => {
-                                    const isMentor = String(currentUser.id) === String(tutoria.mentor_id);
-                                    const partnerName = isMentor ? tutoria.apprentice_name : tutoria.mentor_name;
-                                    const roleLabel = isMentor ? 'Aprendiz' : 'Mentor';
+                        {isRangeActive ? (
+                            getMentorshipsInRange().length === 0 ? (
+                                <div className="flex-grow flex flex-col justify-center items-center text-center p-8">
+                                    <div className="text-5xl mb-4 grayscale opacity-60">🏖️</div>
+                                    <h3 className="font-bold text-slate-700 text-base">Sin Tutorías</h3>
+                                    <p className="text-gray-400 text-xs mt-1.5 max-w-[240px]">
+                                        No tienes tutorías aceptadas programadas para el rango de fechas seleccionado.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="flex-grow flex flex-col gap-4 overflow-y-auto max-h-[500px] pr-1">
+                                    {getMentorshipsInRange().map((tutoria) => {
+                                        const isMentor = String(currentUser.id) === String(tutoria.mentor_id);
+                                        const partnerName = isMentor ? tutoria.apprentice_name : tutoria.mentor_name;
+                                        const roleLabel = isMentor ? 'Aprendiz' : 'Mentor';
+                                        
+                                        const formattedDateLabel = new Date(tutoria.scheduled_date).toLocaleDateString('es-ES', {
+                                            weekday: 'short',
+                                            day: 'numeric',
+                                            month: 'short'
+                                        });
 
-                                    return (
-                                        <div
-                                            key={tutoria.id}
-                                            className="bg-slate-50/50 rounded-2xl p-4 border border-gray-100 hover:border-gray-200 transition-all flex flex-col gap-3 relative overflow-hidden"
-                                        >
-                                            {/* Decoración lateral */}
-                                            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-pilas-gold"></div>
+                                        return (
+                                            <div
+                                                key={tutoria.id}
+                                                className="bg-slate-50/50 rounded-2xl p-4 border border-gray-100 hover:border-gray-200 transition-all flex flex-col gap-3 relative overflow-hidden"
+                                            >
+                                                {/* Decoración lateral */}
+                                                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-500"></div>
 
-                                            {/* Hora y Tema */}
-                                            <div className="flex justify-between items-start pl-2">
-                                                <div>
-                                                    <h4 className="font-bold text-slate-800 text-base leading-tight">
-                                                        {tutoria.subject_name}
-                                                    </h4>
-                                                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1 font-medium">
-                                                        <span>👤</span> {roleLabel}: <span className="text-slate-700 font-semibold">{partnerName}</span>
-                                                    </p>
-                                                </div>
-                                                <span className="bg-pilas-blue/10 text-pilas-blue font-bold text-xs px-2.5 py-1 rounded-xl">
-                                                    {formatTime(tutoria.scheduled_date)}
-                                                </span>
-                                            </div>
-
-                                            {/* Objetivos */}
-                                            {tutoria.objectives && (
-                                                <div className="bg-white p-2.5 rounded-xl border border-gray-100 text-xs text-gray-600 pl-2">
-                                                    <strong className="text-slate-700 font-bold block mb-1">🎯 Objetivos:</strong>
-                                                    {tutoria.objectives}
-                                                </div>
-                                            )}
-
-                                            {/* Modalidad y Enlaces */}
-                                            <div className="pl-2">
-                                                <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3">
-                                                    <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
-                                                        <span>📍</span> Modalidad:
-                                                        <span className={`px-2 py-0.5 rounded-full font-extrabold ${
-                                                            tutoria.modality === 'Online' 
-                                                                ? 'bg-sky-550/10 text-sky-600 bg-sky-50' 
-                                                                : 'bg-emerald-550/10 text-emerald-600 bg-emerald-50'
-                                                        }`}>
-                                                            {tutoria.modality}
+                                                {/* Fecha, Hora y Tema */}
+                                                <div className="flex justify-between items-start pl-2">
+                                                    <div>
+                                                        <span className="text-[10px] uppercase tracking-wider font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md mb-1.5 inline-block font-sans">
+                                                            {formattedDateLabel}
                                                         </span>
+                                                        <h4 className="font-bold text-slate-800 text-base leading-tight">
+                                                            {tutoria.subject_name}
+                                                        </h4>
+                                                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1 font-medium">
+                                                            <span>👤</span> {roleLabel}: <span className="text-slate-700 font-semibold">{partnerName}</span>
+                                                        </p>
                                                     </div>
-                                                    <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
-                                                        <span>⏳</span> Duración:
-                                                        <span className="px-2 py-0.5 rounded-full font-extrabold bg-amber-50 text-amber-600 border border-amber-200/30">
-                                                            {tutoria.estimated_duration || '1 hora'}
-                                                        </span>
-                                                    </div>
+                                                    <span className="bg-pilas-blue/10 text-pilas-blue font-bold text-xs px-2.5 py-1 rounded-xl">
+                                                        {formatTime(tutoria.scheduled_date)}
+                                                    </span>
                                                 </div>
 
-                                                {tutoria.modality === 'Online' ? (
-                                                    <div className="flex flex-col gap-2 bg-sky-50/40 p-2.5 rounded-xl border border-sky-100/50">
-                                                        <div className="flex items-center justify-between text-xs text-slate-600">
-                                                            <span>Plataforma: <strong className="text-slate-800">{tutoria.platform || 'Virtual'}</strong></span>
-                                                        </div>
-                                                        {tutoria.meeting_link && (
-                                                            <a
-                                                                href={tutoria.meeting_link.startsWith('http') ? tutoria.meeting_link : `https://${tutoria.meeting_link}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition-colors shadow-sm inline-block"
-                                                            >
-                                                                🚀 Unirse a Reunión
-                                                            </a>
-                                                        )}
-                                                        {tutoria.zoom_code && (
-                                                            <div className="flex justify-between items-center text-xs border-t border-sky-100/50 pt-2 mt-1">
-                                                                <span className="text-gray-500">ID de Reunión:</span>
-                                                                <button
-                                                                    onClick={() => copyToClipboard(tutoria.zoom_code, "ID de Zoom")}
-                                                                    className="font-bold text-sky-600 hover:text-sky-700 underline flex items-center gap-1"
-                                                                >
-                                                                    {tutoria.zoom_code} 📋
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                        {tutoria.zoom_password && (
-                                                            <div className="flex justify-between items-center text-xs">
-                                                                <span className="text-gray-500">Código de Acceso:</span>
-                                                                <button
-                                                                    onClick={() => copyToClipboard(tutoria.zoom_password, "Contraseña")}
-                                                                    className="font-bold text-sky-600 hover:text-sky-700 underline flex items-center gap-1"
-                                                                >
-                                                                    {tutoria.zoom_password} 📋
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/50 text-xs">
-                                                        <span className="text-gray-500 block mb-1">Lugar de Encuentro:</span>
-                                                        <strong className="text-slate-800 block pl-1 bg-white p-1.5 rounded-lg border border-gray-100">
-                                                            {tutoria.meeting_place || "No especificado"}
-                                                        </strong>
+                                                {/* Objetivos */}
+                                                {tutoria.objectives && (
+                                                    <div className="bg-white p-2.5 rounded-xl border border-gray-100 text-xs text-gray-600 pl-2">
+                                                        <strong className="text-slate-700 font-bold block mb-1">🎯 Objetivos:</strong>
+                                                        {tutoria.objectives}
                                                     </div>
                                                 )}
+
+                                                {/* Modalidad y Enlaces */}
+                                                <div className="pl-2">
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3">
+                                                        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                                                            <span>📍</span> Modalidad:
+                                                            <span className={`px-2 py-0.5 rounded-full font-extrabold ${
+                                                                tutoria.modality === 'Online' 
+                                                                    ? 'bg-sky-550/10 text-sky-600 bg-sky-50' 
+                                                                    : 'bg-emerald-550/10 text-emerald-600 bg-emerald-50'
+                                                            }`}>
+                                                                {tutoria.modality}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                                                            <span>⏳</span> Duración:
+                                                            <span className="px-2 py-0.5 rounded-full font-extrabold bg-amber-50 text-amber-600 border border-amber-200/30">
+                                                                {tutoria.estimated_duration || '1 hora'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {tutoria.modality === 'Online' ? (
+                                                        <div className="flex flex-col gap-2 bg-sky-50/40 p-2.5 rounded-xl border border-sky-100/50">
+                                                            <div className="flex items-center justify-between text-xs text-slate-600">
+                                                                <span>Plataforma: <strong className="text-slate-800">{tutoria.platform || 'Virtual'}</strong></span>
+                                                            </div>
+                                                            {tutoria.meeting_link && (
+                                                                <a
+                                                                    href={tutoria.meeting_link.startsWith('http') ? tutoria.meeting_link : `https://${tutoria.meeting_link}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition-colors shadow-sm inline-block"
+                                                                >
+                                                                    🚀 Unirse a Reunión
+                                                                </a>
+                                                            )}
+                                                            {tutoria.zoom_code && (
+                                                                <div className="flex justify-between items-center text-xs border-t border-sky-100/50 pt-2 mt-1">
+                                                                    <span className="text-gray-500">ID de Reunión:</span>
+                                                                    <button
+                                                                        onClick={() => copyToClipboard(tutoria.zoom_code, "ID de Zoom")}
+                                                                        className="font-bold text-sky-600 hover:text-sky-700 underline flex items-center gap-1"
+                                                                    >
+                                                                        {tutoria.zoom_code} 📋
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {tutoria.zoom_password && (
+                                                                <div className="flex justify-between items-center text-xs">
+                                                                    <span className="text-gray-500">Código de Acceso:</span>
+                                                                    <button
+                                                                        onClick={() => copyToClipboard(tutoria.zoom_password, "Contraseña")}
+                                                                        className="font-bold text-sky-600 hover:text-sky-700 underline flex items-center gap-1"
+                                                                    >
+                                                                        {tutoria.zoom_password} 📋
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/50 text-xs">
+                                                            <span className="text-gray-500 block mb-1">Lugar de Encuentro:</span>
+                                                            <strong className="text-slate-800 block pl-1 bg-white p-1.5 rounded-lg border border-gray-100">
+                                                                {tutoria.meeting_place || "No especificado"}
+                                                            </strong>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )
+                        ) : (
+                            selectedDayMentorships.length === 0 ? (
+                                <div className="flex-grow flex flex-col justify-center items-center text-center p-8">
+                                    <div className="text-5xl mb-4 grayscale opacity-60">🏖️</div>
+                                    <h3 className="font-bold text-slate-700 text-base">Día Libre</h3>
+                                    <p className="text-gray-400 text-xs mt-1.5 max-w-[240px]">
+                                        No tienes tutorías aceptadas programadas para este día. ¡Buen momento para descansar!
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="flex-grow flex flex-col gap-4 overflow-y-auto max-h-[500px] pr-1">
+                                    {selectedDayMentorships.map((tutoria) => {
+                                        const isMentor = String(currentUser.id) === String(tutoria.mentor_id);
+                                        const partnerName = isMentor ? tutoria.apprentice_name : tutoria.mentor_name;
+                                        const roleLabel = isMentor ? 'Aprendiz' : 'Mentor';
+
+                                        return (
+                                            <div
+                                                key={tutoria.id}
+                                                className="bg-slate-50/50 rounded-2xl p-4 border border-gray-100 hover:border-gray-200 transition-all flex flex-col gap-3 relative overflow-hidden"
+                                            >
+                                                {/* Decoración lateral */}
+                                                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-pilas-gold"></div>
+
+                                                {/* Hora y Tema */}
+                                                <div className="flex justify-between items-start pl-2">
+                                                    <div>
+                                                        <h4 className="font-bold text-slate-800 text-base leading-tight">
+                                                            {tutoria.subject_name}
+                                                        </h4>
+                                                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1 font-medium">
+                                                            <span>👤</span> {roleLabel}: <span className="text-slate-700 font-semibold">{partnerName}</span>
+                                                        </p>
+                                                    </div>
+                                                    <span className="bg-pilas-blue/10 text-pilas-blue font-bold text-xs px-2.5 py-1 rounded-xl">
+                                                        {formatTime(tutoria.scheduled_date)}
+                                                    </span>
+                                                </div>
+
+                                                {/* Objetivos */}
+                                                {tutoria.objectives && (
+                                                    <div className="bg-white p-2.5 rounded-xl border border-gray-100 text-xs text-gray-600 pl-2">
+                                                        <strong className="text-slate-700 font-bold block mb-1">🎯 Objetivos:</strong>
+                                                        {tutoria.objectives}
+                                                    </div>
+                                                )}
+
+                                                {/* Modalidad y Enlaces */}
+                                                <div className="pl-2">
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3">
+                                                        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                                                            <span>📍</span> Modalidad:
+                                                            <span className={`px-2 py-0.5 rounded-full font-extrabold ${
+                                                                tutoria.modality === 'Online' 
+                                                                    ? 'bg-sky-550/10 text-sky-600 bg-sky-50' 
+                                                                    : 'bg-emerald-550/10 text-emerald-600 bg-emerald-50'
+                                                            }`}>
+                                                                {tutoria.modality}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+                                                            <span>⏳</span> Duración:
+                                                            <span className="px-2 py-0.5 rounded-full font-extrabold bg-amber-50 text-amber-600 border border-amber-200/30">
+                                                                {tutoria.estimated_duration || '1 hora'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {tutoria.modality === 'Online' ? (
+                                                        <div className="flex flex-col gap-2 bg-sky-50/40 p-2.5 rounded-xl border border-sky-100/50">
+                                                            <div className="flex items-center justify-between text-xs text-slate-600">
+                                                                <span>Plataforma: <strong className="text-slate-800">{tutoria.platform || 'Virtual'}</strong></span>
+                                                            </div>
+                                                            {tutoria.meeting_link && (
+                                                                <a
+                                                                    href={tutoria.meeting_link.startsWith('http') ? tutoria.meeting_link : `https://${tutoria.meeting_link}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-2 px-3 rounded-lg text-center transition-colors shadow-sm inline-block"
+                                                                >
+                                                                    🚀 Unirse a Reunión
+                                                                </a>
+                                                            )}
+                                                            {tutoria.zoom_code && (
+                                                                <div className="flex justify-between items-center text-xs border-t border-sky-100/50 pt-2 mt-1">
+                                                                    <span className="text-gray-500">ID de Reunión:</span>
+                                                                    <button
+                                                                        onClick={() => copyToClipboard(tutoria.zoom_code, "ID de Zoom")}
+                                                                        className="font-bold text-sky-600 hover:text-sky-700 underline flex items-center gap-1"
+                                                                    >
+                                                                        {tutoria.zoom_code} 📋
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                            {tutoria.zoom_password && (
+                                                                <div className="flex justify-between items-center text-xs">
+                                                                    <span className="text-gray-500">Código de Acceso:</span>
+                                                                    <button
+                                                                        onClick={() => copyToClipboard(tutoria.zoom_password, "Contraseña")}
+                                                                        className="font-bold text-sky-600 hover:text-sky-700 underline flex items-center gap-1"
+                                                                    >
+                                                                        {tutoria.zoom_password} 📋
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="bg-emerald-50/40 p-2.5 rounded-xl border border-emerald-100/50 text-xs">
+                                                            <span className="text-gray-500 block mb-1">Lugar de Encuentro:</span>
+                                                            <strong className="text-slate-800 block pl-1 bg-white p-1.5 rounded-lg border border-gray-100">
+                                                                {tutoria.meeting_place || "No especificado"}
+                                                            </strong>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )
                         )}
                     </div>
                 </div>
