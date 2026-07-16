@@ -113,8 +113,8 @@ const Beneficios = () => {
                                         'Accede a salas de tutoría personalizadas con chat en tiempo real y repositorios compartidos.',
                                         'Flexibilidad de horarios para programar mentorías presenciales u online (Meet/Zoom/Teams).',
                                         'Es totalmente gratuito y acumulas ESPE Coins por tu constancia y por calificar tutorías.'
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-start gap-3.5 text-sm text-slate-300 leading-relaxed font-normal">
+                                    ].map((item) => (
+                                        <li key={item} className="flex items-start gap-3.5 text-sm text-slate-300 leading-relaxed font-normal">
                                             <span className="text-emerald-400 font-black text-lg select-none">✓</span>
                                             <span>{item}</span>
                                         </li>
@@ -147,8 +147,8 @@ const Beneficios = () => {
                                         'Refuerza tus propios conocimientos estructurando y explicando temas clave.',
                                         'Posibilidad de convalidar horas de servicio comunitario u obtener certificaciones académicas oficiales.',
                                         'Recibe ESPE Coins y desbloquea insignias que potencian tu reputación en la comunidad.'
-                                    ].map((item, i) => (
-                                        <li key={i} className="flex items-start gap-3.5 text-sm text-slate-300 leading-relaxed font-normal">
+                                    ].map((item) => (
+                                        <li key={item} className="flex items-start gap-3.5 text-sm text-slate-300 leading-relaxed font-normal">
                                             <span className="text-amber-400 font-black text-lg select-none">✓</span>
                                             <span>{item}</span>
                                         </li>
@@ -317,9 +317,9 @@ const Beneficios = () => {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {REWARDS.map((reward, i) => (
+                        {REWARDS.map((reward) => (
                             <div
-                                key={i}
+                                key={reward.title}
                                 className="group bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex flex-col justify-between shadow-sm hover:shadow-xl hover:scale-[1.02] hover:border-pilas-gold/30 transition-all duration-300"
                             >
                                 <div className="space-y-4">
@@ -364,9 +364,9 @@ const Beneficios = () => {
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                        {BADGES.map((badge, i) => (
+                        {BADGES.map((badge) => (
                             <div
-                                key={i}
+                                key={badge.name}
                                 className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 text-center flex flex-col items-center gap-3 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-pilas-gold/20 transition-all duration-300"
                             >
                                 <div className="w-14 h-14 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center text-3xl shadow-inner border border-white/10">

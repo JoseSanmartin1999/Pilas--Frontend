@@ -479,7 +479,7 @@ const Home = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           
           {/* Card 1: Búsqueda Inteligente */}
-          <div className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1">
+          <Link to="/beneficios" className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1 text-left block">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-pilas-blue flex items-center justify-center mb-6 font-bold text-xl group-hover:bg-pilas-blue group-hover:text-white transition-colors duration-300">
                 🔍
@@ -489,13 +489,13 @@ const Home = () => {
                 Encuentra al tutor ideal para ti filtrando por materias específicas, semestre (desde 4to semestre) y calificaciones reales del sistema.
               </p>
             </div>
-            <Link to="/buscar" className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
-              Buscar Tutor →
-            </Link>
-          </div>
+            <span className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
+              Ver Beneficios →
+            </span>
+          </Link>
 
           {/* Card 2: Monedero Virtual */}
-          <div className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1">
+          <Link to="/beneficios" className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1 text-left block">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-pilas-blue flex items-center justify-center mb-6 font-bold text-xl group-hover:bg-pilas-blue group-hover:text-white transition-colors duration-300">
                 🪙
@@ -505,13 +505,13 @@ const Home = () => {
                 Gana monedas virtuales participando activamente. Intercambia ESPE-Coins en la tienda por increíbles recompensas y sorteos.
               </p>
             </div>
-            <Link to="/recompensas" className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
+            <span className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
               Ver Recompensas →
-            </Link>
-          </div>
+            </span>
+          </Link>
 
           {/* Card 3: Chat Integrado */}
-          <div className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1">
+          <Link to="/beneficios" className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1 text-left block">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-pilas-blue flex items-center justify-center mb-6 font-bold text-xl group-hover:bg-pilas-blue group-hover:text-white transition-colors duration-300">
                 💬
@@ -521,13 +521,13 @@ const Home = () => {
                 Comunícate de forma ágil y segura. Discute objetivos, coordina encuentros y comparte guías directamente en nuestra plataforma.
               </p>
             </div>
-            <Link to="/mensajes" className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
-              Ir a Mensajes →
-            </Link>
-          </div>
+            <span className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
+              Ver Chat y Canales →
+            </span>
+          </Link>
 
           {/* Card 4: Seguridad y Confianza */}
-          <div className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1">
+          <Link to="/terminos" className="bg-white rounded-3xl border border-gray-150 p-8 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 group flex flex-col justify-between hover:-translate-y-1 text-left block">
             <div>
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-pilas-blue flex items-center justify-center mb-6 font-bold text-xl group-hover:bg-pilas-blue group-hover:text-white transition-colors duration-300">
                 🔒
@@ -537,10 +537,10 @@ const Home = () => {
                 Acceso restringido y validado a través de credenciales institucionales de la ESPE, promoviendo una comunidad académica de confianza.
               </p>
             </div>
-            <Link to="/terminos" className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
+            <span className="text-[10px] font-black text-pilas-blue mt-6 block uppercase tracking-wider group-hover:translate-x-1.5 transition-transform text-left">
               Políticas de Seguridad →
-            </Link>
-          </div>
+            </span>
+          </Link>
 
         </div>
       </section>
